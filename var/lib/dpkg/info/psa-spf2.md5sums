@@ -1,0 +1,8 @@
+600d2455881c5b0988b276e0b7650794  usr/bin/spf_example
+408a9c820f5da84a847cbf9d43e5e57a  usr/bin/spf_example_static
+acb926f1d80d01edab780427d97aac2a  usr/bin/spfd
+adf0620a8c53b64eab82365ec6bd99ed  usr/bin/spfd_static
+a45398169e00f84eed0403075d767b99  usr/bin/spfquery_static
+4e7dfd2ccede53df0e14fec57067d7c5  usr/bin/spftest
+1442bdccaaa2cfb794cb4fa152e16811  usr/bin/spftest_static
+e1727113e91947932021eb966647da23  usr/lib/libspf2.so.2.1.0

@@ -1,0 +1,16 @@
+/.
+/usr
+/usr/share
+/usr/share/lintian
+/usr/share/lintian/overrides
+/usr/share/lintian/overrides/apache2-mpm-prefork
+/usr/share/doc
+/usr/share/bug
+/usr/share/bug/apache2-mpm-prefork
+/usr/sbin
+/usr/lib
+/usr/lib/apache2
+/usr/lib/apache2/mpm-prefork
+/usr/share/doc/apache2-mpm-prefork
+/usr/share/bug/apache2-mpm-prefork/script
+/usr/sbin/apache2

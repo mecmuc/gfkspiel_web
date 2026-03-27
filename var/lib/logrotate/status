@@ -1,0 +1,16 @@
+logrotate state -- version 2
+"/var/log/dpkg.log" 2021-5-11
+"/var/log/apt/term.log" 2021-5-11
+"/var/log/mysql/mysql-slow.log" 2024-10-3
+"/var/log/apt/history.log" 2021-5-11
+"/var/log/mysql/error.log" 2024-10-3
+"/var/log/alternatives.log" 2021-5-11
+"/var/log/mysql.log" 2024-10-3
+"/var/log/aptitude" 2017-7-21
+"/var/log/apache2/access.log" 2013-4-14
+"/var/log/wtmp" 2024-10-1
+"/var/log/btmp" 2024-10-1
+"/var/log/mysql/mysql.log" 2024-10-3
+"/var/log/upstart/*.log" 2024-10-3
+"/var/log/apache2/other_vhosts_access.log" 2024-8-4
+"/var/log/apache2/error.log" 2024-8-4

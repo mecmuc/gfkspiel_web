@@ -1,0 +1,57 @@
+Package: pp-sitebuilder
+Version: 11.0.10-38713.12081600
+Architecture: all
+Maintainer: Parallels <info@parallels.com>
+Installed-Size: 217648
+Depends: plesk-core (>= 10.3.0), pp-sitebuilder-skins, pp-sitebuilder-default-templates
+Filename: ../../SITEBUILDER_11.0.10/dist-deb-Debian-all-all/base/pp-sitebuilder_11.0.10-38713.12081600_all.deb
+Size: 171665358
+MD5sum: 2ec75eab82ae5d6cfc6a20e568b2330a
+SHA1: 854d0cd3443bc7b48116a44e16d5b94e362147d8
+SHA256: f3702b485455784f381476ea342b660f99078a666486a54492e57601345fba6c
+Section: non-free/net
+Priority: extra
+Description: Parallels SiteBuilder
+ SiteBuilder is a next generation, browser-based WYSIWYG application for creating and editing websites
+ With over 60 pre-build website templates, SiteBuilder provides the ability to easily create design,
+ select structure, edit/add content, define parameters and publish website directly to a customer's
+ server. SiteBuilder delivers seamless integration with Parallels Plesk Panel and can be used as a
+ standalone product.
+
+Package: pp-sitebuilder-default-templates
+Version: 11.0.10-38713.12081600
+Architecture: all
+Maintainer: Parallels <info@parallels.com>
+Installed-Size: 3756
+Filename: ../../SITEBUILDER_11.0.10/dist-deb-Debian-all-all/base/pp-sitebuilder-default-templates_11.0.10-38713.12081600_all.deb
+Size: 582486
+MD5sum: fd52793fefa8ffed7610cbabe719b00f
+SHA1: 9b952ba65fc7c4d1d2b5d76de79a50010839b0b3
+SHA256: d36a34e24efa672594fac9399609b6ef77d2c32357a02df16204fc63bb22d5e9
+Section: non-free/net
+Priority: extra
+Description: Parallels SiteBuilder design templates
+ SiteBuilder is a next generation, browser-based WYSIWYG application for creating and editing websites
+ With over 60 pre-build website templates, SiteBuilder provides the ability to easily create design,
+ select structure, edit/add content, define parameters and publish website directly to a customer's
+ server. SiteBuilder delivers seamless integration with Parallels Plesk Panel and can be used as a
+ standalone product.
+
+Package: pp-sitebuilder-skins
+Version: 11.0.10-38713.12081600
+Architecture: all
+Maintainer: Parallels <info@parallels.com>
+Installed-Size: 2840
+Filename: ../../SITEBUILDER_11.0.10/dist-deb-Debian-all-all/base/pp-sitebuilder-skins_11.0.10-38713.12081600_all.deb
+Size: 656954
+MD5sum: 45ab336444fa0fc385e99100ed6811e2
+SHA1: 74efcf9af8acd4b69993757a54e881461be2c3b3
+SHA256: c49e5452735ec65106430aae8c68baebac6a4608f5cc8f128e20b9e2a5ddde49
+Section: non-free/net
+Priority: extra
+Description: Parallels SiteBuilder skins
+ SiteBuilder is a next generation, browser-based WYSIWYG application for creating and editing websites
+ With over 60 pre-build website templates, SiteBuilder provides the ability to easily create design,
+ select structure, edit/add content, define parameters and publish website directly to a customer's
+ server. SiteBuilder delivers seamless integration with Parallels Plesk Panel and can be used as a
+

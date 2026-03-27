@@ -1,0 +1,4 @@
+/etc/wide-dhcpv6/dhcp6c.conf
+/etc/wide-dhcpv6/dhcp6c-script
+/etc/wide-dhcpv6/dhcp6c-ifupdown
+/etc/init.d/wide-dhcpv6-client

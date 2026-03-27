@@ -1,0 +1,17 @@
+#! /bin/sh
+
+set -e
+
+# mod_python.load renamed to python.load in 3.3.1-3
+if dpkg --compare-versions "$2" lt-nl "3.3.1-3"; then
+    # downgrading to < 3.3.1-3 -- we have to restore pseudo conffile
+    if [ ! -e /etc/apache2/mods-available/mod_python.load ]; then
+        echo "LoadModule python_module /usr/lib/apache2/modules/mod_python.so" > /etc/apache2/mods-available/mod_python.load
+    fi
+elif [ -e /etc/apache2/mods-available/mod_python.load ]; then
+    rm -f /etc/apache2/mods-available/mod_python.load
+fi
+
+
+
+exit 0

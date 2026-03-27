@@ -1,0 +1,33 @@
+Package: plesk-billing
+Version: 11.0.9-20120606.04
+Architecture: all
+Maintainer: Parallels <info@parallels.com>
+Installed-Size: 150484
+Pre-Depends: plesk-core (>= 11.0.9), sw-engine (>= 2.5), sw-sso (>= 2.12), plesk-billing-plugins (>= 10.13.0), curl
+Filename: ../../BILLING_11.0.9/dist-deb-Debian-all-all/packages/plesk-billing_11.0.9-20120606.04_all.deb
+Size: 45050252
+MD5sum: be7f53746ea7ecebb1266b649b83d99c
+SHA1: 1e0297948e8a34184ffb605e24e9ad893cd0637f
+SHA256: 55eb79aa24f96dbbbd921d3809a51e7e851758be4dae23d048589be6ba12b9ac
+Section: non-free
+Priority: optional
+Description: Billing system
+ Automated billing software designed to handle web hosting billing.
+
+Package: sw-sso
+Version: 2.14.99-14070412
+Architecture: all
+Maintainer: Parallels, Inc. <info@parallels.com>
+Installed-Size: 2636
+Depends: logrotate, sw-cp-server, sw-engine, libsqlite3-0 (>= 3.0.0), sqlite3 (>= 3.0.0), openssl
+Filename: ../../BILLING_11.0.9/dist-deb-Debian-all-all/packages/sw-sso_2.14.99-14070412_all.deb
+Size: 767008
+MD5sum: 738a0788193b54cd11002b216666396a
+SHA1: 0e92ee9b73cb77a43d83d2a3c68a3a28c5975d02
+SHA256: 1bb4556b8b9c3f7add5e40044eb5fabdbbb5b00206bd5f33b81be7508ff64d8a
+Section: misc
+Priority: extra
+Description: Parallels Single Sign-On implementation
+ Single Sign-On allows users to log in once and walk between participating applications
+ without logging in each. Even for applications hosted on different domains.
+

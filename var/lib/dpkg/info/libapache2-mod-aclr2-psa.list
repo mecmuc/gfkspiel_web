@@ -1,0 +1,11 @@
+/.
+/etc
+/etc/apache2
+/etc/apache2/mods-available
+/usr
+/usr/lib
+/usr/lib/apache2
+/usr/lib/apache2/modules
+/etc/apache2/mods-available/aclr.load
+/etc/apache2/mods-available/aclr.conf
+/usr/lib/apache2/modules/mod_aclr.so

@@ -1,0 +1,17 @@
+7cb32ac2f3fa389b55fe84003440a671  bin/fuser
+6b5fb20115c9f839ff171e7e93db6126  usr/bin/killall
+160089203fdc4603511d9398e7b74c8a  usr/bin/peekfd
+1eb7d8169e37a12ea9ce54712ad2b55d  usr/bin/prtstat
+cc49a3c6c3c83c3ebf680c8567322ba4  usr/bin/pstree
+b51429ea1406742a6c307e0eda908137  usr/share/doc/psmisc/README
+bc808361f5cc6c18ae664a77da8cbc88  usr/share/doc/psmisc/README.Debian
+3ab42e9099ab78ae4109ce601a4a59fb  usr/share/doc/psmisc/changelog.Debian.gz
+0c8469242bdb63b4985e67a217f13ea0  usr/share/doc/psmisc/copyright
+ff175600328216ef970821d9f83f655a  usr/share/man/man1/fuser.1.gz
+d536fa5e40de5b2c93b7673bb95a28e6  usr/share/man/man1/killall.1.gz
+7f8ffe46a0aaedb3425f9dcf9125fe75  usr/share/man/man1/peekfd.1.gz
+00b0c21567ca5539ee1f9e1e4d10bd20  usr/share/man/man1/prtstat.1.gz
+18dcb045a0b03875b2007f1e457fd86d  usr/share/man/man1/pstree.1.gz
+fceb90fc9da964c463cb7d41bced5f0e  usr/share/menu/psmisc
+7abcd43d960e7597cdb6dc0dab6c6ddc  usr/share/pixmaps/pstree16.xpm
+0e64dc2b3b852b123f32f7b799225656  usr/share/pixmaps/pstree32.xpm

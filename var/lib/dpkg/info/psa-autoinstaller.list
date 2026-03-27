@@ -1,0 +1,10 @@
+/.
+/opt
+/opt/psa
+/opt/psa/bin
+/opt/psa/admin
+/opt/psa/admin/sbin
+/opt/psa/admin/bin
+/opt/psa/admin/sbin/autoinstaller
+/opt/psa/admin/bin/send-error-report
+/opt/psa/admin/bin/autoinstaller

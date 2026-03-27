@@ -1,0 +1,7 @@
+/etc/quotatab
+/etc/warnquota.conf
+/etc/init.d/quota
+/etc/init.d/quotarpc
+/etc/cron.daily/quota
+/etc/default/quota
+/etc/quotagrpadmins

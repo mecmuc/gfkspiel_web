@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_installinit
+if [ -x "/etc/init.d/wide-dhcpv6-client" ]; then
+	invoke-rc.d wide-dhcpv6-client stop || exit $?
+fi
+# End automatically added section

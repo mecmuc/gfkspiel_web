@@ -1,0 +1,3 @@
+/etc/init.d/pc-remote
+/etc/default/psa-pc-remote
+/etc/rsyslog.d/plesk-mail.conf

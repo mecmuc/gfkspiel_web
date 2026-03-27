@@ -1,0 +1,8 @@
+/etc/xinetd.d/daytime
+/etc/xinetd.d/chargen
+/etc/xinetd.d/echo
+/etc/xinetd.d/discard
+/etc/xinetd.d/time
+/etc/init/xinetd.conf
+/etc/default/xinetd
+/etc/xinetd.conf

@@ -1,0 +1,2 @@
+php5-cli 	 /etc/php5/cli/php.ini
+php5-cgi 	 /etc/php5/cgi/php.ini

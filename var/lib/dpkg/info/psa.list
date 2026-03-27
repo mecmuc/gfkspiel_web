@@ -1,0 +1,10 @@
+/.
+/opt
+/opt/psa
+/opt/psa/admin
+/opt/psa/admin/auto_prepend
+/opt/psa/PMM
+/opt/psa/admin/auto_prepend/auth.php3
+/opt/psa/admin/auto_prepend/sdk.php
+/opt/psa/PMM/plesk.xsd
+/opt/psa/PMM/restore-specification.xsd

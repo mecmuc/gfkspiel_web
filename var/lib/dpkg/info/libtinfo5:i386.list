@@ -1,0 +1,15 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/libtinfo5
+/usr/lib
+/usr/lib/i386-linux-gnu
+/lib
+/lib/i386-linux-gnu
+/usr/share/doc/libtinfo5/copyright
+/usr/share/doc/libtinfo5/changelog.Debian.gz
+/usr/lib/i386-linux-gnu/libtic.so.5.9
+/lib/i386-linux-gnu/libtinfo.so.5.9
+/usr/lib/i386-linux-gnu/libtic.so.5
+/lib/i386-linux-gnu/libtinfo.so.5

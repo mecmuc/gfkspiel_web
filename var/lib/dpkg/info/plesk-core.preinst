@@ -1,0 +1,6184 @@
+#!/bin/sh
+#!/bin/sh
+#
+# Copyright (c) 1999-2008 Parallels
+# All rights reserved
+#
+
+#
+# Plesk script
+#
+
+
+# Migration manager tables will be managed by plesk
+migrate_pmm_management_db_into_core_1011()
+{
+	if ! db_test_table "PMM" || ! db_test_table "PMMDefault"; then
+		$mysql < ${PRODUCT_BOOTSTRAPPER_DIR}/db/pmm_db.sql
+		[ "$?" = "0" ] || die "install PMM tables during upgrade"
+	fi
+}
+
+#admin
+
+set_admin_params()
+{
+
+	ADMIN_ROOT=$PRODUCT_ROOT_D/admin
+
+	UTILS_DIR=$ADMIN_ROOT/bin
+
+	admin_user="${product}adm"
+	admin_UID=8444
+	admin_group="${product}adm"
+	admin_GID=8444
+
+	admin_httpsd_conf="$ADMIN_ROOT/conf/httpsd.conf"
+	ADMIN_CERT="$ADMIN_ROOT/conf/httpsd.pem"
+
+	admin_pid_file=$ADMIN_ROOT/logs/httpsd.pid
+	admin_lock_file=$ADMIN_ROOT/logs/httpsd.lock
+
+	define_start_script
+}
+
+lock_keyupdate()
+{
+	export PLESK_KEYUPDATE_DISABLED=installation
+}
+set_apache_params()
+{
+	apache_user="www-data"
+	apache_UID=80
+	apache_group="www-data"
+	apache_GID=80
+
+	user_apxs="/usr/bin/apxs2"
+
+	set_apache_params_linux
+
+	apache_service="$apache_service_name"
+
+	apache_httpd_conf="$HTTPD_CONF_D/httpd.conf"
+	apache_httpd_conf2="$HTTPD_CONF_D/apache2.conf"
+	apache_httpd_conf_in="$HTTPD_CONF_D/httpd.conf.in"
+
+	apache_httpd_include="$HTTPD_INCLUDE_D/zz010_psa_httpd.conf"
+
+	APACHE_CERT="$HTTPD_CONF_D/httpd.pem"
+	APACHE_ROOT="/usr"
+
+	min_suexec_UID=10000
+	max_suexec_UID=16000
+	min_suexec_GID=$min_suexec_UID
+	max_suexec_GID=$max_suexec_UID
+
+	suexec_storage=/opt/psa/suexec
+	suexec=/usr/lib/apache2/suexec
+	suexec_dir=/usr/lib/apache2
+	suexec_file=suexec
+
+	rpm_httpd_bin=/usr/sbin/httpd
+}
+
+set_apache_params_linux()
+{
+	apache_pid_file="$APACHE_ROOT/logs/httpd.pid"
+	apache_lock_file="$APACHE_ROOT/logs/httpd.lock"
+	product_lock_file="$HTTPD_CONF_D/cnf.lock"
+	apache_service_name="apache2"
+
+	apache_modules_d="/usr/lib/apache2/modules"
+}
+
+# mode: shell-script
+
+remove_tmp_state()
+{
+	if [ -d "/tmp/.state" ]; then
+		rm -Rf "/tmp/.state" >> $product_log 2>&1
+	fi
+}
+
+set_apache_accounts()
+{
+    p_echo " Checking for the system groups and users necessary for Apache..."
+
+    case "$machine" in
+      Darwin)
+        group_op "$apache_group" "$apache_GID" false
+        user_op "$apache_user" "$apache_UID" "$apache_group" "Apache server" "$dummy_home" "$dummy_shell" false
+      ;;
+      *)
+        group_op "$apache_group" "$apache_GID" false
+        user_op "$apache_user" "$apache_UID" "$apache_group" "Apache server" "$dummy_home" "$dummy_shell" false
+      ;;
+    esac
+}
+
+true apache_status_linux_debian apache_stop_BSD
+
+apache_status_linux_debian()
+{
+	get_pid "/usr/sbin/apache2" false
+	local pid=$common_var
+	if test "$pid" -ne 1; then
+# running
+		return 0
+	fi
+	return 1
+}
+
+apache_stop_BSD()
+{
+	local apache_script
+
+	if [ "$std_to_pkg" -ne 0 ]; then
+		apache_script="$PRODUCT_ROOT_D/rc.d/httpd"
+	else
+		apache_script="$PRODUCT_RC_D/$apache_service_name"
+	fi
+
+	$apache_script stop 2>/dev/null
+}
+api_rpc_create_persistent_tables()
+{
+	inten="create persistent database storage"
+	echo_try $inten
+	$mysql < $PRODUCT_BOOTSTRAPPER_DIR/db/api-rpc/api-rpc_db.sql
+
+	if [ "X$?" = "X0" ]; then
+		suc
+	else
+		warn "database initialization"
+	fi
+}
+
+#
+# Upgrade triggers should be clever enough to recognize necessity of upgrade
+#
+upgrade_api_75()
+{
+	if db_test_table secret_keys; then
+		# secret_keys was created - at least 8.0 version
+		return
+	fi
+
+	$mysql < $PRODUCT_BOOTSTRAPPER_DIR/db/api-rpc/api-rpc_db_upgrade_750.sql
+}
+
+upgrade_api_800()
+{
+	if db_test_column_enum_value exp_event event_type exceeded; then
+		# 'exceeded' was added in 8.0.1
+		return
+	fi
+
+	$mysql < $PRODUCT_BOOTSTRAPPER_DIR/db/api-rpc/api-rpc_db_upgrade_800.sql
+}
+
+upgrade_api_801()
+{
+	if db_test_column_enum_value exp_event obj_class domain_alias; then
+		# domain_alias was added in 8.0.1 update
+		return
+	fi
+
+	$mysql < $PRODUCT_BOOTSTRAPPER_DIR/db/api-rpc/api-rpc_db_upgrade_801.sql
+}
+
+upgrade_api_830()
+{
+  $mysql < $PRODUCT_BOOTSTRAPPER_DIR/db/api-rpc/api-rpc_db_upgrade_830.sql
+}
+
+upgrade_api_840()
+{
+  $mysql < $PRODUCT_BOOTSTRAPPER_DIR/db/api-rpc/api-rpc_db_upgrade_840.sql
+}
+
+upgrade_api_860()
+{
+  $mysql < $PRODUCT_BOOTSTRAPPER_DIR/db/api-rpc/api-rpc_db_upgrade_860.sql
+}
+
+#
+# End of upgrade triggers
+#
+
+api_rpc_upgrade_persistent_tables()
+{
+	inten="upgrade persistent database storage"
+	echo_try $inten
+
+	# As we don't know previous version of the package (for all packaging systems)
+	# all available database upgrade scripts should be executed.
+	upgrade_api_75 && 	upgrade_api_800 && 	upgrade_api_801 &&     upgrade_api_830 &&     upgrade_api_840 &&     upgrade_api_860
+
+	if [ "X$?" = "X0" ]; then
+		suc
+	else
+		warn "database upgrade"
+	fi
+}
+
+read_apsc_connection_param_db()
+{
+	local param="$1"
+	db_select "SELECT val FROM misc WHERE param like 'aps_$param'"
+	echo "$db_select_output"
+}
+
+read_apsc_connection_params_db()
+{
+	# Warning : password can be encrypted.
+	apsc_db_name=`read_apsc_connection_param_db "database"`
+	apsc_db_user=`read_apsc_connection_param_db "login"`
+	apsc_db_passwd=`read_apsc_connection_param_db "password"`
+	apsc_db_host=`read_apsc_connection_param_db "host"`
+}
+
+check_apsc_installed()
+{
+	local db_name=`read_apsc_connection_param_db "database"`
+
+	[ -n "$db_name" ] || return 1
+	db_test_database "$db_name"
+}
+
+
+#awstats
+
+set_awstats_params()
+{
+	AWSTATS_ROOT_D="$PRODUCT_ROOT_D/awstats"
+}
+# Backup manager tables will be managed by plesk
+
+migrate_backup_management_db_into_core_1011()
+{
+# Remove backupmng from root crontab. Will be moved to system /etc/cron.d
+	remove_from_crontab "$PRODUCT_ROOT_D/admin/sbin/backupmng"
+
+	if ! db_test_table "BackupsScheduled"; then
+# Perform installation of backup manager schema
+		$mysql < ${PRODUCT_BOOTSTRAPPER_DIR}/db/pbm_db.sql
+		[ "$?" = "0" ] || die "install backup manager tables during upgrade"
+	else
+# Perform upgrade of backup manager schema
+		upgrade_pbm_80
+		upgrade_pbm_801
+		upgrade_pbm_900
+	fi
+# preserve number of simultaneously running backups
+	db_select "SELECT val FROM misc WHERE param='max_bu_proc_number'"
+	[ -n "$db_select_output" ] || 		db_do "INSERT INTO misc VALUES('max_bu_proc_number', 10)"
+
+# remove BackupsRunning
+	db_fix_drop_table "BackupsRunning"
+}
+
+upgrade_pbm_80()
+{
+	if db_test_column BackupsScheduled repository; then
+		# repository appeared in 8.1
+		return
+	fi
+
+	$mysql < ${PRODUCT_BOOTSTRAPPER_DIR}/db/pbm_db_upgrade_80.sql
+}
+
+upgrade_pbm_801()
+{
+	if db_test_column BackupsScheduled split_size; then
+		# split_size appeared in 8.1
+		return
+	fi
+
+	$mysql < ${PRODUCT_BOOTSTRAPPER_DIR}/db/pbm_db_upgrade_801.sql
+}
+
+upgrade_pbm_900()
+{
+	if db_test_column_enum_value BackupsScheduled obj_type reseller; then
+		# resseller type appeared in 9.0
+		return
+	fi
+
+	$mysql < ${PRODUCT_BOOTSTRAPPER_DIR}/db/pbm_db_upgrade_900.sql
+}
+get_old_domain()
+{
+    if [ "X$domain" = "X" ]; then
+		get_config_parameters
+    fi
+}
+
+stop_before_upgrade()
+{
+	$START_SH stop 2>/dev/null || /usr/bin/killall -9 httpsd >> $product_log 2>&1
+}
+
+
+#courier-imap
+
+set_courier_imap_params()
+{
+	COURIERIMAP_CONFDIR="/etc/courier-imap"
+	IMAPD_CERT="/usr/share/courier-imap/imapd.pem"
+	POP3D_CERT="/usr/share/courier-imap/pop3d.pem"
+
+	courier_service="courier-imap"
+}
+
+remove_from_crontab()
+{
+	program=$1
+
+	echo_try "remove $program from crontab"
+
+	cron_file=`mktemp /tmp/cronXXXXXX`
+	$crontab -l 2>/dev/null | egrep -v "^[^#].*$program" > $cron_file
+	$crontab $cron_file
+
+	rm -f $cron_file
+	suc
+}
+
+insert_fullhostname()
+{
+#	replace FullHostName
+	inten="insert Hostname to the MySQL database"
+	echo_try $inten
+
+	query="select val from misc where param='FullHostName'"
+	tmp="`echo \"$query\" | mysql`"
+
+	if [ "X$tmp" = "X" ]; then
+		query="replace into misc (param,val) values('FullHostName','$fullhost')"
+		echo $query | mysql && suc || die $inten
+	fi
+
+	suc
+}
+
+
+update_mysql4_permissions()
+{
+	local query major_version
+
+	# determine mysql version (for 4.x there is additional set of permissions/privileges)
+	query="USE mysql; SHOW VARIABLES LIKE 'version';"
+	major_version=`echo "${query}" | mysql | sed -e 's/^version[ \t]\([0-9]*\)\..*$/\1/'`
+
+	if [ "X$major_version" != "X4" ]; then
+		# don't need to update permissions
+		return
+	fi
+
+	inten="update administrators permissions for MySQL 4"
+	echo_try $inten
+
+	query="	USE mysql;
+			UPDATE user SET Super_priv='Y', Create_tmp_table_priv='Y', Lock_tables_priv='Y', Execute_priv='Y', Repl_slave_priv='Y', Repl_client_priv='Y' WHERE User='admin';
+			FLUSH PRIVILEGES;"
+	echo $query | mysql || warn "$inten"
+
+	suc
+}
+
+# add_db_changes [--fix] version
+# Runs ${PRODNAME}_db_upgrade_${version}.sql
+# (with --fix, runs ${PRODNAME}_db_upgrade_${version}_fix.sql)
+add_db_changes()
+{
+	if [ "$db_fix_check_stage" = "yes" ]; then
+		return
+	fi
+
+	local inten upgrade_db_sql fix
+	fix=""
+	eval `sh_get_args '--fix) fix="_fix";;'`
+	inten="upgrade SQL database from $1"
+	upgrade_db_sql="$PRODUCT_BOOTSTRAPPER_DIR/db/${PRODNAME}_db_upgrade_${1}${fix}.sql"
+	mysql < $upgrade_db_sql >> "$product_log" 2>&1 || die "$inten"
+}
+
+# db_fix_add_column [--init def_value] table column type
+# Adds a column of the specified type to the table, optionally
+# initializing it with def_value, which is an SQL expression. If the
+# column already exists, does nothing
+db_fix_add_column()
+{
+	local def_value=""
+	eval `sh_get_args '--init) def_value="$2"; shift;;'`
+	local table="$1"
+	local column="$2"
+	local type="$3"
+
+	if [ "$db_fix_check_stage" = "yes" ]; then
+		if ! db_test "DESC $table" "\$1 == \"$column\""; then
+			if [ -z "$db_added_columns" ]; then
+				db_added_columns="$table.$column"
+			else
+				db_added_columns="$db_added_columns|$table.$column"
+			fi
+		fi
+		return
+	fi
+
+	local query="ALTER TABLE \`$table\` ADD \`$column\` $type"
+	if [ -n "$def_value" ]; then
+		query="$query; UPDATE \`$table\` SET \`$column\`=$def_value"
+	fi
+	db_do_if_not "DESC $table" "\$1 == \"$column\"" "$query"
+}
+
+# db_fix_change_column [--init def_value] table column type
+# Changes a column of the specified type to the table, optionally
+# initializing it with def_value, which is an SQL expression.
+# Changes a column from the table if it exists
+db_fix_change_column()
+{
+	if [ "$db_fix_check_stage" = "yes" ]; then
+		return
+	fi
+
+	local def_value=""
+	eval `sh_get_args '--init) def_value="$2"; shift;;'`
+	local table="$1"
+	local old_column="$2"
+	local new_column="$3"
+	local type="$4"
+
+	local query="ALTER TABLE \`$table\` CHANGE \`$old_column\` \`$new_column\` $type"
+	if [ -n "$def_value" ]; then
+		query="$query; UPDATE \`$table\` SET \`$new_column\`=$def_value"
+	fi
+	db_do_if "DESC \`$table\`" "\$1 == \"$old_column\"" "$query"
+}
+
+# db_fix_del_column table column
+# Deletes a column from the table if it exists
+db_fix_del_column()
+{
+	if [ "$db_fix_check_stage" = "yes" ]; then
+		return
+	fi
+
+	local table="$1"
+	local column="$2"
+
+	db_do_if "DESC \`$table\`" "\$1 == \"$column\"" "ALTER TABLE \`$table\` DROP \`$column\`"
+}
+
+# db_fix_add_key table column [column ...]
+# Adds a non-unique [compound] key on the specified columns of the
+# table. If the key already exists, or there is another key that
+# substitutes this one, nothing is done. Existing keys that are
+# substituted by the new one are dropped
+db_fix_add_key()
+{
+	if [ "$db_fix_check_stage" = "yes" ]; then
+		return
+	fi
+
+	local table="$1"
+	local columns="$2"
+	shift 2
+	local i
+	for i; do
+		columns="$columns,\`$i\`"
+	done
+	local type name icolumns
+	local found=no
+	db_get_keys "$table" | (
+		while read type name icolumns; do
+			case "$icolumns" in
+				"$columns"|"$columns",*)
+					found=yes
+					break
+					;;
+			esac
+			case "$columns" in
+				"$icolumns",*)
+					if [ "$type" = "KEY" ]; then
+						db_do "ALTER TABLE \`$table\` DROP KEY \`$name\`"
+					fi
+					;;
+			esac
+		done
+		if [ "$found" = no ]; then
+			db_do "ALTER TABLE \`$table\` ADD KEY ($columns)"
+		fi
+		exit 0
+	)
+	local status="$?"
+	if [ "$status" -ne 0 ]; then
+		exit "$status"
+	fi
+}
+
+# db_fix_drop_table table_name
+db_fix_drop_table()
+{
+	local table_name
+	table_name="$1"
+
+	db_do "DROP TABLE IF EXISTS \`$table_name\`"
+}
+
+# db_test test_query awk_script
+# Runs test_query and processes it with awk_script. If the output is
+# not empty, return 0, otherwise return 1. Hint: supply '1' for
+# awk_script to test just for the presence of any output.
+db_test()
+{
+	local any_db=
+	eval `sh_get_args '--any-db) any_db=yes;;'`
+
+	local test_query="$1"
+	local awk_script="$2"
+
+	if [ -n "$any_db" ]; then
+		local output="`mysql_raw_anydb -e \"$test_query\" 2>>\"$product_log\"`"
+	else
+		local output="`mysql_raw -e \"$test_query\" 2>>\"$product_log\"`"
+	fi
+	local status=$?
+	if [ "$status" -ne 0 ]; then
+		p_echo "$output"
+		die "run the following SQL query: $1"
+	fi
+
+	echo -n "$output" | awk -F '\t' -- "$awk_script" | test `wc -l` -ne 0
+}
+
+# db_do [--inten <inten>] query
+# Runs query. If it fails, die
+# the inten string describes the query reason (to make finding the bug simpler)
+db_do()
+{
+	local desc="execute SQL query"
+	eval `sh_get_args '--inten) desc=" (to $2)"; shift;;'`
+	if [ "$db_fix_check_stage" = "yes" ]; then
+		return
+	fi
+
+	local query="$1"
+
+	mysql -e "$query" >>"$product_log" 2>&1 || die "$desc, the query was: $query"
+}
+
+# db_select <query>
+# runs <query> via mysql_raw
+# writes output to db_select_output
+# if query fails, output errors and return 1
+db_select()
+{
+	local desc="execute SQL query"
+	local query="$1"
+	local output="`mysql_raw -e \"$query\" 2>>\"$product_log\"`"
+	local status="$?"
+	if [ "$status" -ne "0" ]; then
+		p_echo "$output"
+		die "run the following SQL query: $query"
+	fi
+
+	db_select_output="$output"
+	return 0
+}
+
+# db_do_if test_query awk_script query
+# If db_test test_query awk_script returns zero (true), run the query.
+# If any query fails, die
+db_do_if()
+{
+	if [ "$db_fix_check_stage" = "yes" ]; then
+		return
+	fi
+
+	local test_query="$1"
+	local awk_script="$2"
+	local query="$3"
+
+	if db_test "$test_query" "$awk_script"; then
+		db_do "$query"
+	fi
+}
+
+# db_do_if_not test_query awk_script query
+# If db_test test_query awk_script returns nonzero (false), run the
+# query. If any query fails, die
+db_do_if_not()
+{
+	if [ "$db_fix_check_stage" = "yes" ]; then
+		return
+	fi
+
+	local test_query="$1"
+	local awk_script="$2"
+	local query="$3"
+
+	if ! db_test "$test_query" "$awk_script"; then
+		db_do "$query"
+	fi
+}
+
+# db_get_keys table
+# Outputs the list of keys for a table, one on a row, in the following format:
+# name type columns
+# Where type is one of PRIMARY, UNIQUE, and KEY, name is always
+# PRIMARY for primary keys, and columns is a comma-separated list of
+# columns without embedded spaces. All backtick characters are removed
+db_get_keys()
+{
+	local table="$1"
+	local query="SHOW CREATE TABLE \`$table\`"
+	local output="`mysql_raw -e "$query"`"
+	local status=$?
+	if [ "$status" -ne 0 ]; then
+		p_echo "$output"
+		die "run the following SQL query: $1"
+	fi
+
+	echo "$output" | awk '
+		$1 == "PRIMARY"	{ print "PRIMARY", "PRIMARY", $3 }
+		$1 == "UNIQUE"	{ print "UNIQUE", $3, $4 }
+		$1 == "KEY"		{ print "KEY", $2, $3 }' | 		sed -e 's/[`()]//g' -e 's/,[[:space:]]*$//g'
+}
+
+# db_test_database database
+# Returns 0 if the database exists
+db_test_database()
+{
+	local database="$1"
+
+	local mysql_db_name="mysql"
+	db_test "SHOW DATABASES" "\$1 == \"$database\""
+}
+
+# db_test_table table
+# Returns 0 if the table exists
+db_test_table()
+{
+	local table="$1"
+
+	db_test "SHOW TABLES LIKE '$table'" 1
+}
+
+# db_test_column table column
+# Returns 0 if table.column exists
+db_test_column()
+{
+	local table="$1"
+	local column="$2"
+
+	db_test "DESC \`$table\`" "\$1 == \"$column\""
+}
+
+# db_test_column_enum_value <table> <column> <value awaited in enum>
+# Returns O if table.column contains value in enum description
+db_test_column_enum_value()
+{
+	local table="$1"
+	local column="$2"
+	local value="$3"
+
+	db_test "DESC \`$table\` \`$column\`" "/[\'\"]$value[\'\"]/ { print 1 }"
+}
+
+
+db_upgrade_ip_addresses_1010()
+{
+    db_fix_add_column IP_Addresses main "ENUM('true', 'false') NOT NULL DEFAULT 'false'"
+    db_fix_add_column IP_Addresses status "BIGINT UNSIGNED NOT NULL DEFAULT 0"
+}
+
+db_upgrade_dns_recs_t_1010()
+{
+    db_do_if_not         "SELECT id FROM dns_recs_t WHERE type IN ('AAAA', 'CNAME') AND host='ns.<domain>.'" 1         "REPLACE INTO dns_recs_t(displayHost, host, type, displayVal, val, time_stamp) VALUES('ns.<domain>.', 'ns.<domain>.', 'AAAA', '<ipv6>', '<ipv6>', NOW());"
+
+    db_do_if_not         "SELECT id FROM dns_recs_t WHERE type IN ('AAAA', 'CNAME') AND host='<domain>.'" 1         "REPLACE INTO dns_recs_t(displayHost, host, type, displayVal, val, time_stamp) VALUES('<domain>.', '<domain>.', 'AAAA', '<ipv6>', '<ipv6>', NOW()+1);"
+
+    db_do_if_not         "SELECT id FROM dns_recs_t WHERE type IN ('AAAA', 'CNAME') AND host='webmail.<domain>.'" 1         "REPLACE INTO dns_recs_t(displayHost, host, type, displayVal, val, time_stamp) VALUES('webmail.<domain>.', 'webmail.<domain>.', 'AAAA', '<ipv6>', '<ipv6>', NOW()+2);"
+
+    db_do_if_not         "SELECT id FROM dns_recs_t WHERE type IN ('AAAA', 'CNAME') AND host='mail.<domain>.'" 1         "REPLACE INTO dns_recs_t(displayHost, host, type, displayVal, val, time_stamp) VALUES('mail.<domain>.', 'mail.<domain>.', 'AAAA', '<ipv6>', '<ipv6>', NOW()+3);"
+
+    db_do_if_not         "SELECT id FROM dns_recs_t WHERE type IN ('A', 'CNAME') AND host='ipv4.<domain>.'" 1         "REPLACE INTO dns_recs_t(displayHost, host, type, displayVal, val, time_stamp) VALUES('ipv4.<domain>.', 'ipv4.<domain>.', 'A', '<ip>', '<ip>', NOW()+4);"
+
+    db_do_if_not         "SELECT id FROM dns_recs_t WHERE type IN ('AAAA', 'CNAME') AND host='ipv6.<domain>.'" 1         "REPLACE INTO dns_recs_t(displayHost, host, type, displayVal, val, time_stamp) VALUES('ipv6.<domain>.', 'ipv6.<domain>.', 'AAAA', '<ipv6>', '<ipv6>', NOW()+5);"
+}
+
+db_upgrade_domain_services_1010()
+{
+     db_fix_add_column DomainServices ipCollectionId "INT UNSIGNED"
+}
+
+db_upgrade_hosting_1010()
+{
+     db_fix_add_column hosting certificate_id "INT UNSIGNED DEFAULT 0"
+}
+
+db_upgrade_subdomains_1010()
+{
+     db_fix_add_column subdomains certificate_id "INT UNSIGNED DEFAULT 0"
+}
+
+db_upgrade_check_local_sso_is_used()
+{
+	# if sso is not installed locally - it is remote
+	[ -f /etc/sso/sso_config.ini ] || return 1
+
+	# if sso_server hostname matches full hostname of this machine - it is local
+	db_select "SELECT val FROM misc WHERE param like 'sso_server'"
+	local sso_hostname=`echo "$db_select_output" | sed -ne 's|.*://\([^:/]*\).*|\1|p'`
+	[ -n "$sso_hostname" ] || return 1
+	[ -n "$fullhost" ] || {
+		warn "Failed to determine whether SSO is local (full hostname not defined), assuming remote."
+		return 1
+	}
+	if [ "$sso_hostname" = "$fullhost" ]; then
+		return 0
+	fi
+
+	# check whether sso_server hostname resolves to one of our ip addresses
+	local ipv4_sso_addrs=""
+	local ipv6_sso_addrs=""
+	local host_query=""
+	host_query=`host -t A "$sso_hostname" 2>/dev/null`
+	if [ "$?" -eq 0 ]; then
+		ipv4_sso_addrs=`echo "$host_query" | awk '{ print $NF }'`
+	fi
+	host_query=`host -t AAAA "$sso_hostname" 2>/dev/null`
+	if [ "$?" -eq 0 ]; then
+		ipv6_sso_addrs=`echo "$host_query" | awk '{ print $NF }'`
+	fi
+
+	local sso_addrs_list=`echo $ipv4_sso_addrs $ipv6_sso_addrs $sso_hostname | 						  sed -e 's|\([^ ]*\)|"\1",|g' | 						  sed -e 's|^[ ,]*\(.*\)|\1|' | sed -e 's|\(.*\)[ ,]$|\1|'`
+	if [ -z "$sso_addrs_list" ]; then
+		sso_addrs_list="null"
+	fi
+	db_select "SELECT ip_address FROM IP_Addresses WHERE ip_address in ($sso_addrs_list)"
+	if [ -n "$db_select_output" ]; then
+		return 0
+	fi
+
+	# if it does not - sso is most probably remote
+	return 1
+}
+
+db_upgrade_sso_port_1010()
+{
+	db_upgrade_check_local_sso_is_used || return
+	db_do "UPDATE misc SET val=REPLACE(val, ':11443', ':8443') WHERE param like 'sso%'";
+	db_do "UPDATE misc SET val=REPLACE(val, ':11444', ':8443') WHERE param like 'sso%'";
+}
+
+db_optimize_configurations_table_1010()
+{
+    db_do "ALTER TABLE Configurations CHANGE objectId objectId INT UNSIGNED";
+    db_do_if_not "SHOW INDEX FROM Configurations" "\$3 == \"objectTypeAndId_index\"" "CREATE INDEX objectTypeAndId_index ON Configurations (objectType, objectId)"
+}
+
+db_cleanup_exp_event_1010()
+{
+	db_test_table "exp_event" || return
+	db_do "DELETE FROM exp_event WHERE obj_class=''"
+}
+
+db_upgrade_backups_scheduled_1011()
+{
+    db_fix_add_column BackupsScheduled content_type "ENUM('backup_content_all_at_domain', 'backup_content_vhost_only', 'backup_content_mail_only') DEFAULT 'backup_content_all_at_domain'"
+}
+
+db_upgrade_exp_event_obj_class_1011()
+{
+    db_fix_change_column "exp_event" "obj_class" "obj_class" "VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL"
+}
+
+db_upgrade_ssobranding_port_1011()
+{
+	db_upgrade_check_local_sso_is_used || return
+	db_do "UPDATE SSOBranding SET idp_url=REPLACE(idp_url, ':11444', ':8443')"
+}
+
+db_upgrade_resp_attach_1012()
+{
+    db_fix_change_column "resp_attach" "filename" "filename" "VARCHAR(245) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL"
+}
+
+db_upgrade_dns_reverse_ptr_ipv6_1012()
+{
+	db_do_if_not "SHOW INDEX FROM dns_recs" "\$3 == \"host\"" "CREATE INDEX host ON dns_recs (host)"
+
+	db_do_if_not 		"SELECT id FROM dns_recs_t WHERE type='PTR' AND host='<ipv6>'" 1 		"REPLACE INTO dns_recs_t(displayHost, host, type, displayVal, val, opt, time_stamp) VALUES('<ipv6>', '<ipv6>', 'PTR', '<domain>.', '<domain>.', 64, NOW())"
+}
+
+db_upgrade_upgrade_history_1012()
+{
+	db_fix_change_column "upgrade_history" "db_version" "db_version" "VARCHAR(50) CHARACTER SET ascii COLLATE ascii_bin NOT NULL"
+}
+db_upgrade_configurations_1013()
+{
+	db_fix_add_column "Configurations" "active" "enum('false', 'true') NOT NULL DEFAULT 'true'"
+}
+
+db_upgrade_secret_key_1013()
+{
+	db_fix_add_column "secret_keys" "client_id" "INT UNSIGNED NOT NULL DEFAULT 1"
+	db_do_if_not "SHOW INDEX FROM secret_keys" "\$3 == \"client_id\"" "ALTER TABLE secret_keys ADD INDEX (client_id)"
+}
+
+db_upgrade_sessions_1013()
+{
+	db_fix_add_column "sessions" "ip_dual_stack" "VARCHAR(39) CHARACTER SET ascii COLLATE ascii_general_ci"
+}
+db_add_ftp_sys_users()
+{
+    db_fix_add_column sys_users mapped_to "INT UNSIGNED"
+    db_do_if_not "SHOW INDEX FROM sys_users" "\$3 == \"mapped_to\"" "ALTER TABLE sys_users ADD INDEX (mapped_to)"
+}
+
+db_add_plans_schema()
+{
+    db_fix_add_column "clients" "vendor_id" "INT UNSIGNED"
+    db_do "UPDATE clients SET vendor_id = parent_id WHERE ISNULL(vendor_id) AND !ISNULL(parent_id)"
+
+    db_fix_add_column "domains" "vendor_id" "INT UNSIGNED"
+    db_do "UPDATE domains SET vendor_id = cl_id WHERE ISNULL(vendor_id)"
+
+    db_fix_del_column "Templates" "note_id"
+
+    db_fix_add_column "Templates" "owner_id" "INT UNSIGNED"
+    db_fix_add_column "Templates" "type" "ENUM('reseller', 'client', 'domain', 'domain_addon')"
+    db_fix_add_column "Templates" "uuid" "VARCHAR(36)"
+}
+
+db_add_webspaces()
+{
+# Add and populate www_root for domains
+	if ! db_test_column "hosting"  "www_root"; then
+		db_fix_add_column "hosting" "www_root" "TEXT CHARACTER SET ascii COLLATE ascii_bin NOT NULL"
+		db_do 'UPDATE hosting, domains SET hosting.www_root=CONCAT("'$HTTPD_VHOSTS_D'/", domains.name, "/httpdocs") WHERE hosting.dom_id=domains.id'
+	fi
+
+# Add and populate www_root for subdomains
+	db_fix_add_column "subdomains" "www_root" "TEXT CHARACTER SET ascii COLLATE ascii_bin NOT NULL"
+	db_do 'UPDATE subdomains, domains SET subdomains.www_root=CONCAT("'$HTTPD_VHOSTS_D'/", domains.name, "/subdomains/", subdomains.name, "/httpdocs") WHERE subdomains.dom_id=domains.id'
+
+# webspace_id for domains + index. 0 by default
+	db_fix_add_column "domains"	"webspace_id" "INT UNSIGNED NOT NULL DEFAULT 0"
+	db_do_if_not "SHOW INDEX FROM domains" "\$3 == \"webspace_id\"" "ALTER TABLE domains ADD INDEX (webspace_id)"
+
+# webspace_status, if status !=0 it will be 2
+	if ! db_test_column "domains" "webspace_status"; then
+		db_fix_add_column "domains" "webspace_status" "BIGINT UNSIGNED NOT NULL DEFAULT 0"
+		db_do "UPDATE domains SET webspace_status=status, status=2 WHERE status <> 0"
+	fi
+
+# Migrate 'native' users of subdomains to additional-ftp-accounts and drop 'sys_user_type' from subdomains
+	if db_test_column "subdomains" "sys_user_type"; then
+		sw_engine_pleskrun $PRODUCT_BOOTSTRAPPER_DIR/db/convert_sysusers_107.php "subdomains" && 		db_fix_del_column "subdomains" "sys_user_type" || warn "Cannot convert 'native' subdomain users to additional ftp accounts"
+	fi
+
+# Remove uniq(sys_user_id) from hosting
+	db_do_if "SHOW INDEX FROM hosting" "\$3 == \"sys_user_id\"" "ALTER TABLE hosting DROP INDEX sys_user_id"
+
+# Map all webuser's sysusers to main domain's ftp system users
+# and chown vhost's dir data are owned by webusers
+	sw_engine_pleskrun $PRODUCT_BOOTSTRAPPER_DIR/db/convert_sysusers_107.php "webusers" || warn "Cannot map webusers to domain ftp users"
+
+	db_fix_add_column "disk_usage" "www_root" "BIGINT UNSIGNED DEFAULT 0"
+}
+
+db_add_domain_permissions()
+{
+    db_fix_add_column "domains" "permissions_id" "INT UNSIGNED NOT NULL DEFAULT 0"
+}
+
+db_default_skin_107()
+{
+	echo_try "register default skin"
+	db_do "DELETE from Skins"
+	db_do "REPLACE INTO Skins (id, name, place) values (1, 'Default', 'default')"
+
+# Update client, domains, mailnames
+	db_do "UPDATE cl_param SET val=1 WHERE param='skin_id'"
+	db_do "UPDATE dom_param SET val=1 WHERE param='skin_id'"
+	db_do "UPDATE mn_param SET val=1 WHERE param='skin_id'"
+
+# Update misc
+	db_do "UPDATE misc SET val=1 WHERE param='admin_skin_id'"
+	db_do "UPDATE misc SET val=1 WHERE param='def_skin_id'"
+
+	suc
+}
+
+db_billing_integration_107()
+{
+	db_fix_drop_table "BillingCache"
+	db_fix_add_column "clients" "external_id" "VARCHAR(255) CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT ''"
+	db_fix_add_column "domains" "external_id" "VARCHAR(255) CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT ''"
+	db_fix_add_column "Templates" "external_id" "VARCHAR(255) CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT ''"
+}
+
+db_upgrade_hp_mail_107()
+{
+	db_fix_add_column "mail" "userId" "INT UNSIGNED NOT NULL DEFAULT 0"
+}
+
+db_update_sessions_107()
+{
+	echo_try "Update sessions"
+	db_do "DELETE from sessions"
+
+	db_fix_add_column "sessions" "modified" "INT UNSIGNED"
+	db_fix_add_column "sessions" "lifetime" "INT UNSIGNED"
+	db_fix_add_column "sessions" "data" "TEXT CHARACTER SET binary"
+
+	suc
+}
+
+db_migrate_sa_prefs_107()
+{
+	echo_try "Update SA preferences"
+
+	if ! db_test_column "spamfilter" "reject_spam"; then
+		pnnl_echo "already done"
+		return
+	fi
+
+	if ! sw_engine_pleskrun $PRODUCT_BOOTSTRAPPER_DIR/db/migrate_sa_prefs_107.php; then
+		die "Cannot migrate spamasassin preferences"
+	fi
+
+	db_fix_del_column "spamfilter" "reject_spam"
+	suc
+}
+db_change_domain_admins_length_108()
+{
+	db_fix_change_column "clients" "login" "login" "VARCHAR(255)"
+}
+
+db_subscription_limits_default_values_108()
+{
+        local subscription_id;
+        local limit_name="$1";
+        local limit_default_value="$2";
+        db_select "select d.id from domains d LEFT join Limits l on l.id = d.limits_id AND l.limit_name = '$limit_name' WHERE 0 = d.webspace_id AND l.value IS NULL";
+        for subscription_id in $db_select_output; do
+            db_do "INSERT INTO Limits (id, limit_name, value) SELECT d.limits_id, '$limit_name', $limit_default_value FROM domains d WHERE d.id=$subscription_id"
+            db_select "SELECT d.limits_id FROM domains d WHERE d.id=$subscription_id";
+            if [ "X${db_select_output}" = "X0" ]; then
+                db_do "UPDATE domains SET limits_id=last_insert_id() WHERE id=$subscription_id";
+            fi
+        done
+}
+
+db_upgrade_clients_idn_109()
+{
+    db_fix_change_column "clients" "login" "login" "VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL"
+}
+
+db_upgrade_custom_buttons_109()
+{
+    db_fix_add_column custom_buttons plan_item_name "VARCHAR(255) CHARACTER SET ascii COLLATE ascii_general_ci"
+}
+
+db_upgrade_maintenance_mode_109()
+{
+    db_fix_add_column hosting maintenance_mode "ENUM('false','true') NOT NULL DEFAULT 'false'"
+    db_fix_add_column subdomains maintenance_mode "ENUM('false','true') NOT NULL DEFAULT 'false'"
+}
+
+db_fix_bf1492_column_types_80()
+{
+	if db_test "SHOW TABLES" '$1 == "module_bf1942_servers"' 		&& db_test "DESCRIBE module_bf1942_servers" '$1 == "srv_bandwidth"'
+	then
+		db_do "ALTER TABLE module_bf1942_servers
+				MODIFY srv_bandwidth
+					ENUM('0', '8', '16', '32', '64', '128', '256', '512')
+					NOT NULL
+					DEFAULT '0'"
+	fi
+}
+
+db_fix_set_dns_recursion()
+{
+
+ db_do_if_not  "SELECT * FROM misc WHERE param = 'dns_recursion'" 1  "INSERT INTO misc(param, val) VALUES('dns_recursion', 'any')"
+}
+
+db_cleanup_zombie_domain_templates_80()
+{
+	db_select "SELECT tmpl_id FROM clients WHERE tmpl_id IS NOT NULL"
+
+	for tmpl_id in $db_select_output; do
+		db_select "SELECT rep.component_id
+					FROM Repository rep LEFT JOIN Templates t
+									ON t.id = rep.component_id
+					WHERE rep.rep_id = $tmpl_id AND t.id IS NULL"
+		for component_id in $db_select_output; do
+			db_do "DELETE FROM Repository
+					WHERE rep_id = $tmpl_id AND component_id = $component_id"
+		done
+	done
+}
+
+db_enable_spamfilter_on_mailnames_80()
+{
+	local mail_id
+
+	db_select "SELECT m.id FROM mail m, domains d, sa_conf c WHERE m.dom_id = d.id AND CONCAT(m.mail_name, '@', d.name) = c.mailname AND c.flt_enabled IN ('user', 'both')"
+	for mail_id in $db_select_output; do
+		db_do "UPDATE mail SET spamfilter = 'true' WHERE id = $mail_id"
+	done
+}
+
+db_drop_obsolete_spamfilter_tables_80()
+{
+	db_fix_drop_table sa_conf
+	db_fix_drop_table sa_list
+}
+
+db_set_drweb_management_permissions_80()
+{
+	local perm_id
+	local query
+
+	if ! db_test "SELECT * FROM Permissions WHERE permission='manage_virusfilter'" 1; then
+            query="SELECT perm_id FROM mail WHERE perm_id IS NOT NULL"
+	    db_select "$query"
+    	        for perm_id in $db_select_output; do
+    		    db_do_if_not "SELECT * from Permissions WHERE id = $perm_id AND permission = 'manage_drweb'" 1             	            "INSERT Permissions (id, permission, value) VALUES ($perm_id, 'manage_drweb', 'true')"
+		done
+
+
+		for query in 			"SELECT m.perm_id FROM mail m, dom_level_usrs d, Permissions p WHERE m.dom_id = d.dom_id AND d.perm_id = p.id AND p.permission = 'manage_drweb' AND p.value = 'false'" 			"SELECT m.perm_id FROM mail m, domains d, clients c, Permissions p WHERE m.dom_id = d.id AND d.cl_id = c.id AND c.perm_id = p.id AND p.permission = 'manage_drweb' AND p.value = 'false'"
+		do
+			db_select "$query"
+			for perm_id in $db_select_output; do
+				db_do "UPDATE Permissions SET value = 'false' WHERE permission = 'manage_drweb' AND id = $perm_id"
+			done
+		done
+	fi	
+}
+
+db_max_dom_alias_init_80()
+{
+	
+        local limits_id
+        local query
+
+        query="SELECT limits_id FROM clients WHERE limits_id IS NOT NULL"
+        db_select "$query"
+        for limits_id in $db_select_output; do
+            db_do_if_not "SELECT * from Limits WHERE id = $limits_id AND limit_name = 'max_doman_alises'" 1                         "INSERT INTO Limits(id, limit_name, value) VALUES ($limits_id, 'max_doman_alises', -1 )"
+        done
+
+        query="SELECT limits_id FROM domains WHERE limits_id IS NOT NULL"
+        db_select "$query"
+        for limits_id in $db_select_output; do
+            db_do_if_not "SELECT * from Limits WHERE id = $limits_id AND limit_name = 'max_doman_alises'" 1                         "INSERT INTO Limits(id, limit_name, value) VALUES ($limits_id, 'max_doman_alises', -1 )"
+        done
+}
+
+db_replace_make_dumps_permission_80()
+{
+        local perm_id
+	local query
+	
+	query="SELECT id FROM Permissions where permission = 'make_dumps' AND value = 'true'"
+	db_select "$query"
+	for perm_id in $db_select_output; do
+		db_do "REPLACE INTO Permissions(id, permission, value) VALUES ($perm_id, 'allow_local_backups', 'true')"
+		db_do "REPLACE INTO Permissions(id, permission, value) VALUES ($perm_id, 'allow_ftp_backups', 'true')"
+	done
+	
+	query="SELECT id FROM Permissions where permission = 'make_dumps' AND value = 'false'"
+	db_select "$query"
+	for perm_id in $db_select_output; do
+		db_do "REPLACE INTO Permissions(id, permission, value) VALUES ($perm_id, 'allow_local_backups', 'false')"
+		db_do "REPLACE INTO Permissions(id, permission, value) VALUES ($perm_id, 'allow_ftp_backups', 'false')"
+	done	
+	
+	db_do "DELETE FROM Permissions WHERE permission = 'make_dumps'"
+	
+}
+
+db_fastcgi_support_80()
+{
+	db_fix_add_column hosting fastcgi "ENUM('false','true') NOT NULL DEFAULT 'false'" 
+	db_fix_add_column subdomains fastcgi "ENUM('false','true') NOT NULL DEFAULT 'false'"
+	db_fix_add_column web_users fastcgi "ENUM('false','true') NOT NULL DEFAULT 'false'"
+}
+
+db_migrate_spamfilter_configuration_80()
+{
+	# Migrate sa_conf and sa_list tables 
+	if db_test_table sa_conf && db_test_table sa_list; then
+		db_do "INSERT INTO spamfilter (username, preferences, reject_spam) VALUES ('*@*', 'true', 'false')"
+
+		db_do "INSERT INTO spamfilter (username, preferences, reject_spam) 
+			SELECT CONCAT(m.mail_name, '@', d.name), 'true', IF(c.spam_action = 'delete', 'true', 'false') 
+			FROM mail m INNER JOIN domains d ON m.dom_id = d.id 
+			LEFT JOIN sa_conf c ON CONCAT(m.mail_name, '@', d.name) = c.mailname"
+
+		db_do "INSERT INTO spamfilter_preferences (spamfilter_id, preference, value) SELECT sf.id, 'required_score', IFNULL(c.hits_required, '7.00') 
+			FROM spamfilter sf LEFT JOIN sa_conf c ON sf.username = '*@*' AND c.mailname = '' OR sf.username = c.mailname"
+		db_do "INSERT INTO spamfilter_preferences (spamfilter_id, preference, value) SELECT sf.id, 'rewrite_header', CONCAT('subject ', IFNULL(c.rw_subject_tag, '*****SPAM*****')) 
+			FROM spamfilter sf LEFT JOIN sa_conf c ON sf.username = '*@*' AND c.mailname = '' OR sf.username = c.mailname"
+		db_do "INSERT INTO spamfilter_preferences (spamfilter_id, preference, value) 
+			SELECT sf.id, CONCAT('un', sl.color, 'list_from'), ul.pattern FROM spamfilter sf, sa_list ul, sa_list sl 
+			WHERE sf.username = ul.mailname AND ul.pattern = sl.pattern AND ul.color IS NULL AND sl.color IN ('black', 'white') AND sl.mailname = ''"
+
+		db_do "INSERT INTO spamfilter_preferences (spamfilter_id, preference, value) 
+			SELECT sf.id, CONCAT(l.color, 'list_from'), l.pattern FROM spamfilter sf, sa_list l 
+			WHERE l.color IN ('black', 'white') AND (sf.username = '*@*' AND l.mailname = '' OR sf.username = l.mailname)"
+
+		db_do "REPLACE INTO misc (param, val) SELECT 'spamfilter_enabled', 
+			IF(flt_enabled IN ('user', 'serv', 'both'), 'true', 'false') FROM sa_conf WHERE mailname = ''"
+
+		db_do "REPLACE INTO misc (param, val) SELECT 'spamfilter_use_mailuser_prefs', 
+			IF(flt_enabled IN ('user', 'both'), 'true', 'false') FROM sa_conf WHERE mailname = ''"
+
+		db_do "REPLACE INTO misc (param, val) VALUES ('spamfilter_max_children', 5)"
+
+		db_do "INSERT Permissions (id, permission, value) SELECT perm_id, 'manage_spamfilter', 'true' FROM clients"
+		db_do "INSERT Permissions (id, permission, value) SELECT perm_id, 'manage_spamfilter', 'true' FROM dom_level_usrs"
+		db_do "INSERT Permissions (id, permission, value) SELECT perm_id, 'manage_spamfilter', 'true' FROM mail"
+
+		db_do "REPLACE Permissions (id, permission, value) SELECT m.perm_id, 'manage_spamfilter', 'false' FROM mail m, domains d, sa_list l 
+			WHERE m.dom_id = d.id AND l.mailname = '' AND l.color = 'gray' AND LOWER(CONCAT(m.mail_name, '@', d.name)) LIKE BINARY(LOWER(REPLACE(REPLACE(l.pattern, '*', '%'), '?', '_')))"
+	fi		
+}
+
+db_migrate_spamfilter_permissions_80()
+{
+        local perm_id
+        local query
+
+	query="SELECT perm_id FROM clients WHERE perm_id IS NOT NULL"
+	db_select "$query"
+	for perm_id in $db_select_output; do
+            db_do_if_not "SELECT * from Permissions WHERE id = $perm_id AND permission = 'manage_spamfilter'" 1 			"INSERT Permissions (id, permission, value) VALUES ($perm_id, 'manage_spamfilter', 'true')"
+        done
+
+        query="SELECT perm_id FROM dom_level_usrs WHERE perm_id IS NOT NULL"
+        db_select "$query"
+        for perm_id in $db_select_output; do
+            db_do_if_not "SELECT * from Permissions WHERE id = $perm_id AND permission = 'manage_spamfilter'" 1                         "INSERT Permissions (id, permission, value) VALUES ($perm_id, 'manage_spamfilter', 'true')"
+        done
+
+        query="SELECT perm_id FROM mail WHERE perm_id IS NOT NULL"
+        db_select "$query"
+        for perm_id in $db_select_output; do
+            db_do_if_not "SELECT * from Permissions WHERE id = $perm_id AND permission = 'manage_spamfilter'" 1                         "INSERT Permissions (id, permission, value) VALUES ($perm_id, 'manage_spamfilter', 'true')"
+        done
+
+        if db_test_table sa_list; then
+		db_do "REPLACE Permissions (id, permission, value) SELECT m.perm_id, 'manage_spamfilter', 'false' FROM mail m, domains d, sa_list l
+			WHERE m.dom_id = d.id AND l.mailname = '' AND l.color = 'gray' 
+			AND LOWER(CONCAT(m.mail_name, '@', d.name)) LIKE BINARY(LOWER(REPLACE(REPLACE(l.pattern, '*', '%'), '?', '_')))"
+	fi
+
+}
+
+upgrade_db_80()
+{
+	add_db_changes 800
+        db_fastcgi_support_80
+	db_fix_add_column domainaliases tomcat "ENUM('false', 'true') NOT NULL DEFAULT 'false'"
+        db_fix_add_column mail spamfilter "ENUM('false','true') NOT NULL DEFAULT 'false' AFTER autoresponder"
+	
+	db_migrate_spamfilter_configuration_80
+	db_migrate_spamfilter_permissions_80
+
+	db_max_dom_alias_init_80
+
+	db_cleanup_zombie_domain_templates_80
+	db_enable_spamfilter_on_mailnames_80
+	db_drop_obsolete_spamfilter_tables_80
+	db_set_drweb_management_permissions_80
+	db_replace_make_dumps_permission_80
+}
+
+
+db_fix_add_miva_support_81()
+{
+    db_fix_add_column hosting miva                 "ENUM('false','true') NOT NULL DEFAULT 'false' AFTER fastcgi"
+
+    db_fix_add_column subdomains miva                 "ENUM('false','true') NOT NULL DEFAULT 'false'"
+}
+
+db_fix_change_antivirus_structure_81()
+{
+    #Add virusfilter column to mail table
+    db_fix_add_column mail virusfilter                  "ENUM('none','incoming', 'outgoing', 'any') NOT NULL DEFAULT 'none' AFTER spamfilter"
+		
+    #rename DrWeb permission		
+    db_do "UPDATE Permissions SET permission='manage_virusfilter'
+	    WHERE permission='manage_drweb'"
+	    
+    #Migrate DrWeb direction param to mail.virusfilter
+    db_fix_migrate_drweb_direction_81
+    
+    #set DrWeb as active virusfilter on server
+     db_do_if_not 	 "SELECT * FROM misc WHERE param = 'virusfilter'" 1 	 "INSERT INTO misc(param, val) VALUES('virusfilter', 'drweb')"
+    	    
+}
+
+db_fix_migrate_drweb_direction_81()
+{
+    
+        local mn_id
+        local query
+
+    # from -> outgoing
+        query="SELECT mn_id FROM mn_param WHERE param='drweb_direction' AND val='from'"
+	db_select "$query"
+        for mn_id in $db_select_output; do
+            db_do "UPDATE mail SET virusfilter = 'outgoing' WHERE id = $mn_id"
+        done
+    # to -> incoming
+        query="SELECT mn_id FROM mn_param WHERE param='drweb_direction' AND val='to'"
+	db_select "$query"
+        for mn_id in $db_select_output; do
+            db_do "UPDATE mail SET virusfilter = 'incoming' WHERE id = $mn_id"
+        done
+	
+    # any -> any
+        query="SELECT mn_id FROM mn_param WHERE param='drweb_direction' AND val='any'"
+	db_select "$query"
+        for mn_id in $db_select_output; do
+            db_do "UPDATE mail SET virusfilter = 'any' WHERE id = $mn_id"
+        done		
+	
+	db_do "DELETE FROM mn_param WHERE param='drweb_direction'"
+
+}
+
+db_fix_set_webstat_management_permissions_81()
+{
+	local perm_id
+	local query
+
+	for query in 		"SELECT c.perm_id FROM clients c LEFT JOIN Permissions p ON c.perm_id = p.id AND p.permission = 'manage_webstat' WHERE p.id IS NULL" 		"SELECT d.perm_id FROM dom_level_usrs d LEFT JOIN Permissions p ON d.perm_id = p.id AND p.permission = 'manage_webstat' WHERE p.id IS NULL"
+	do
+		db_select "$query"
+		for perm_id in $db_select_output; do
+			db_do "REPLACE INTO Permissions (id, permission, value) VALUES ($perm_id, 'manage_webstat', 'true')"
+		done
+	done
+}
+
+db_fix_add_dalias_dns_column_81()
+{
+    #add 'dns' column and set it to true if does not exists
+    if ! db_test_column domainaliases dns; then
+	db_fix_add_column domainaliases dns             "ENUM('false','true') NOT NULL DEFAULT 'false' AFTER displayName"
+	    
+	db_do "UPDATE domainaliases SET dns='true'"    
+    fi
+}
+
+db_fix_remove_make_dumps_permission_81()
+{
+    db_do "DELETE FROM Permissions WHERE permission = 'make_dumps'"
+}
+
+db_fix_update_hosting_services_81()
+{
+    local column
+    for column in             fp fp_ssl fp_enable             ssi php php_safe_mode             cgi perl python fastcgi             miva coldfusion             asp asp_dot_net             ssl at_domains same_ssl
+    do
+        db_test_column hosting "$column" &&             db_do "UPDATE hosting SET \`$column\` = 'false' WHERE \`$column\` = ''"
+    done
+}
+
+db_fix_81()
+{
+    add_db_changes --fix 810
+    db_fix_change_antivirus_structure_81
+    db_fix_add_miva_support_81
+    db_fix_set_webstat_management_permissions_81
+    db_fix_add_dalias_dns_column_81
+    db_fix_remove_make_dumps_permission_81
+	db_fix_update_hosting_services_81
+}
+
+db_fix_remove_unique_index_81()
+{
+# Bug 113259, unique index on CHARACTER SET utf8 COLLATE utf8_general_ci
+
+    db_do_if "SHOW INDEX FROM clients" "\$2 == \"0\" && \$3 == \"pname\"" "ALTER TABLE clients 
+	    DROP INDEX \`pname\`; 
+	    ALTER TABLE clients ADD INDEX (\`pname\`)"
+	    
+    db_do_if "SHOW INDEX FROM domains" "\$2 == \"0\" && \$3 == \"displayName\"" "ALTER TABLE domains 
+	    DROP INDEX \`displayName\`; 
+	    ALTER TABLE domains ADD INDEX (\`displayName\`)"	    
+    
+    db_do_if "SHOW INDEX FROM subdomains" "\$2 == \"0\" && \$3 == \"dom_id_2\"" "ALTER TABLE subdomains 
+	    DROP INDEX \`dom_id_2\`; 
+	    ALTER TABLE subdomains ADD INDEX \`dom_id_displayName\` (\`dom_id\`, \`displayName\`)"
+	    
+    db_do_if "SHOW INDEX FROM mass_mail" "\$2 == \"0\" && \$3 == \"name\"" "ALTER TABLE mass_mail 
+	    DROP INDEX \`name\`; 
+	    ALTER TABLE mass_mail ADD INDEX (\`name\`)"	    
+	    
+    db_do_if "SHOW INDEX FROM mail_resp" "\$2 == \"0\" && \$3 == \"mn_id\"" "ALTER TABLE mail_resp 
+	    DROP INDEX \`mn_id\`; 
+	    ALTER TABLE mail_resp ADD INDEX \`mn_id_resp_name\` (\`mn_id\`, \`resp_name\`)"	    
+	    
+    db_do_if "SHOW INDEX FROM badmailfrom" "\$2 == \"0\" && \$3 == \"domain\"" "ALTER TABLE badmailfrom 
+	    DROP INDEX \`domain\`; 
+	    ALTER TABLE badmailfrom ADD INDEX (\`domain\`)"	    
+	    
+    db_do_if "SHOW INDEX FROM DatabaseServers" "\$2 == \"0\" && \$3 == \"host\"" "ALTER TABLE DatabaseServers 
+	    DROP INDEX \`host\`; 
+	    ALTER TABLE DatabaseServers ADD INDEX \`host_port\` (\`host\`, \`port\`)"	    
+	    
+    db_do_if "SHOW INDEX FROM Skins" "\$2 == \"0\" && \$3 == \"name\"" "ALTER TABLE Skins 
+	    DROP INDEX \`name\`; 
+	    ALTER TABLE Skins ADD INDEX (\`name\`)"	    
+	    
+   db_do_if "SHOW INDEX FROM spamfilter_preferences" "\$2 == \"0\" && \$3 == \"spamfilter_id\"" "ALTER TABLE spamfilter_preferences 
+	    DROP INDEX \`spamfilter_id\`; 
+	    ALTER TABLE spamfilter_preferences ADD INDEX \`spamfilter_id\` (\`spamfilter_id\`, \`preference\`, \`value\`)"
+	    
+    db_do_if "SHOW INDEX FROM DashboardPreset" "\$2 == \"0\" && \$3 == \"name_type\"" "ALTER TABLE DashboardPreset 
+	    DROP INDEX \`name_type\`; 
+	    ALTER TABLE DashboardPreset ADD INDEX \`name_type\` (\`name\`, \`type\`)"	    
+    
+}
+
+db_fix_new_siteapps_format_81()
+{
+    db_fix_add_column SiteAppPackages package_type "INT UNSIGNED NOT NULL DEFAULT 0"
+    db_fix_add_column SiteAppPackages params_id "INT UNSIGNED"
+    db_fix_add_key SiteAppPackages params_id
+    
+    db_fix_add_column SiteAppResources res_param_1 "VARCHAR(255) CHARACTER SET ascii COLLATE ascii_bin DEFAULT ''"
+    db_fix_add_column DatabaseServers server_version "VARCHAR(255) CHARACTER SET BINARY NOT NULL"
+    db_do "REPLACE INTO actions (name, descr, enabled) VALUES('siteapp_upgrade', 'Upgrade site application', 'true')"
+}
+
+db_fix_sso_81()
+{
+    db_fix_add_column clients uid "VARCHAR(36) CHARACTER SET ascii COLLATE ascii_bin AFTER sapp_pool_id"
+    db_fix_add_column clients ownership "ENUM('true', 'false') NOT NULL DEFAULT 'true' AFTER uid"
+    db_fix_add_column dom_level_usrs uid "VARCHAR(36) CHARACTER SET ascii COLLATE ascii_bin AFTER perm_id"
+    db_fix_add_column dom_level_usrs ownership "ENUM('true', 'false') NOT NULL DEFAULT 'true' AFTER uid"
+}
+
+upgrade_db_81()
+{
+    db_fix_remove_unique_index_81
+    db_fix_new_siteapps_format_81
+    db_fix_sso_81
+	db_do_if_not 		"SELECT * FROM NewsArticles WHERE class = 'WhatsNew8_2'" 1 		"INSERT INTO NewsArticles(class) VALUES ('WhatsNew8_2')"
+
+}
+
+db_add_guid_actions_82()
+{
+  db_do_if_not   "SELECT * FROM actions WHERE name= 'client_guid_update'" 1   "INSERT INTO actions(name, descr, enabled) VALUES('client_guid_update','Change Client GUID','true')"
+
+   db_do_if_not    "SELECT * FROM actions WHERE name= 'domain_guid_update'" 1    "INSERT INTO actions(name, descr, enabled) VALUES('domain_guid_update','Change Domain GUID','true')"
+}
+
+db_add_guid_columns_82()
+{
+  db_fix_add_column clients guid     "VARCHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'"
+
+  db_fix_add_column domains guid     "VARCHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'"
+}
+
+db_fix_82()
+{
+	add_db_changes --fix 820
+}
+
+db_add_mod_bw_columns_82()
+{
+    db_fix_add_column hosting traffic_bandwidth "INT DEFAULT -1"
+    db_fix_add_column hosting max_connection "INT DEFAULT -1"
+}
+
+db_aps_upgrade_82()
+{
+    aps_upgrade_script="$PRODUCT_BOOTSTRAPPER_DIR/db/aps-psa830-db-upgrade"
+    if [ -f "$aps_upgrade_script" ]; then
+	$PRODUCT_ROOT_D/admin/bin/php "$aps_upgrade_script" >> "$product_log" 2>&1
+    fi    
+
+}
+
+upgrade_db_82()
+{
+	#GUIDs
+	db_add_guid_actions_82
+	db_add_guid_columns_82
+#	This cannot work on 9.x. Will be called later
+#	db_generate_guids_82
+	
+	db_add_mod_bw_columns_82
+	db_fix_del_column hosting at_domains
+	db_fix_change_column dns_recs type type "ENUM('NS','A','CNAME','MX','PTR','TXT', 'SRV', 'master', 'none') NOT NULL DEFAULT 'A'"
+	db_fix_change_column dns_recs_t type type "ENUM('NS','A','CNAME','MX','PTR','TXT', 'SRV') NOT NULL DEFAULT 'A'"
+
+	db_aps_upgrade_82
+	
+	add_db_changes 821
+}
+
+db_del_obsoleted_sso_1_0_columns_83()
+{
+	db_do "DELETE FROM misc WHERE param IN ('admin_sso_uid', 'admin_ownership')"
+	db_fix_del_column clients uid
+	db_fix_del_column clients ownership
+	db_fix_del_column dom_level_usrs uid
+	db_fix_del_column dom_level_usrs ownership
+}
+
+db_fix_83()
+{
+	db_del_obsoleted_sso_1_0_columns_83
+    add_db_changes 830
+}
+
+db_fix_countries_84()
+{
+	db_do "UPDATE Cards SET country = 'RS' WHERE country='CS'"
+	db_do "UPDATE clients SET country = 'RS' WHERE country='CS'"
+	db_do "UPDATE misc SET val='RS' WHERE param='admin_country' AND val='CS'"
+}
+
+
+db_fix_soa_serial_84()
+{
+	db_do_if_not 		"SELECT * from misc WHERE param = 'soa_serial_format'" 1 		"INSERT INTO misc (param, val) VALUES ('soa_serial_format', 'UNIXTIMESTAMP')"
+
+	db_fix_add_column dns_zone serial_format "enum('UNIXTIMESTAMP','YYYYMMDDNN') NOT NULL default 'UNIXTIMESTAMP'"
+
+	db_fix_add_column dns_zone serial "VARCHAR(12) CHARACTER SET ascii COLLATE ascii_bin NOT NULL default '0'"
+
+	# TP 38826 Resurrect serial number by dns_recs.time_stamp
+	db_do "UPDATE dns_zone SET serial=UNIX_TIMESTAMP( (SELECT time_stamp FROM dns_recs WHERE dns_zone_id=dns_zone.id LIMIT 1) )"
+}
+
+db_fix_84()
+{
+	db_fix_countries_84
+	db_fix_soa_serial_84
+	add_db_changes 841
+}
+
+upgrade_plesk_in_watchdog_86()
+{
+	db_do_if "SHOW TABLES LIKE 'module_watchdog_service'" 1 		"UPDATE module_watchdog_service
+			 SET start_cmd = '$PRODUCT_RC_D/sw-cp-server start'
+			 , stop_cmd = '$PRODUCT_RC_D/sw-cp-server stop'
+			 WHERE name = 'plesk_apache' "
+}
+
+upgrade_plesk_in_apspool_86()
+{
+
+	if db_test_column APSApplicationItems shared && ! db_test_column APSClientApplicationItems broadcast; then
+		db_select "SELECT id FROM clients WHERE type = 'admin'"
+		local adminId="$db_select_output"
+
+		db_fix_add_column APSClientApplicationItems broadcast "ENUM ('false', 'true') NOT NULL DEFAULT 'false'"
+
+# insert app to admin pool
+		db_select "SELECT id from APSApplicationItems"
+		local id
+		for id in $db_select_output; do
+			db_do "INSERT INTO APSClientApplicationItems (client_id, app_item_id, instances_limit, broadcast) VALUES ('$adminId', '$id', '-1' ,'true')"
+		done
+
+# update broadcast attribute
+		db_select "SELECT id FROM APSApplicationItems WHERE shared = 'false'"
+		for id in $db_select_output; do
+			db_do "UPDATE APSClientApplicationItems SET broadcast = 'false' WHERE app_item_id = '$id' AND client_id = '$adminId'"
+		done
+
+# delete shared column
+		db_fix_del_column APSApplicationItems shared
+	fi
+}
+
+upgrade_plesk_in_domains_86()
+{
+	db_fix_add_column domains overuse "ENUM ('false', 'true') NOT NULL DEFAULT 'false'"
+}
+
+upgrade_plesk_in_clients_86()
+{
+	db_fix_add_column clients overuse "ENUM ('false', 'true') NOT NULL DEFAULT 'false'"
+}
+
+clean_dashboard_86()
+{
+# Clean clients
+	db_do "delete from cl_param where param='preset_id'"
+# Clean dom level users
+	db_do "delete from dom_param where param='preset_id'"
+# Clean DashboardPresetConfig, except custom (mysql 4.0 compatible)
+#	db_do "delete from DashboardPresetConfig where preset_id in (select id from DashboardPreset where type <> 'custom')"
+	db_select "select id from DashboardPreset where type <> 'custom'"
+	for preset_id in $db_select_output; do
+		db_do "delete from DashboardPresetConfig where preset_id='$preset_id'"
+	done
+# Cleean DashboardPreset, except custom
+	db_do "delete from DashboardPreset where type <> 'custom'"
+}
+
+add_vista_skin()
+{
+	db_do_if_not "select * from Skins where place='vista'" 1 		"replace into Skins (name, place) values ('Vista', 'vista')"
+	db_select "SELECT id FROM Skins WHERE place='vista'"
+	local vistaID="$db_select_output"
+	[ -n "$vistaID" ] || die "cannot find vista skin id"
+
+	db_select "SELECT id FROM Skins WHERE place IN ('aqua', 'longhorn.aero', 'longhorn.black', 'plesk8.new', 'winxp.new', 'winxp.olivegreen', 'winxp.silver', 'vista')"
+	local good_ids=`echo -n $db_select_output | tr '\n' ' ' | tr ' ' ','`
+
+# clients
+	db_do "UPDATE cl_param SET val='$vistaID' WHERE param='skin_id' AND val NOT IN ($good_ids)"
+# domain level
+	db_do "UPDATE dom_param SET val='$vistaID' WHERE param='skin_id' AND val NOT IN ($good_ids)"
+# mailusers
+	db_do "UPDATE mn_param SET val='$vistaID' WHERE param='skin_id' AND val NOT IN ($good_ids)"
+# Update admin/default skins
+# admin
+	db_do "UPDATE misc SET val='$vistaID' WHERE param='admin_skin_id' AND val NOT IN ($good_ids)"
+# default
+	db_do "UPDATE misc SET val='$vistaID' WHERE param='def_skin_id' AND val NOT IN ($good_ids)"
+
+# Clean up old skins
+	db_do "DELETE from Skins WHERE id NOT IN ($good_ids)"
+}
+
+move_admin_into_clients_86()
+{
+	echo_try "migrate admin params to clients table"
+	local ex="$PRODUCT_BOOTSTRAPPER_DIR/db/move_admin_into_clients_86.php"
+	sw-engine $ex 1>>"$product_log" 2>&1
+	[ "$?" -eq 0 ] || 		warn "cannot migrate admin info. Please rerun '$ex' manually"
+
+}
+
+db_create_default_server_backup()
+{
+# Creation of default server backup task was removed, because simultaneous
+# backups overload hardware node
+	:
+}
+
+db_create_admin_in_clients_86()
+{
+	if ! db_test_column clients parent_id; then
+		db_fix_add_column clients parent_id "INT UNSIGNED DEFAULT NULL"
+		db_fix_add_column clients type "ENUM('client', 'reseller', 'admin') NOT NULL DEFAULT 'client'"
+		db_do "REPLACE INTO clients (type, login, cr_date) VALUES ('admin', 'admin', now()); SET @id = LAST_INSERT_ID();UPDATE clients SET parent_id = @id WHERE parent_id IS NULL AND type <> 'admin';"
+	fi
+}
+
+db_structure_upgrade_86()
+{
+	db_fix_add_column clients parent_id "INT UNSIGNED DEFAULT NULL"
+    db_fix_add_column clients type "ENUM('client', 'reseller', 'admin') NOT NULL DEFAULT 'client'"
+    db_fix_add_column IP_Addresses ftps "enum('false','true') NOT NULL DEFAULT 'false'"
+    db_fix_add_column mass_mail to_resellers "ENUM('false', 'true') NOT NULL DEFAULT 'false'"
+    db_fix_add_column mass_mail to_resellers_mode "ENUM('all', 'select', 'except') NOT NULL DEFAULT 'all'"
+    db_fix_add_column Notifications send2reseller "VARCHAR(1) CHARACTER SET ascii COLLATE ascii_bin NOT NULL"
+
+    db_fix_add_column hosting php_handler_type "ENUM('cgi', 'fastcgi', 'module') NOT NULL DEFAULT 'module'"
+    db_fix_add_column subdomains php_handler_type "ENUM('cgi', 'fastcgi', 'module') NOT NULL DEFAULT 'module';"
+}
+
+db_upgrade_ip_pool_86()
+{
+if db_test_column IP_Addresses type; then
+	db_do "DELETE FROM ip_pool"
+	db_do "INSERT INTO ip_pool (id, ip_address_id, type) SELECT c.pool_id, ip.id, ip.type FROM clients c INNER JOIN Repository r ON c.pool_id = r.rep_id INNER JOIN IP_Addresses ip ON r.component_id = ip.id WHERE c.type <> 'admin';"
+	db_do "INSERT INTO ip_pool (ip_address_id, type) SELECT id, type FROM IP_Addresses LIMIT 1; SET @pool_id = LAST_INSERT_ID();REPLACE INTO ip_pool (id, ip_address_id, type) SELECT @pool_id, id, type FROM IP_Addresses; UPDATE clients SET pool_id = @pool_id WHERE type='admin';"
+	db_fix_del_column "IP_Addresses" "type"
+fi
+}
+
+db_fix_86()
+{
+	upgrade_plesk_in_watchdog_86
+	db_create_admin_in_clients_86
+	db_structure_upgrade_86
+    add_db_changes 860
+	db_upgrade_ip_pool_86
+	move_admin_into_clients_86
+	upgrade_plesk_in_apspool_86
+	upgrade_plesk_in_domains_86
+	upgrade_plesk_in_clients_86
+	add_vista_skin
+	db_create_default_server_backup
+}
+
+
+db_pmm_dashboard_90()
+{
+	db_do "UPDATE DashboardPresetConfig SET uri='/plesk/server/migration/' WHERE uri='/plesk/server/pmm/'"
+}
+
+db_fix_90()
+{
+	clean_dashboard_86
+    add_db_changes 900
+	db_add_gl_filter
+	db_install_dashboard_presets
+	db_add_spf_to_dns_template
+}
+
+db_add_gl_filter()
+{
+	db_fix_add_column domains gl_filter "ENUM('on', 'off') NOT NULL DEFAULT 'on'"
+}
+db_add_spf_to_dns_template()
+{
+	db_do_if_not 		"SELECT id FROM dns_recs_t WHERE val='v=spf1 +a +mx -all'" 1 		"REPLACE INTO dns_recs_t(displayHost, host, type, displayVal, val, time_stamp) VALUES('<domain>.', '<domain>.', 'TXT', 'v=spf1 +a +mx -all', 'v=spf1 +a +mx -all', NOW()+8);"
+}
+
+db_update_exp_event()
+{
+	db_test_table "exp_event" || return
+    
+	local query
+
+	query="DELETE FROM exp_event WHERE NOT (event_type='started' OR event_type='stopped'
+		OR event_type='created' OR event_type='updated' OR event_type='deleted'
+		OR event_type='status_changed' OR event_type='terminated' OR event_type='flushed'
+		OR event_type='installed' OR event_type='uninstalled' OR event_type='siteapp_added'
+		OR event_type='siteapp_removed' OR event_type='expired' OR event_type='exceeded'
+		OR event_type='guid_changed')"
+
+	db_do "$query"
+
+	query="DELETE FROM exp_event WHERE NOT (obj_class='license' OR obj_class='service' 
+		OR obj_class='ip_address' OR obj_class='admin_info' OR obj_class='siteapp'
+		OR obj_class='session_preferences' OR obj_class='plesk_component' OR obj_class='client'
+		OR obj_class='client_limits' OR obj_class='client_status' OR obj_class='client_prefs'
+		OR obj_class='client_perms' OR obj_class='client_ip_pool' OR obj_class='client_limit_traffic'
+		OR obj_class='client_limit_size' OR obj_class='domain' OR obj_class='domain_limits'
+		OR obj_class='domain_user' OR obj_class='domain_alias' OR obj_class='domain_status'
+		OR obj_class='phosting' OR obj_class='fhosting' OR obj_class='domain_limit_traffic'
+		OR obj_class='domain_limit_size' OR obj_class='db_server' OR obj_class='subdomain'
+		OR obj_class='mailname' OR obj_class='webuser' OR obj_class='maillist' 
+		OR obj_class='dns_zone' OR obj_class='mailname_antivirus' OR obj_class='mailname_spamfilter'
+		OR obj_class='mailname_mailgroup' OR obj_class='mailname_autoresponder' 
+		OR obj_class='mailname_attachment' OR obj_class='remote_dns' OR obj_class='dashboard_preset' 
+		OR obj_class='dashboard_preset_type' OR obj_class='dashboard_preset_name'
+		OR obj_class='domain_perfomance' OR obj_class='template_domain' OR obj_class='template_client'
+		OR obj_class='template_admin' OR obj_class='log_rotation' OR obj_class='server_ip'
+		OR obj_class='db' OR obj_class='db_user' OR obj_class='reseller' OR obj_class='reseller_limits'
+		OR obj_class='reseller_status' OR obj_class='reseller_prefs' OR obj_class='reseller_perms'
+		OR obj_class='reseller_ip_pool' OR obj_class='reseller_limit_traffic'
+		OR obj_class='reseller_limit_size')"
+
+	db_do "$query"
+}
+
+db_upgrade_parent_domain_id_1012()
+{
+    db_fix_add_column domains parentDomainId "INT UNSIGNED NOT NULL DEFAULT 0"
+}
+
+db_upgrade_service_nodes_1012()
+{
+    db_fix_add_column IP_Addresses serviceNodeId "INT UNSIGNED NOT NULL DEFAULT 1"
+    db_fix_add_column Configurations serviceNodeId "INT UNSIGNED NOT NULL DEFAULT 1"
+    db_fix_add_column sys_users serviceNodeId "INT UNSIGNED NOT NULL DEFAULT 0"
+    db_do_if "SHOW INDEX FROM sys_users" "\$2 == \"0\" && \$3 == \"login\"" "
+        ALTER TABLE sys_users DROP INDEX \`login\`;
+        ALTER TABLE sys_users ADD UNIQUE (\`serviceNodeId\`, \`login\`);
+        UPDATE \`sys_users\` set \`serviceNodeId\` = 1 WHERE 0 = \`serviceNodeId\`;
+    "
+}
+
+db_upgrade_dns_schema_1012()
+{
+    db_fix_add_column dns_zone syncSoa "enum('true','false','skip') NOT NULL default 'skip'"
+    db_fix_add_column dns_zone syncRecords "enum('true','false','skip') NOT NULL default 'skip'"
+    db_fix_add_column dns_recs_t uid "VARCHAR(255) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL"
+    db_do "update dns_zone set syncSoa='true', syncRecords='true' where id not in (select val from misc where param='default_dns_zone_id')"
+}
+
+#proftpd
+
+set_ftpd_params()
+{
+	anonftp_user="${product}ftp"
+	anonftp_group="${product}ftp"
+
+	PROFTPD_ROOT="$PRODUCT_ROOT_D/ftpd"
+	PROFTPD_ETC_D="$PROFTPD_ROOT/etc"
+}
+
+proftpd_super_server_config()
+{
+	local action="$1"
+
+	case "$superserver" in
+	    inetd)
+		    ftp_rec="ftp stream tcp nowait root $PROFTPD_ROOT/sbin/proftpd proftpd -c $PROFTPD_ETC_D/proftpd.conf"
+		    ;;
+	    xinetd)
+		    ftp_rec="service ftp
+{
+	socket_type		= stream
+	protocol		= tcp
+	wait			= no
+	disable			= no
+	user			= root
+	instances		= UNLIMITED
+	server			= $PROFTPD_ROOT/sbin/proftpd
+	server_args		= -c $PROFTPD_ETC_D/proftpd.conf
+}"
+		    ;;
+	    *)
+		    die "Super server name unknown"
+		    ;;
+	esac
+
+	super_server_action "$action" ftp "$ftp_rec"
+}
+# Usage:  pleskrc <service> <action>
+pleskrc()
+{
+	[ 2 -le $# ] || die "Not enough arguments"
+
+	local service_name=$1
+	local action=$2
+	local ret=0
+	local inten
+	local service_script
+	shift
+	shift
+
+	# Now check redefined functions
+	if test "$machine" = "linux" && is_function "${service_name}_${action}_${machine}_${linux_distr}"; then
+		"${service_name}_${action}_${machine}_${linux_distr}" $@
+		return $?
+	elif is_function "${service_name}_${action}_${machine}"; then
+		"${service_name}_${action}_${machine}" $@
+		return $?
+	elif is_function "${service_name}_${action}"; then
+		"${service_name}_${action}" $@
+		return $?
+	fi
+
+	# Not redefined - call default action
+	eval "service=\$${service_name}_service"
+	[ -n "$service" ] || die "$action $service_name service (Empty service name for '$service_name')"
+
+	inten="$action service $service"
+	[ "$action" = "status" -o "$action" = "exists" ] || echo_try "$inten"
+
+	local scr_path=${SYSTEM_RC_D}/${service}
+	if [ -x ${scr_path} ]; then
+        service_script=${scr_path}
+    fi
+
+	if [ "$action" = "exists" ]; then 
+		[ -n "$service_script" ] && return 0 || return 1
+	else
+		if [ -z "$service_script" ]; then
+            warn "Unable to ${inten} - control script is not exist or not executable"
+            return 1
+        fi
+	fi
+
+
+	if [ -x "/usr/sbin/invoke-rc.d" ]; then
+		action_cmd="/usr/sbin/invoke-rc.d $service"
+	elif [ -x "/sbin/service" ]; then
+		action_cmd="/sbin/service $service"
+	elif [ -n ${service_script} ]; then
+		action_cmd="$service_script"
+	fi
+
+
+	case "$action" in
+		start)
+			pleskrc $service_name status || $action_cmd $action $@ >>$product_log 2>&1
+			;;
+		stop)
+			if pleskrc $service_name status; then
+				$action_cmd $action $@
+			else
+				true
+			fi
+		    ;;
+		restart)
+			if pleskrc $service_name status; then 
+				$action_cmd "restart" $@
+			else 
+				$action_cmd "start" $@
+			fi
+		    ;;
+		reload)
+		    if pleskrc $service_name status; then
+				$action_cmd "reload" $@
+			else
+				true
+			fi
+		    ;;
+		status)
+		    $action_cmd "status"
+		    ;;
+	    *)
+		    $action_cmd $action $@ 
+		    ;;
+	esac >> $product_log 2>&1
+
+	ret="$?"
+	if [ "$action" != "status" ]; then
+		[ "$ret" -eq 0 ] && suc || warn $inten
+	fi
+
+	return $ret
+}
+
+is_function()
+{
+	local type_output="`type -t \"$1\" 2>/dev/null`"
+	case "$type_output" in
+		*function)
+			return 0
+		;;
+		*)
+			return 1
+		;;
+	esac
+}
+form_undotted_version()
+{
+# Backward compatible with versions < 11.0.0
+	echo $1 | awk -F. '{ if ($1 < 11) { print  $1  $2 } else { print $1*100+$2 } }'
+}
+
+get_prev_version()
+{
+	# Debian package system reports previous version as script argument
+	if [ "X${prev_version}" = "X" ]; then
+
+		if [ -f "$1/core.version" ]; then
+		# Check version from core
+			prev_version=`cat $1/core.version | awk '{ print $1 }'`
+            prev_build=`cat $1/core.version | awk '{ print $4 }'`
+		elif [ -f $1/version ]; then
+		# version file must exists in product directory
+		    prev_version=`cat $1/version | awk '{ print $1 }'`
+		    prev_build=`cat $1/version | awk '{ print $4 }'`
+		else
+		    p_echo "    Unable to find version file $1. "
+		    p_echo "    Please, restore version file or remove old ${PRODUCT_NAME}, if unnecessary."
+		    exit 1
+		fi
+
+		# check, that it is not empty
+		if [ "X${prev_version}" = "X" -o "X${prev_build}" = "X" ]; then
+			p_echo "    Unable to determine version or build number of ${PRODUCT_NAME} installed. It is impossible"
+			p_echo "    to upgrade ${PRODUCT_NAME} to version $product_version."
+			p_echo "    To install new version without data saving remove '$1' directory"
+			p_echo "    manually. Please backup all data before removing if it need."
+			exit 1
+		fi
+	fi
+
+	# chat, that it is known version of product
+	prev_short_version=`form_undotted_version ${prev_version}`
+
+	for i in ${known_product_versions}; do
+	    if [ "X${prev_short_version}" = "X${i}" ]; then
+			return 0
+	    fi
+	done
+
+	# version is unknown for upgrader. let the user to know the propblem
+	p_echo "    Unable to upgrade. You have  $prev_version version installed,"
+	p_echo "    but upgrader is incompatible with this version."
+	p_echo "    To install new ${PRODUCT_NAME} copy, please move '$1'"
+	p_echo "    to another place manually."
+	exit 1
+}
+
+check_localtime_file()
+{
+	[ -f /etc/localtime ] && return 0
+	report_problem 		"There is no /etc/localtime file in system." 		"Run tzsetup as root to set up your timezone"
+	return 1
+}
+
+check_tmp_permissions()
+{
+	local tmp_perm_mask=777
+	[ $((0`stat -c %a /tmp` & 0$tmp_perm_mask)) -eq $((0$tmp_perm_mask)) ] && return 0
+
+	if [ -f /tmp/pp-bootstrapper-ez-templates-prep-install.flag ]; then
+		chmod 1777 /tmp
+		p_echo " /tmp file access permissions were adjusted to 1777."
+		p_echo
+		return 0
+	else
+		report_problem 			"/tmp should have at least $tmp_perm_mask file access permissions." 			"Run 'chmod 1777 /tmp' as root to set up proper file access permissions."
+		return 1
+	fi
+}
+
+preinstall_checks()
+{
+	check_localtime_file || exit 1
+	check_tmp_permissions || exit 1
+}
+
+# echo message to product log, unless debug
+p_echo()
+{
+    if [ -n "$PLESK_INSTALLER_DEBUG" -o -n "$PLESK_INSTALLER_VERBOSE" -o -z "$product_log" ] ; then
+        echo "$@"
+    else
+        echo "$@" >> "$product_log" 2>&1
+    fi
+}
+
+# echo message to product log without new line, unless debug
+pnnl_echo()
+{
+    if [ -n "$PLESK_INSTALLER_DEBUG" -o -n "$PLESK_INSTALLER_VERBOSE" -o -z "$product_log" ] ; then
+        echo -n "$*"
+    else
+        echo -n "$*" >> "$product_log" 2>&1
+    fi
+}
+
+die()
+{
+	PACKAGE_SCRIPT_FAILED="$*"
+
+	if [ "X$trigger_uninstall" != "X1" ]; then
+		printf "\a\a"
+		report_problem 			"ERROR while trying to $*" 			"Check the error reason(see log file: ${product_log}), fix and try again"
+	fi
+
+	smart_undo_install
+
+	selinux_close
+
+	exit 1
+}
+
+warn()
+{
+local inten
+inten="$1"
+p_echo
+p_echo "WARNING!"
+pnnl_echo "Some problems are found during $inten"
+p_echo "(see log file: ${product_log})"
+p_echo
+p_echo "Continue..."
+p_echo
+
+product_log_tail | send_error_report "Warning: $inten"
+
+[ -n "$PLESK_INSTALLER_DEBUG" -o -n "$PLESK_INSTALLER_VERBOSE" ] || 	product_log_tail
+}
+
+# Use this function to report failed actions.
+# Typical report should contain
+# - reason or problem description (example: file copying failed)
+# - how to resolve or investigate problem (example: check file permissions, free disk space)
+# - how to re-run action (example: perform specific command, restart bootstrapper script, run installation again)
+report_problem()
+{
+	p_echo
+	if [ $problems_occured -eq 0 ]; then
+		echo "***** $process problem report *****" >> "$product_problems_log" 2>&1
+	fi
+	for problem_message in "$@"; do
+		p_echo "$problem_message"
+		echo "$problem_message" >> "$product_problems_log" 2>&1
+	done
+	p_echo
+
+	product_log_tail | send_error_report "Problem: $@"
+
+	[ -n "$PLESK_INSTALLER_DEBUG" -o -n "$PLESK_INSTALLER_VERBOSE" ] || 		product_log_tail
+
+	problems_occured=1
+}
+
+comm_err()
+{
+  p_echo "       Unfortunately, this situation has not yet been"
+  p_echo "       resolved."
+  p_echo "       Please, visit $support_contact for assistance."
+  p_echo
+  p_echo "Exiting..."
+  p_echo
+
+  smart_undo_install
+  exit 1
+}
+
+gid_err()
+{
+  gid="$1"
+
+  p_echo
+  p_echo "ERROR: It seems there is a group with GID=$gid"
+  p_echo "       in this system, but $PRODUCT_NAME needs the same GID"
+  p_echo "       for its operation."
+
+  send_error_report "Error: group with GID=$gid already exists."
+  comm_err
+}
+
+group_err()
+{
+  group="$1"
+  gid="$2"
+
+  p_echo
+  p_echo "ERROR: It seems that there is group $group"
+  p_echo "       in your system. $PRODUCT_NAME uses the same group"
+  p_echo "       name but with another group ID ($gid)."
+
+  send_error_report "Error: group $group exists, but it doesn't have GID=$gid."
+  comm_err
+}
+
+uid_err()
+{
+  uid="$1"
+
+  p_echo
+  p_echo "ERROR: It seems there is a user with UID=$uid"
+  p_echo "       in this system, but $PRODUCT_NAME needs the same UID"
+  p_echo "       for its operation."
+
+  send_error_report "Error: user with UID=$uid already exists."
+  comm_err
+}
+
+logname_err()
+{
+  user="$1"
+  uid="$2"
+
+  p_echo
+  p_echo "ERROR: It seems that there is a $user in your system"
+  p_echo "       with a UID other than that used by $PRODUCT_NAME ($uid)"
+  p_echo "       or the $user is in the primary group, but this"
+  p_echo "       group is not the one that $PRODUCT_NAME uses."
+
+  send_error_report "Error: user $user exists, but it doesn't have UID=$uid or it belongs to wrong primary group."
+  comm_err
+}
+
+echo_try()
+{
+	msg="$*"
+	pnnl_echo " Trying to $msg... "
+}
+
+suc()
+{
+	p_echo "done"
+}
+
+send_error_report()
+{
+	{
+		echo $@
+		echo ""
+		if [ -n "$error_report_context" ]; then
+			echo "Context: $error_report_context"
+			echo ""
+		fi
+		test -t 0 || cat -
+	} | $PRODUCT_ROOT_D/admin/bin/send-error-report "install" >/dev/null 2>&1
+}
+
+set_error_report_context()
+{
+	error_report_context="$@"
+}
+
+get_ip_address_list()
+{
+	local ipaddress=''
+
+	if test -x /sbin/ip ; then
+		ipaddress=`/sbin/ip addr | grep -v 'inet6' | grep -v '127\.[0-9]*\.[0-9]*\.[0-9]*' | sed -n -e 's/^ *inet \([0-9\.]*\).*$/\1/ p'`
+	else
+		ipaddress=`$ifconfig |grep "$inet_str" | grep -v "inet6" | sed -e "s/$inet_str.\([0-9.]*\).*/\1/g"|awk '{print $1}' - | grep -v '^127\.[0-9]*\.[0-9]*\.[0-9]*$'`
+	fi
+	
+	echo -n $ipaddress
+}
+
+get_domain()
+{
+	host="`${get_hostname}`"
+	local try_dot=`echo "$host" | sed -e 's/^[^.]*\..*$/\./'`
+
+	case "$try_dot" in
+			.)	domain="`echo "$host" | sed -e 's/^[^.]*\.//'`"
+				host="`echo $host | sed -e 's/\..*//'`"
+				;;
+			*)	domain="`$get_domainname`"
+				;;
+	 esac
+	 domain=`echo "$domain" | sed 's/\.$//'`
+
+	 if [ "X$host" = "X" -o "X${domain}" = "X" -o "$domain" = "(none)" ]; then
+		p_echo "Warning!"
+		p_echo "Unable to determine the host or domain name of your computer."
+		p_echo "Setting it to localhost.localdomain"
+		host="localhost"
+		domain="localdomain"
+	 fi
+
+ 	 fullhost="${host}.${domain}"
+	 return 0;
+}
+
+get_config_parameters()
+{
+ admin_email=
+
+#list of addresses
+ local ipaddress_list="`get_ip_address_list`"
+
+ get_domain
+
+ if [ "X$PLESK_DISABLE_HOSTNAME_CHECKING" = "X" -a "X$PLESK_VZ" != "X1" ]; then
+ 	check_hostname "$fullhost" || die "check the hostname" 
+ else
+    ipaddress="`echo "$ipaddress_list" | head -1`"
+ fi
+
+ start_after_install=1;
+
+ p_echo
+}
+
+# vim:syntax=sh
+
+mk_backup()
+{
+	target="$1"
+	dup="$2"
+	opts="$3"
+
+	if [ -L "$target" ]; then
+		rm "$target"
+	elif [ -$opts "$target" ]; then
+		if [ ! -$opts "$target.$product_suffo" ]; then
+			case "$dup" in
+				mv)
+					mv -f $target $target.$product_suffo || die "mv -f $target $target.$product_suff"
+					;;
+				cp)
+					cp -fp $target $target.$product_suffo || die "cp -fp $target $target.$product_suff"
+					;;
+				*)
+					p_echo " mk_backup: wrong option -- must be 'cp' or 'mv'"
+					die "mk_backup"
+					;;
+			esac
+		else
+			case "$dup" in
+				mv)
+					mv -f $target $target.$product_suff || die "mv -f $target $target.$product_suff"
+					;;
+				cp)
+					cp -fp $target $target.$product_suff || die "cp -fp $target $target.$product_suff"
+					;;
+				*)
+					p_echo " mk_backup: wrong option -- must be 'cp' or 'mv'"
+					die "mk_backup"
+					;;
+			esac
+		fi
+	else
+		case "$opts" in
+			f|d)
+				;;
+			*)
+				p_echo " mk_backup: wrong option -- must be 'f' or 'd'"
+				die "mk_backup"
+				;;
+		esac
+	fi
+}
+
+start_product_now()
+{
+	define_start_script
+	p_echo
+	if [ "X$start_after_install" = "X1" ]; then
+		inten="start ${PRODUCT_NAME}"
+		echo_try $inten
+		p_echo
+		$START_SH stop
+		$START_SH start
+	fi
+}
+
+set_default_locale()
+{
+	p_echo 'Setting the default locale'
+	default_locale_file="$PRODUCT_ROOT_D/admin/htdocs/locales/default"
+	if [ -f $default_locale_file ]; then
+		test -r "$default_locale_file" || die "set up default locale: cannot read '$default_locale_file'"
+		default_locale="`cat $default_locale_file | sed 's/^\([^:]*\):.*/\1/'`"
+		default_locale_name="`cat $default_locale_file | sed 's/^[^:]*:\([^:]*\):.*/\1/'`"
+		default_locale_country="`cat $default_locale_file | sed 's/^[^:]*:[^:]*:[^:]*:\([^:]*\);.*/\1/'`"
+	else
+		default_locale="en-US"
+		default_locale_name="ENGLISH"
+		default_locale_country="UNITED STATES"
+	fi
+	p_echo "The default locale is set to $default_locale ($default_locale_name, $default_locale_country)"
+}
+
+detect_vz()         
+{                   
+    local vzcheck_file
+        
+    PLESK_VZ=0
+    vzcheck_file="/proc/self/status"
+                    
+    if [ ! -f ${vzcheck_file} ]; then
+        return 1; 
+    fi              
+                    
+    grep -q -E '^envID\:[[:space:]]*([[:digit:]]+)$' < ${vzcheck_file} >/dev/null 2>&1
+                    
+    if [ $? -eq 0 ]; then
+        PLESK_VZ=1  
+        return 0;
+    fi      
+    return 1;
+}       
+
+call_optional_function()
+{
+	export LANG=C LC_MESSAGES=C LC_ALL=C
+	local type_output="`type \"$1\" 2>/dev/null | head -n 1`"
+	case "$type_output" in
+		*function)
+			"$@"
+			;;
+		*)
+			return 0
+			;;
+	esac
+}
+
+sh_get_args()
+{
+	echo 'while true; do case "$1" in '"$1"'*) break;; esac; shift; done'
+}
+
+### the function similar to awk -F'$fs' 'print $N'
+get_narg_fs()
+{
+	local OLD_IFS="$IFS"
+	IFS="$2"
+	get_narg $3 $1
+	IFS="$OLD_IFS"
+}
+
+get_narg()
+{
+	shift $1 2>/dev/null || return
+	echo $1
+}
+
+get_random_string()
+{
+	local str_length="$1"
+	local str_symbols="$2"
+	if [ -x "$PRODUCT_ROOT_D/admin/sbin/random_str" -a -z "$str_symbols" ]; then
+		"$PRODUCT_ROOT_D/admin/sbin/random_str" "$str_length"
+	else
+		# random_str utility may be unavailable in pre phase
+		if [ -z "$str_length" ]; then
+			str_length="14"
+		fi
+		if [ -z "$str_symbols" ]; then
+			str_symbols="A-Za-z0-9_"
+		fi
+
+		< /dev/urandom tr -dc "$str_symbols" 2>/dev/null | head -c "$str_length" 2>/dev/null
+	fi
+}
+
+sequence()
+{
+	if type seq >/dev/null 2>&1; then
+		seq $*
+	elif type jot >/dev/null 2>&1; then
+		jot $*
+	else
+		die "Unable to find seq or jot command"
+	fi
+}
+
+get_ini_conf_var()
+{
+	local conf="$1"
+	local section="$2"
+	local param="$3"
+
+	[ -n "$conf" -a -n "$param" ] || die "get_ini_conf_var(): required parameters missing"
+
+	local section_empty=0
+	[ -n "$section" ] || section_empty=1
+
+	perl -n -e 'BEGIN { $insect='$section_empty' }
+				next if (/^\s*;/);
+				$insect=0 if (/^\s*\[.*\]/);
+				$insect=1 if (/^\s*\['$section'\]/);
+				$val = $2, $val =~ s/\s+$//, print $val . "\n" 
+					if ($insect && /^\s*('$param')\s*=\s*([^;\n]*)(;.*)?$/);' $conf | head -n 1
+}
+
+sw_engine_pleskrun()
+{
+	if [ -x $PRODUCT_ROOT_D/bin/sw-engine-pleskrun ]; then
+		$PRODUCT_ROOT_D/bin/sw-engine-pleskrun "$@"
+	elif [ -x "/usr/bin/sw-engine" ]; then
+		local args
+		if [ -e "$PRODUCT_ROOT_D/admin/conf/php.ini" ]; then
+			args="-c $PRODUCT_ROOT_D/admin/conf/php.ini"
+		else
+			args="-d psasem.semfile=\"$PRODUCT_ROOT_D/var/psasem.sem\""
+		fi
+		/usr/bin/sw-engine $args "$@"
+	else
+		echo "No Plesk PHP interpreter found"
+		return 1
+	fi
+}
+label_file_once()
+{
+	local _fname _mess _messLines _fileHead _tmpFile
+
+	test $# -eq 2 || die 'label_file_once() not enough arguments'
+	
+	_fname="${1}"
+	_mess="${2}"
+
+	inten="add header to file ${_fname}"
+	echo_try $inten
+
+	test -f "${_fname}" || die "file ${_fname} does not exist"
+    _messLines=`printf "${_mess}" | wc -l | awk '{print $NF}'`
+
+	_tmpFile=`basename "${_fname}"`
+	_tmpFile=`mktemp "/tmp/${_tmpFile}.XXXXXX"` || die "can not create temporary file"
+	head -n ${_messLines} "${_fname}" > "${_tmpFile}"
+
+	printf "${_mess}" | diff -q - "${_tmpFile}" 1>/dev/null
+	if [ $? -eq 0 ]; then
+		p_echo "file ${_fname} already contains required header"
+		rm -f "${_tmpFile}"
+		return
+	fi
+	rm -f "${_tmpFile}"
+
+	# preserve permissions, not optimal, need to rework
+	cp -p "${_fname}" "${_fname}.tmp"
+
+	printf "${_mess}" | cat - "${_fname}" > "${_fname}.tmp"
+	cp -f "${_fname}.tmp" "${_fname}"
+	rm -f "${_fname}.tmp"
+	p_echo "completed successfully"
+}
+set_super_server_params()
+{
+    case "${machine}_${linux_distr}" in
+	linux_*)
+	    superserver_mode=native
+		superserver=xinetd
+	    set_xinetd_params $superserver_mode
+	;;
+	BSD*)
+	    superserver_mode=native
+		superserver=inetd
+	    set_inetd_params $superserver_mode
+	;;
+	*)
+	    die "Unable to detect super server type"
+	;;
+    esac
+
+    super_server_action configure
+}
+
+true superserver_reconfig
+
+set_inetd_params()
+{	
+    superserver_conf="/etc/inetd.conf"
+
+    if [ "$superserver_mode" = compat ]; then
+	if [ -x "$PRODUCT_RC_D/xinetd" ]; then 
+	    superserver_service="xinetd"
+		superserver_binary="/usr/sbin/xinetd"
+	elif [ -x "$PRODUCT_RC_D/inetd" ]; then 
+	    superserver_service="inetd"
+		superserver_binary="/usr/sbin/inetutils-inetd"
+	elif [ -x "$PRODUCT_RC_D/openbsd-inetd" ]; then
+	    superserver_service="openbsd-inetd"
+		superserver_binary="/usr/sbin/inetd"
+	else
+	    die "Unable to find script for superserver"
+	fi
+    else
+	superserver_service="inetd"
+    fi
+
+    superserver_dir="/etc"
+}
+
+set_xinetd_params()
+{
+    superserver_conf="/etc/xinetd.conf"
+    superserver_service="xinetd"
+    superserver_dir="/etc/xinetd.d"
+}
+
+superserver_reconfig()
+{
+    pleskrc superserver reload
+}
+
+configure_xinetd_compat()
+{
+	local inten="configure xinetd compatibility mode with $superserver"
+	if [ "$linux_distr" = "debian" -o "$linux_distr" = "ubuntu" ]; then
+		[ "$superserver_service" = "xinetd" ] || return 1
+		[ -f "/etc/default/xinetd" ] || return 1
+		grep -q 'XINETD_OPTS=.*-inetd_compat' /etc/default/xinetd && return 1
+		echo_try $inten
+
+		if ! grep -q '^\s*XINETD_OPTS' /etc/default/xinetd; then
+			echo 'XINETD_OPTS="-inetd_compat"' >>/etc/default/xinetd
+			suc
+			return 0
+		fi
+
+		eval `grep '^\s*XINETD_OPTS' /etc/default/xinetd`
+		XINETD_OPTS="$XINETD_OPTS -inetd_compat"
+		local tmp_file=`mktemp /tmp/xinetdXXXXXX`
+		sed -e "s/XINETD_OPTS.*/XINETD_OPTS=\"$XINETD_OPTS\"/g" /etc/default/xinetd > $tmp_file && mv -f $tmp_file /etc/default/xinetd
+		suc
+		return 0
+	fi
+	return 1
+}
+
+deconfigure_xinetd_compat()
+{
+	local inten="deconfigure xinetd from compatibility mode with $superserver"
+
+	# non-zero value means no xinetd reload is required
+	local xinetd_restart=1
+
+	if [ "$linux_distr" = "debian" -o "$linux_distr" = "ubuntu" ]; then
+		[ "$superserver_service" = "xinetd" ] || return 1
+		[ -f "/etc/default/xinetd" ] || return 1
+
+		local tmp_file
+		grep -q '^[[:space:]]*INETD_COMPAT[[:space:]]*=.*$' /etc/default/xinetd
+		if [ $? -eq 0 ]; then
+			tmp_file=`mktemp /tmp/xinetdXXXXXX`
+			sed -e "s/^\s*INETD_COMPAT\s*=.*$/INETD_COMPAT=No/g" /etc/default/xinetd > $tmp_file && mv -f $tmp_file /etc/default/xinetd
+
+			# xinetd reload is necessary
+			xinetd_restart=0
+		fi
+
+		grep -q 'XINETD_OPTS=.*-inetd_compat' /etc/default/xinetd || return $xinetd_restart
+		echo_try $inten
+
+		tmp_file=`mktemp /tmp/xinetdXXXXXX`
+		sed -e "s/-inetd_compat//g" /etc/default/xinetd > $tmp_file && mv -f $tmp_file /etc/default/xinetd
+		suc
+
+		# xinetd reload is necessary
+		return 0
+	fi
+
+	# xinetd reload is not necessary
+	return 1
+}
+
+super_server_action()
+{
+    local in out
+    local action="$1"
+    local service="$2"
+    local template="$3"
+
+    inten="$action $service service record for $superserver_service daemon"
+
+    case "$action" in
+	remove) ;;
+	register)
+		[ -z "$template" ] && die "Template for super server $action was not defined"
+		;;
+	comment|disable)
+		;; 
+	configure)
+		case "$superserver_mode" in
+		    native)
+			register_service $superserver_service defaults defaults
+			deconfigure_xinetd_compat && pleskrc superserver restart
+			;;
+		    compat)
+			configure_xinetd_compat && pleskrc superserver restart
+			;;
+		    *)
+			die "Mode for $superserver_service was not defined"
+			;;
+		esac
+
+		return 0
+		;;
+	*)
+		die "Some arguments was not defined or defined incorrect for action with super server"
+		;;
+    esac 
+
+    case "$superserver" in
+	inetd)
+		super_server_modify_inetd "$service" "$action" "$template"
+		;;
+	xinetd)
+		super_server_modify_xinetd "$service" "$action" "$template"
+		;;
+	*)
+		die "Unable to define super server type"
+		;;	
+    esac
+
+    if [ $? -ne 0 ]; then
+	die $inten 
+    fi
+}
+
+super_server_modify_inetd()
+{
+	local service="$1"
+	local action="$2"
+	local template="$3"
+
+	case "$action" in
+		comment|disable)
+			grep -q "^$service[[:space:]]" $superserver_conf || return 0
+			sed -e "s|^$service|#$service|g" < "$superserver_conf" > "$superserver_conf.tmp" 			&& mv -f "$superserver_conf.tmp" "$superserver_conf" 			|| return 1
+			;;
+		remove)
+			if [ -x /usr/sbin/update-inetd ]; then
+				/usr/sbin/update-inetd --enable "$service"
+				/usr/sbin/update-inetd --remove "$service"
+			else
+				grep -q "^$service[[:space:]]" $superserver_conf || return 0
+				sed -e "s|^$service[[:space:]].*||g" < "$superserver_conf" > "$superserver_conf.tmp" 			    	&& mv -f "$superserver_conf.tmp" "$superserver_conf" 			    	|| return 1
+			fi
+			;;
+		register)
+			if [ -x /usr/sbin/update-inetd ]; then
+				/usr/sbin/update-inetd --enable "$service"
+				/usr/sbin/update-inetd --remove "$service"
+				/usr/sbin/update-inetd --add "$template"
+			else
+				egrep -q "$template" $superserver_conf
+				if [ "$?" -ne "0" ]; then 
+					super_server_modify_inetd comment $service && 					echo "$template" >> $superserver_conf || return 1
+				fi
+			fi
+			;;
+	esac
+
+	return 0
+}
+
+super_server_modify_xinetd()
+{
+	local file
+	local service="$1"
+	local action="$2"
+	local template="$3"
+
+	for file in $superserver_dir/*; do
+		grep -q "$service" $file 1>>$product_log 2>&1 || continue
+
+		case "$action" in
+		    remove)
+			    awk "/^[[:space:]]*(#|[[:space:]])*service[[:space:]]+$service($|[[:space:]]+)/,/.*}.*/ 				{next;} {print}
+			    " <$file >$file.tmp 			    && mv -f $file.tmp $file || return 1
+			    ;;
+		    comment)
+			    awk "/^[[:space:]]*service[[:space:]]+$service($|[[:space:]]+)/,/.*}.*/ 			       { print \"#\"\$0; next; }
+			       {print}
+			    " < $file > $file.tmp 			    && mv -f $file.tmp $file || return 1
+			    ;;
+		esac
+	done
+
+	case "$action" in
+	    register)
+		    echo "$template" > "$superserver_dir/${service}_psa" || return 1
+		    label_file_once "$superserver_dir/${service}_psa" "${AUTOGENERATED_CONFIGS_UPGRADE}"
+		    ;;
+	    disable)
+			[ -f "$superserver_dir/${service}_psa" ] && mv -f "$superserver_dir/${service}_psa" "$superserver_dir/${service}.psa"
+		    ;;
+	esac
+
+	return 0
+}
+
+true superserver_status_linux_debian
+superserver_status_linux_debian()
+{
+    get_pid "/usr/sbin/xinetd" false
+    local pid=$common_var
+    if test "$pid" -ne 1; then
+# running
+        return 0
+    fi
+    return 1
+}
+#-*- vim:syntax=sh
+
+product_log_name_ex()
+{
+	local aux_descr="$1"
+	local action="${CUSTOM_LOG_ACTION_NAME-installation}"
+
+	if [ -n "$aux_descr" ]; then
+		aux_descr="_${aux_descr}"
+	fi
+
+	if [ -n "$CUSTOM_LOG_NAME" ]; then
+		echo "${CUSTOM_LOG_NAME}${action:+_$action}${aux_descr}.log"
+	else
+		echo "plesk_11.0.9${action:+_$action}${aux_descr}.log"
+	fi
+}
+
+product_log_name()
+{
+	product_log_name_ex
+}
+
+product_problems_log_name()
+{
+	product_log_name_ex "problems"
+}
+
+problems_log_tail()
+{
+	[ -f "$product_problems_log" ] || return 0
+	tac "$product_problems_log" | awk '/^START/ { exit } { print }' | tac
+}
+
+product_log_tail()
+{
+	[ -f "$product_log" ] || return 0
+	tac "$product_log" | awk '/^START/ { exit } { print }' | tac
+}
+
+cleanup_problems_log()
+{
+	awk 'BEGIN 						{ st = "" } 
+		 /^START/ 					{ st=$0; next } 
+		 /^STOP/ && (st ~ /^START/) { st=""; next } 
+		 (st != "") 				{ print st; st="" } 
+		 							{ print }
+		' "$product_problems_log" > "$product_problems_log.tmp" && 	mv -f "$product_problems_log.tmp" "$product_problems_log" || 	rm -f "$product_problems_log.tmp"
+	
+	if [ ! -s "$product_problems_log" ]; then 
+		rm -f "$product_problems_log"
+	fi
+}
+
+log_start()
+{
+	true product_log_name product_problems_log_name
+
+	local title="$1"
+	product_log="/tmp/`product_log_name`"
+	product_problems_log="/tmp/`product_problems_log_name`"
+	problems_occured=0
+
+	echo "START $title" >>"$product_log" 	&& echo "START $title" >>"$product_problems_log" 	&& chmod 600 "$product_log" "$product_problems_log" 	|| {
+		echo "Cannot write installation log $product_log, $product_problems_log" >&2
+		exit 1
+	}
+}
+
+log_stop()
+{
+	local title="$1"
+	local subject="$2"
+	if [ -z "$subject" ]; then
+		subject="[${title}]"
+	fi
+
+	# check if problems are non-empty, check for problems_occured
+	local status
+	local problem_lines="`problems_log_tail | wc -l`"
+	if [ "$problem_lines" -eq 0 ]; then
+		status="completed successfully"
+	else
+		if [ $problems_occured -ne 0 ]; then
+			status="failed"
+		else
+			status="completed with warnings"
+		fi
+	fi
+
+	p_echo
+	p_echo "**** $subject $status."
+	p_echo
+
+	if [ "$problem_lines" -ne 0 ]; then
+		problems_log_tail >>"$product_log" 2>&1
+		problems_log_tail
+	fi
+
+	echo "STOP $title" >>"$product_log"
+	if [ $problems_occured -ne 0 ]; then
+		echo "STOP $title: PROBLEMS FOUND" >>"$product_problems_log"
+	else
+		echo "STOP $title: OK" >>"$product_problems_log"
+	fi
+
+	if [ "X${PLESK_INSTALLER_KEEP_PROBLEMS_LOG}" = "X" ]; then
+		cleanup_problems_log
+	fi
+}
+
+package_script_begin()
+{
+	if [ "X$process" = "X" ]; then
+		if	 [ "X$do_reconfigure" = "X1" ]; then
+			process="reconfiguration"
+		elif  [ "X$do_upgrade" = "X1" ]; then
+			process="upgrade"
+		else
+			process="installing"
+		fi
+	fi
+
+	log_start "`package_script_log_title`"
+	set_error_report_context "`package_script_log_title`. `report_context_action`"
+
+	product_default_conf
+	initial_conf
+	set_common_params
+	read_conf
+}
+
+package_script_end()
+{
+	packagemng_set_dirty_flag
+
+	log_stop "`package_script_log_title`" "Package $PACKAGE_NAME scriptlet"
+}
+
+package_script_log_title()
+{
+	local stage
+	case "$do_upgrade" in
+		0) stage="installing";;
+		1) stage="upgrading";;
+		*) stage="installing";;
+	esac
+	if [ -n "$PACKAGE_DEB_ACTION" ]; then
+		stage="$stage (deb action: $PACKAGE_DEB_ACTION)"
+	fi
+	echo "$PACKAGE_NAME-$PACKAGE_VERSION-$PACKAGE_RELEASE $stage AT `date`"
+}
+
+report_context_action()
+{
+	local action
+	get_product_versions
+	if [ "X$do_upgrade" = "X1" -o "$product_prev_version" != "$product_this_version" ]; then
+		action="Doing $product_name upgrade from $product_prev_version to $product_this_version"
+	else
+		action="Doing $product_name $product_this_version installation"
+	fi
+	echo "$action"
+}
+
+# <fun> <package_function_name> <bootstrapper_function_name> NAME VERSION RELEASE [DEB_ACTION]
+package_script_safe_run()
+{
+	PACKAGE_NAME="$3"
+	PACKAGE_VERSION="$4"
+	PACKAGE_RELEASE="$5"
+	PACKAGE_DEB_ACTION="$6"
+	# Run functions in subshell because package scriptlet must exit with status code indicating success.
+	# Postpone package problem report till post-install package scriptlet (package_script_safe_run_with_report)
+	package_script_begin
+	(
+		transaction_begin
+		transaction_add_rollback_action "package_script_end"
+		transaction_add_rollback_action "set_upgrade_failure_flag"
+
+		# run package specific script before bootstrapper
+		call_optional_function "$1"
+
+		# perform bootstrapper prep-install actions if required
+		if is_function "$2"; then
+			# NOTE: flag indicates that prep-install not performed yet
+			if [ -f /tmp/pp-bootstrapper-ez-templates-prep-install.flag ]; then
+				# FIXME: temporary w/a for EZ templates
+				# Some  components (at least, sitebuilder) don't use bootstrapper 
+				# but require prep-install performed before package installation.
+				# Run bootstrapper prep-install actions once during package installation.
+				if [ -f $PRODUCT_BOOTSTRAPPER_DIR/bootstrapper.sh ]; then
+					env MAINTAINER_SCRIPT_CONTEXT=1 $PRODUCT_BOOTSTRAPPER_DIR/bootstrapper.sh prep-install
+					# Save bootstrapper command to perform after package installation
+					echo "$PRODUCT_BOOTSTRAPPER_DIR/bootstrapper.sh post-install" >/tmp/pp-bootstrapper-ez-templates-post-install.sh
+					rm -f /tmp/pp-bootstrapper-ez-templates-prep-install.flag
+				fi
+			fi
+			# run bootstrapper script only if bootstrapper mode is disabled (no AI, no EZ)
+			if [ ! -f /tmp/pp-bootstrapper-mode.flag ]; then
+				"$2"
+			fi
+		fi
+
+		transaction_add_commit_action "package_script_end"
+		transaction_commit
+	)
+}
+
+set_upgrade_failure_flag()
+{
+	touch /var/lock/parallels-panel-upgrade-failure.flag
+}
+
+get_pid()
+{
+	local i
+
+	local ex_f="$1"
+	local opt="$2"
+	local owner="$3"
+
+	local min_num="1"
+
+#	Use pidof by default, bug 121868, except for FreeBSD - 140182
+	if type pidof >/dev/null 2>&1 && [ "$os" != "BSD" ]; then
+		for pid in `pidof -o $$ -o $PPID -o %PPID -x $ex_f`; do
+#	Check for owner
+			[ "$opt" = "true" -a "$owner" != "`ps -p $pid -o ruser=`" ] && continue
+			min_num=$pid
+			break
+		done
+		common_var=$min_num
+		return $min_num
+	fi
+
+	case "$opt" in
+		false)
+			for i in `$ps_long | grep $ex_f | grep -v grep | grep -v httpsdctl | grep -v apachectl | awk '{print $2}' -`; do
+				min_num=$i
+				break
+			done
+			;;
+		true)
+			for i in `$ps_long | grep $ex_f | grep -v grep | grep -v httpsdctl | grep -v apachectl | grep "$owner" | awk '{print $2}' -`; do
+				min_num=$i
+				break
+			done
+			;;
+		*)
+			p_echo "get_pid: wrong parameter"
+			die "get_pid $ex_f $opt $owner"
+			;;
+	esac
+
+	common_var=$min_num
+	return $min_num
+}
+
+kill_pids()
+{
+	ex_f="$1"
+	owner="$2"
+
+	for i in `$ps_long | grep $ex_f | grep -v grep | grep -v httpsdctl | grep -v apachectl | grep $owner | awk '{print $2}' -`; do
+		if [ $i -gt 1 ]; then
+			$K_TERM $i >> $product_log 2>&1
+		fi
+	done
+}
+
+check_hostname()
+{
+    local hostname="$1"
+
+    ipaddress="`perl -e '
+       use strict;
+       use Socket;
+       use Errno;
+
+       my $host = shift || "localhost";
+       my $port = 715;
+
+       my $proto = getprotobyname("tcp") || die "Protocol\: $! \n";
+       my $addr = inet_aton($host) || die "\tUnable to resolve host name.\n\tPlease specify the host name in the /etc/hosts file\n\tor specify DNS configuration in the /etc/resolv.conf file on your system. \n";
+
+       socket(SOCK, PF_INET, SOCK_STREAM, $proto) || die "Socket\: $! \n";
+
+       my $sin = sockaddr_in($port, $addr);
+
+       if (!bind(SOCK, $sin) && $! != Errno::EADDRINUSE) {
+          die "Can not bind a socket to address $host:$port - $!\nPlease, check your network configuration\n";
+       }
+
+       printf inet_ntoa($addr);
+       close(SOCK);
+       ' $hostname `"
+
+       if [ "X$ipaddress" = "X" ]; then
+           return 1
+       else
+           return 0
+       fi
+}
+get_userID()
+{
+# try to get UID
+	common_var=`id -u "$1" 2>/dev/null` 
+
+# if id returns 0 the all is ok
+	if [ "$?" -eq "0" -a ! -z "$common_var" ]; then
+		return 1;
+	fi
+
+	return 0;
+}
+
+get_groupID()
+{
+# try to get GID, id -g doesn't show groups without users
+	common_var=`cat /etc/group | awk -F':' '$1 == "'$1'" {print $3}'` 
+
+# We have non-empty value if success
+	if [ ! -z "$common_var" ]; then
+		return 1;
+	fi
+
+	return 0;
+}
+
+delete_user()
+{
+	local rm_user
+
+	rm_user="$1"
+
+	# if it is mailman user, remove its crontab from system
+	if [ "X${rm_user}" = "X${mailman_user}" ]; then
+
+		inten="remove crontab of ${rm_user}"
+		echo "y" | $crontab -u "${mailman_user}" -r >> $product_log 2>&1 || die "$inten"
+
+	fi
+
+	inten="remove user $rm_user"
+	echo_try "$inten"
+
+	userdel  $rm_user>> $product_log 2>&1 && suc || die "$inten"
+}
+
+delete_group()
+{
+	local rm_group
+
+	rm_group="$1"
+
+	inten="remove group $rm_group"
+	echo_try "$inten"
+
+	mk_backup "/etc/group" cp f
+	if [ -f "/etc/group" ]; then
+		sed -e "/$rm_group/d" < /etc/group > /etc/group.tmp || die $inten
+		mv -f /etc/group.tmp /etc/group  >> $product_log 2>&1
+		if [ "$?" -ne 0 ]; then
+			rsr_backup "/etc/group" cp f
+			die $inten
+		fi
+	fi
+	suc
+}
+
+group_check()
+{
+	local group grp_res
+	group="$1"
+
+	grp_res=`groupmod "$group" 1>/dev/null 2>&1 ; echo $?`
+
+	echo "$grp_res"
+}
+
+add_user_to_group()
+{
+	local user group grp_res existing newlist
+
+	user="$1"
+	group="$2"
+
+	# check exists group
+	p_echo " Checking for the group '$group'..."
+	grp_res=`group_check "$group"`
+
+	if [ "X$grp_res" != "X0" ]; then
+			p_echo " Group '$group' not exists"
+			p_echo " It is necessary to add group '$group'"
+			err
+	fi
+
+	inten="add supplementary group '$group' for user '$user'"
+	echo_try "$inten"
+
+	existing=`id -Gn "$user"|sed 's|[[:space:]]\+|,|g'`
+	if
+		test "$group" = "`id -gn "$user"`" 		|| echo "$existing" | grep -q "\\<$group\\>"
+	then
+		p_echo " already there"
+		return
+	fi
+
+	if test -z "$existing"; then
+		newlist="$group"
+	else
+		newlist="$existing,$group"
+	fi
+
+	usermod -G "$newlist" "$user" 2>>"$product_log" && suc || die "$inten"
+}
+
+group_op()
+{
+	group="$1"
+    gid="$2"
+	id_force="$3"
+	what_done=0
+	local inten
+
+    if [ "X$gid" = "Xsearch" ]; then
+        gid=`get_user_group_id "$group" "gid" 30 400` 
+    fi
+
+	inten="add group '$group'"
+
+	p_echo " Checking for the group '$group'..."
+	grp_res=`group_check "$group"`
+
+	case "$id_force" in
+		true)
+			case "$grp_res" in
+				0)
+				    case "$machine" in
+				    *)
+					etc_grp_res=`egrep "^$group:" /etc/group`
+					case "$etc_grp_res" in
+					*:*:*:*)
+						chk_res=`echo "$etc_grp_res" | grep ":$gid:"`
+						case "$chk_res" in
+							*:*:*:*)
+								p_echo " Group '$group' already exists"
+								;;
+							*) group_err "$group" "$gid"
+								;;
+						esac
+						;;
+					*)
+						p_echo " Group '$group' already exists"
+						;;
+					esac
+					;;
+
+				    esac
+				    ;;
+				*)
+					gid_res=`egrep "^[^:]*:[*x]*:$gid:" /etc/group | head -1`
+					case "$gid_res" in
+						*:*:*:*)
+							gid_err "$gid"
+							;;
+						*)
+							echo_try "$inten"
+							groupadd -g "$gid" "$group" >> $product_log 2>&1 && suc ||
+							die $inten
+							what_done=1
+							;;
+					esac
+					;;
+			esac
+			;;
+		false)
+			case "$grp_res" in
+				0)
+					p_echo " Group '$group' already exists"
+					;;
+				*)
+					echo_try "$inten"
+					groupadd "$group" >> $product_log 2>&1 && suc ||
+					die $inten
+					what_done=1
+					;;
+			esac
+			;;
+		*)
+			p_echo "group_op: wrong last parameter -- must be 'true' or 'false'"
+			p_echo
+			p_echo "Exiting..."
+			p_echo
+			smart_undo_install
+			exit 1
+			;;
+	esac
+
+	p_echo
+	common_var=$what_done
+	if [ "X$what_done" = "X1" ]; then
+		groups_created="$groups_created $group";
+	fi
+	return $what_done
+}
+
+user_op()
+{
+	user="$1"
+	uid="$2"
+	group="$3"
+	u_desc="$4"
+	u_home="$5"
+	u_shell="$6"
+	id_force="$7"
+	gid_force="$8"
+	what_done=0
+
+    if [ "X$uid" = "Xsearch" ]; then
+        uid=`get_user_group_id "$user" "uid" 30 400` 
+    fi
+
+	p_echo " Checking for the user '$user'..."
+	id_res=`id "$user" 1>/dev/null 2>&1 ; echo $?`
+
+	case "$id_force" in
+		true)
+			case "$id_res" in
+				0)
+					chk_res=`id "$user" 2>&1 | egrep '(^uid=.*gid=.*)|(^id.*user)'`
+					if [ "X${gid_force}" = "Xfalse" ]; then
+						chk_uid=`echo "$chk_res" | egrep "uid=""$uid""\(""$user""\)"`
+					else
+						chk_uid=`echo "$chk_res" | egrep "uid=""$uid""\(""$user""\)" | egrep "gid=[0-9]*\(""$group""\)"`
+					fi
+					case "$chk_uid" in
+						uid=*gid=*)
+							p_echo " User '$user' already exists"
+							;;
+						*) logname_err "$user" "$uid"
+							;;
+					esac
+					chsh -s "$u_shell" "$user"
+					;;
+				*)
+					uid_res=`egrep "^[^:]*:[^:]*:""$uid"":" /etc/passwd`
+					case "$uid_res" in
+						*:*:*:*)
+							uid_err "$uid"
+							;;
+						*)
+							pnnl_echo " Trying to add user '$user'... "
+							useradd $useradd_options -u "$uid" -g "$group" -d "$u_home" -s "$u_shell" -c "$u_desc" "$user" >> $product_log 2>&1 &&
+							suc || die "add user '$user'"
+							what_done=1
+							;;
+					esac
+					;;
+			esac
+			;;
+		false)
+			case "$id_res" in
+				0)
+					p_echo " User '$user' already exists"
+					;;
+				*)
+					pnnl_echo " Trying to add user '$user'... "
+					useradd $useradd_options -g "$group" -d "$u_home" -s "$u_shell" -c "$u_desc" "$user" >> $product_log 2>&1 &&
+					suc || die "add user '$user'"
+					what_done=1
+					;;
+			esac
+			;;
+		*)
+			p_echo "user_op: wrong last parameter -- must be 'true' or 'false'"
+			p_echo
+			p_echo "Exiting..."
+			p_echo
+			smart_undo_install
+			exit 1
+			;;
+	esac
+
+	p_echo
+	common_var=$what_done
+	if [ "X$what_done" = "X1" ]; then
+		users_created="$users_created $user";
+	fi
+	return $what_done
+}
+
+get_user_group_id()
+{
+    local name="$1"
+    local src_name="$2"
+    local min_num="$3"
+    local max_num="$4"
+    local count="$min_num"
+
+    case "$src_name" in
+       uid)
+            local src="/etc/passwd"
+            local type="users"
+
+            get_userID "$name"
+            if [ "X$?" = "X1" ]; then
+               echo "$common_var"
+               return 0
+            fi
+       ;;
+       gid)
+            local src="/etc/group"
+            local type="groups"
+            get_groupID "$name"
+            if [ "X$?" = "X1" ]; then
+               echo "$common_var"
+               return 0
+            fi
+       ;;
+       *)
+            p_echo "$src_name for $name was not set"
+            inten="detect uid/gid. Source file was not detect."
+            die "$inten"
+       ;;
+    esac
+
+    if [ ! -f "$src" ]; then
+	p_echo
+	p_echo "ERROR!"
+	p_echo "$src_file: no such file"
+	p_echo "Exiting..."
+	smart_undo_install
+	exit 1
+    fi
+
+    if [ $min_num -le 0 -o $min_num -ge $max_num ]; then 
+		p_echo "get_user_group_id(): wrong parameters"
+		smart_undo_install
+		exit 1
+    fi 
+
+	nums=`cat $src | awk -F: '{print $3}' - | xargs echo -n " "` 
+
+    while [ "$count" -le "$max_num" ]; do
+         echo " $nums " | grep " $count " > /dev/null 2>&1 || break
+         count=`expr $count + 1`
+
+         if [ "$count" -ge "$max_num" ]; then 
+            p_echo "$src_name for $name was not set"
+			inten="get free $src_name. Free $src_name not found."
+			die "$inten"
+         fi
+    done  
+    
+    echo "$count"
+    return 0
+}
+
+add_login_shell()
+{
+	local shell
+
+	shell="$1"
+
+	p_echo " Checking that $shell registered as login shell..."
+
+	case $linux_distr in 
+	    debian)
+		add-shell $shell
+	    ;;
+	    *)
+		if grep -q "^$shell\$" /etc/shells; then
+			p_echo "$shell already registered as a login shell"
+		else
+			echo "$shell" >> /etc/shells 2>> $product_log || die "register login shell $shell"
+		fi
+	    ;;
+	esac
+
+	p_echo
+}
+initial_conf()
+{
+	DEMO_VERSION="no"
+	PRODNAME="psa"
+	PRODUCT_NAME="psa"
+	product_full="Plesk"
+	product=${PRODNAME}
+	PRODUCT_FULL_NAME="Plesk"
+
+	product_etc="/etc/${PRODNAME}"
+	prod_conf_t="/etc/psa/psa.conf"
+	prodkey="$product_etc/$PRODNAME.key"
+
+	minimal_changes="0"
+
+	EXTERNAL_PACKAGES=""
+	EXTERNAL_PACKAGES_DIR=""
+
+	BUILDER_UID="10007"
+
+	PERL5LIB=/opt/psa/local/share/perl/5.14.2:/opt/psa/local/lib/perl/5.14.2
+	export PERL5LIB
+
+        support_contact="http://www.parallels.com/support"
+	sales_email="sales@parallels.com"
+
+	product_version="11.0.9"
+	product_db_version="011009"
+	conceived_os_vendor=Ubuntu
+	conceived_os_version="12.04"
+	osrels="ubuntu12.04"
+
+	# This variable contains all versions, which is supported by
+	# cumulative upgrade
+	known_product_versions="80 81 82 83 84 86 90 92 93 95 100 101 107 108 109 1010 1011 1012 1013 1100"
+
+	prev_product="plesk"
+	prev_clients_group="${prev_product}cln"
+
+        clients_group="${product}cln"
+        clients_GID=10001
+
+        services_group="psaserv"
+        services_GID=10003
+
+        product_suff="saved_by_${product}".`date "+%m.%d;%H:%M"`
+        product_suffo="saved_by_${product}"
+
+	PREV_PRODUCT_ROOT_D="/usr/local/${prev_product}"
+
+	# plesk default password
+	if [ "X$DEMO_VERSION" = "Xyes" ]; then
+		PRODUCT_DEFAULT_PASSWORD="plesk"
+	else
+		PRODUCT_DEFAULT_PASSWORD="setup"
+	fi
+}
+
+read_conf()
+{
+	[ -n "$prod_conf_t" ] || prod_conf_t=/etc/psa/psa.conf
+
+	if [ -s $prod_conf_t ]; then
+		tmp_var=`perl -e 'undef $/; $_=<>; s/#.*$//gm;
+				s/^\s*(\S+)\s*/$1=/mg;
+				print' $prod_conf_t`
+		eval $tmp_var
+	else
+		if [ "X$do_upgrade" = "X1" ]; then
+			[ 0$ignore_miss_conf -ne 1 ] && p_echo "Unable to find product configuration file: $prod_conf_t"
+			return 1
+		fi
+	fi
+	return 0
+}
+
+get_my_cnf_param()
+{
+	local my_cnf cnf_files
+
+	cnf_files="/etc/my.cnf /etc/mysql/my.cnf /var/db/mysql/my.cnf"
+
+	for my_cnf in ${cnf_files}; do
+		if [ -f ${my_cnf} ]; then
+			break
+		fi
+	done
+
+	[ -f ${my_cnf} ] && r=`perl -e '$p="'"$1"'";
+	undef $/; $_=<>; s/#.*$//gm;
+	/\[mysqld\](.*?)\[/sg;
+	$_=substr($1, rindex $1,"$p") and
+	/$p\s*=(.*)/m and print $1
+	' ${my_cnf}`
+	echo $r
+}
+
+get_mysql_socket()
+{
+	mysql_socket="/var/run/mysqld/mysqld.sock"
+
+	local mysqlsock=`get_my_cnf_param  socket`
+	local MYSQL_SOCKETS="/var/lib/mysql/mysql.sock /tmp/mysql.sock /var/run/mysqld/mysqld.sock"
+
+	for i in $mysql_socket $mysqlsock $MYSQL_SOCKETS; do
+	    if [ -S "$i" ]; then
+		    MYSQL_UNIX_PORT=$i
+		    export MYSQL_UNIX_PORT
+		    mysql_socket="$i"
+		    break
+	    fi
+	done
+}
+
+ #default values
+
+product_default_conf()
+{
+
+PRODUCT_ROOT_D=/opt/psa
+PRODUCT_RC_D=/etc/init.d
+PRODUCT_ETC_D=/opt/psa/etc
+PLESK_LIBEXEC_DIR=/usr/lib/plesk-9.0
+HTTPD_VHOSTS_D=/var/www/vhosts
+HTTPD_CONF_D=/etc/apache2
+HTTPD_INCLUDE_D=/etc/apache2/conf.d
+HTTPD_BIN=/usr/sbin/apache2
+HTTPD_LOG_D=/var/log/apache2
+HTTPD_SERVICE=apache2
+QMAIL_ROOT_D=/var/qmail
+PLESK_MAILNAMES_D=/var/qmail/mailnames
+RBLSMTPD=/usr/sbin/rblsmtpd
+COURIER_IMAP_ROOT_D=/
+FTPD_CONF=/etc/proftpd.conf
+FTPD_CONF_INC=/etc/proftpd.include
+FTPD_BIN_D=/usr/bin
+FTPD_VAR_D=/var/run/proftpd
+FTPD_SCOREBOARD=/var/run/proftpd_scoreboard
+NAMED_RUN_ROOT_D=/var/named/run-root
+NAMED_OPTIONS_CONF=
+NAMED_ZONES_CONF=
+WEB_STAT=/usr/bin/webalizer
+MYSQL_VAR_D=/var/lib/mysql
+MYSQL_BIN_D=/usr/bin
+PGSQL_DATA_D=/var/lib/postgresql//main
+PGSQL_CONF_D=/etc/postgresql//main
+PGSQL_BIN_D=/usr/lib/postgresql/9.1/bin
+DUMP_D=/var/lib/psa/dumps
+DUMP_TMP_D=/tmp
+MAILMAN_ROOT_D=/usr/lib/mailman
+MAILMAN_VAR_D=/var/lib/mailman
+PYTHON_BIN=/usr/bin/python2.7
+CATALINA_HOME=/var/lib/tomcat6
+DRWEB_ROOT_D=/opt/drweb
+DRWEB_ETC_D=/etc/drweb
+GPG_BIN=/usr/bin/gpg
+TAR_BIN=/bin/tar
+AWSTATS_ETC_D=/etc/awstats
+AWSTATS_BIN_D=/usr/lib/cgi-bin
+AWSTATS_TOOLS_D=/usr/share/awstats/tools
+AWSTATS_DOC_D=/usr/share/awstats
+OPENSSL_BIN=/usr/bin/openssl
+LIB_SSL_PATH=/lib/libssl.so
+LIB_CRYPTO_PATH=/lib/libcrypto.so
+CLIENT_PHP_BIN=/opt/psa/bin/php-cli
+SNI_SUPPORT=true
+APS_DB_DRIVER_LIBRARY=/usr/lib/libmysqlserver.so.2
+
+}
+
+#-*- vim:syntax=sh
+
+register_service(){
+
+	[ -n "$1" ] || die "register_service: service name not specified"
+	local inten="register service $1"
+	echo_try "$inten"
+
+
+# update-rc.d for Debian/Ubuntu (not SuSE)
+	/usr/sbin/update-rc.d "$1" defaults
+
+	suc
+}
+
+#Need for register/unregister services into /etc/rc.conf for BSD OSes.
+#Create or change strings such as service_option_variable="variable"
+rc_service()
+{
+   local service="$1"
+   local option="$2"
+   local variable="$3"
+   local comment="$4"
+ 
+   local config="/etc/rc.conf"
+
+   if [ "X$variable" = "Xdefault" ]; then
+      remove_option_string "${service}_${option}" "$config"
+      return 0
+   fi
+
+   if [ ! -f /etc/rc.conf ]; then
+      die 'File /etc/rc.conf not found!'
+   fi
+
+   if [ "X$service" = "X" -o "X$option" = "X" -o "X$variable" = "X" ]; then
+      die
+   fi
+
+   local flag="`grep "${service}_${option}" $config`"
+   
+   if [ "X$flag" = "X" ]; then
+        if [ "X$comment" = "Xyes" ]; then
+           echo "#Option for $service created by Plesk installer." >> $config
+	fi
+	echo "${service}_${option}=\"${variable}\"" >> $config || die 
+   else
+        sed -i "" -e 's|\('"${service}_${option}"'.*=\"\).*|\1'"${variable}"'\"|' $config  || die
+   fi
+
+   return 0
+}
+
+remove_option_string()
+{
+    #using: remove_option_string <option> <file>
+    substring="$1"
+    file="$2"
+
+    awk '{
+	if ($0 ~ "^'"$substring"'") {
+	    next;
+	}; 
+	print $0; 
+    }' < $file  > $file.tmp
+
+    mv $file.tmp $file
+}
+# vim:syntax=sh
+
+selinux_is_active()
+{
+	if [ -z "$SELINUX_ENFORCE" ]; then
+		selinux_getenforce
+	fi
+
+	case "$SELINUX_ENFORCE" in
+	Enforcing|Permissive) return 0;;
+	*) return 1;;
+	esac
+}
+
+selinux_get_mount_dir()
+{
+	unset SELINUX_MOUNT_DIR
+
+	if awk '$2 == "/selinux"{exit(1)}' /proc/mounts && mkdir -p /selinux; then
+		SELINUX_MOUNT_DIR=/selinux
+	else
+		SELINUX_MOUNT_DIR="`mktemp -d /tmp/selinuxXXXXXX`"
+	fi >>"$product_log" 2>&1
+}
+
+selinux_getenforce()
+{
+	if [ "$1" = "--check" -a -n "$SELINUX_ENFORCE" ]; then
+		return
+	fi
+	unset SELINUX_ENFORCE
+
+	if ! ( command -v selinuxenabled >/dev/null 2>&1 && selinuxenabled ); then
+		SELINUX_ENFORCE=Disabled
+		return
+	fi
+
+	if awk '$3 == "selinuxfs"{exit(1)}' /proc/mounts; then
+		selinux_get_mount_dir
+		mount -t selinuxfs none "$SELINUX_MOUNT_DIR"
+	fi
+
+	if ! command -v getenforce >/dev/null 2>&1; then
+		SELINUX_ENFORCE=Disabled
+		return
+	fi
+
+	SELINUX_ENFORCE="`getenforce`"
+	if test $? -ne 0; then
+		SELINUX_ENFORCE=Disabled
+		return
+	fi
+}
+
+selinux_init()
+{
+	unset SELINUX_ENFORCE
+	if selinux_is_active; then
+		setenforce Permissive
+	else
+		unset SELINUX_ENFORCE
+	fi
+}
+
+selinux_close()
+{
+	if [ -z "$SELINUX_ENFORCE" -o "$SELINUX_ENFORCE" = "Disabled" ]; then
+		return
+	fi
+
+	setenforce "$SELINUX_ENFORCE"
+}
+
+selinux_fix_booleans()
+{
+    :
+}
+
+
+necessary_system_accounts_prep_install()
+{
+	p_echo
+	p_echo "===> Checking for the necessary system accounts"
+	common_var=0
+
+# for mysql
+	p_echo " Checking for the system groups and users necessary for MySQL..."
+	group_op "$mysql_group" "$mysql_GID" false
+	user_op "$mysql_user" "$mysql_UID" "$mysql_group" "MySQL Server" "/" "$dummy_shell" false
+
+# for admin
+	p_echo " Checking for the system groups and users necessary for admin server..."
+	group_op "$admin_group" "search" false
+	user_op "$admin_user" "search" "$admin_group" "Admin Server" "$dummy_home" "$dummy_shell" false
+
+# for psaservices (only after creating apache and psaftp)
+	group_op "$services_group" "$services_GID" false
+	add_user_to_group "$apache_user" "$services_group"
+	add_user_to_group "$anonftp_user" "$services_group"
+	add_user_to_group "$admin_user" "$services_group"
+
+# clients
+	found=`get_user_group_id "clients" "gid" $clients_GID $max_suexec_GID`
+	group_op $clients_group $found false
+
+#for bind in MacOS
+	if [ -x /usr/bin/niutil ]; then
+		/usr/bin/niutil -list / /users/bin >>$product_log 2>&1
+
+		/usr/bin/niutil -list / /groups/bind >>$product_log 2>&1
+		if [ "$?" != "0" ]; then 
+			group_op "bind" "53" true		
+		fi
+	fi
+}
+
+#set_params
+
+set_common_params()
+{
+	common_var=0
+
+	PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+	LANG=C
+	export PATH LANG
+	umask 022
+	ulimit -n 65535 2>/dev/null
+
+	K_HUP="/bin/kill -HUP"
+	K_KILL="/bin/kill -KILL"
+	K_TERM="/bin/kill -TERM"
+	K_USR2="/bin/kill -USR2"
+
+	users_created=""
+	groups_created=""
+
+	certificate_file="$PRODUCT_ETC_D/httpsd.pem"
+	services="/etc/services"
+	mtab="/etc/mtab"
+	get_hostname="hostname"
+	get_domainname="domainname"
+
+	#VZP used to determine that we're inside SVE
+	vza_file="/var/vzagent"
+
+	#default parameters
+	tar="tar"
+	crontab="/usr/bin/crontab"
+
+	cp_preserve="cp -p"
+	SYSTEM_RC_D=/etc/init.d
+	PLESK_LIBEXEC_DIR="/usr/lib/plesk-9.0"
+	PLESK_DB_DIR="/var/lib/plesk"
+	POSTFIX_LIBEXEC_DIR="/usr/lib/postfix"
+	PRODUCT_BOOTSTRAPPER_DIR="/opt/psa/bootstrapper/pp11.0.9-bootstrapper"
+	AUTOGENERATED_CONFIGS="#ATTENTION!\n#\n#DO NOT MODIFY THIS FILE BECAUSE IT WAS GENERATED AUTOMATICALLY,\n#SO ALL YOUR CHANGES WILL BE LOST THE NEXT TIME THE FILE IS GENERATED.\n"
+    AUTOGENERATED_CONFIGS_UPGRADE="#ATTENTION!\n#\n#DO NOT MODIFY THIS FILE BECAUSE IT WAS GENERATED AUTOMATICALLY,\n#SO ALL YOUR CHANGES WILL BE LOST AFTER YOU UPGRADE PARALLELS PLESK PANEL.\n"
+
+	set_common_params_linux 
+
+	detect_vz
+}
+
+set_common_params_linux()
+{
+	get_hostname="hostname -f"
+	fstab="/etc/fstab"
+	cp_preserve="cp --preserve=all --remove-destination"
+	machine="linux"
+	sendmail="/usr/sbin/sendmail"
+	ps="ps axw"
+	ps_long="ps axuw"
+	false_shell="/bin/false"
+	dummy_home="/"
+	compress="gzip -9 -c"
+	uncompress="gunzip -c"
+	uudecode="uudecode -o /dev/stdout"
+	ifconfig="/sbin/ifconfig -a"
+	inet_str="inet addr"
+
+	if [ -f /etc/slackware-version ]; then
+	    linux_distr="slackware"
+	    useradd_options=""
+	    sndml_ini="/etc/rc.d/init.d/sendmail"
+	    mail_local="/usr/libexec/mail.local"
+	    dummy_shell=""
+	    named_osrelease=0
+	else
+	    useradd_options="-M"
+	    if [ -f /etc/mandrake-release ]; then
+		linux_distr="mandrake"
+	    elif [ -f /etc/fedora-release ]; then
+		linux_distr="fedora"
+	    elif [ -f /etc/SuSE-release ]; then
+		linux_distr="suse"
+		useradd_options="-r"
+	    elif [ -f /etc/debian_version ]; then
+		linux_distr="debian"
+		get_domainname="dnsdomainname"
+		useradd_options=""
+	    else
+		linux_distr="redhat"
+	    fi
+
+	    sndml_ini="/etc/init.d/sendmail"
+	    mail_local="/usr/libexec/mail.local"
+	    if [ -x /sbin/nologin ]; then
+		dummy_shell="/sbin/nologin"
+	    else
+		dummy_shell="/bin/false"
+	    fi
+	    bash_shell="/bin/bash"
+	    rbash_shell="/bin/rbash"
+	    uudecode_full="/usr/bin/uudecode"
+	    named_osrelease=`cat /proc/sys/kernel/osrelease | perl -F"/[.-]/" -n -a  -e 'printf "%02u%02u%02u\n", $F[0],$F[1],$F[2]'`
+	fi
+
+	return 0
+}
+
+define_start_script()
+{
+	if [ -f "$PRODUCT_RC_D/${product}.sh" ]; then
+		START_SH="$PRODUCT_RC_D/${product}.sh"
+	else
+		START_SH="$PRODUCT_RC_D/${product}"
+	fi
+}
+
+set_local_params()
+{
+	for i in set_admin_params lock_keyupdate set_apache_params set_awstats_params set_courier_imap_params set_syslog_params set_logrotate_params set_mysqld_params set_qmail_params set_webalizer_params set_horde_params set_atmail_params ; do
+		$i
+		local res="$?"
+		if [ "0$res" -gt 0 ]; then
+			return "$res"
+		fi
+	done
+}
+set_syslog_params()
+{
+	syslog_service="sysklogd"
+	syslog_conf_ng="/etc/syslog-ng/syslog-ng.conf"
+
+	syslog_conf=""
+	for config in rsyslog.conf rsyslog.early.conf syslog.conf; do
+		[ -f "/etc/$config" ] && syslog_conf="$syslog_conf /etc/$config"
+	done
+
+	# FIXME: quick fix of 142129
+	if [ "${machine}" = "linux" -a ! -x "$PRODUCT_RC_D/$syslog_service" -a -x "$PRODUCT_RC_D/rsyslog" ]; then
+		syslog_service="rsyslog"
+		syslog_binary="/sbin/rsyslogd"
+	elif [ "${machine}" = "linux" -a ! -x "$PRODUCT_RC_D/$syslog_service" -a -x "$PRODUCT_RC_D/syslog-ng" ]; then
+		syslog_service="syslog-ng"
+		syslog_binary="/sbin/syslog-ng"
+	else
+		syslog_binary="/sbin/syslogd"
+	fi
+}
+## @@constructor set_syslog_params
+
+true syslog_status_linux_debian
+syslog_status_linux_debian()
+{
+	get_pid "$syslog_binary" false
+	local pid=$common_var
+	if test "$pid" -ne 1; then
+		# running
+		return 0
+	fi
+	return 1
+}
+
+
+# -*- vim:syntax=sh
+
+packagemng_set_dirty_flag()
+{
+	if [ -f ${PRODUCT_ROOT_D}/admin/bin/packagemng ]; then
+		${PRODUCT_ROOT_D}/admin/bin/packagemng --set-dirty-flag 1>>$product_log 2>&1
+	fi
+}
+
+get_product_versions()
+{
+	local prod_root_d="/opt/psa"
+	
+	product_name="psa"
+	product_this_version="11.0.9"
+	product_this_version_tag=""
+	if [ -z "$product_prev_version" ]; then
+		if [ -r "$prod_root_d/version.upg" ]; then
+			product_prev_version=`cat "$prod_root_d/version.upg" | awk '{ print $1 }'`
+		elif [ -r "$prod_root_d/version" ]; then
+			product_prev_version=`cat "$prod_root_d/version" | awk '{ print $1 }'`
+		else
+			product_prev_version="$product_this_version"
+		fi
+	fi
+}
+set_logrotate_params()
+{
+	# primary Plesk logrotate config file
+	logrotate_conf="${product_etc}/logrotate.conf"
+
+	# directory for logrotate configs of virtual hosts
+	logrotate_include_d="${PRODUCT_ETC_D}/logrotate.d"
+}
+
+remove_modules()
+{
+	p_echo
+	p_echo "===> Removing modules"
+
+	local moduledir
+	for moduledir in $PRODUCT_ROOT_D/var/modules/*; do
+		if [ -d "$moduledir" -a -x "$moduledir/uninstall" ]; then
+			local module=`basename $moduledist`
+			echo_try "uninstall $module module"
+			"$moduledir/uninstall" && suc || warn "uninstallation of $module module"
+		fi
+	done
+}
+# -*- vim:syntax=sh
+
+# mysql
+
+set_mysqld_params()
+{
+	mysql_user="mysql"
+	mysql_UID=3306
+	mysql_group="mysql"
+	mysql_GID=3306
+
+	product_db_sql="$PRODUCT_BOOTSTRAPPER_DIR/db/${PRODNAME}_db.sql"
+
+	set_mysql_server_params
+	set_mysql_client_params
+}
+
+## @@constructor set_mysqld_params
+
+set_mysql_server_params()
+{
+	local service
+
+	MYSQL_ROOT="$PRODUCT_ROOT_D/mysql"
+	mysql_bindir="$MYSQL_BIN_D"
+
+	get_mysql_socket
+
+	if [ -x "${PRODUCT_RC_D}/mysql" ]; then
+	    mysql_service="mysql"
+	elif [ -x "${PRODUCT_RC_D}/mysql.sh" ]; then
+	    mysql_service="mysql.sh"
+	elif [ -x "${PRODUCT_RC_D}/mysqld" ]; then
+	    mysql_service="mysqld"
+	elif [ -x "${PRODUCT_RC_D}/mysql" ]; then
+	    mysql_service="mysql"
+	elif [ "X$DEMO_VERSION" = "Xyes" ]; then
+	    mysql_service="mysqld"
+	else
+	    die "$inten"	
+	fi
+}
+
+true mysql_stop mysql_status
+
+set_mysql_client_params()
+{
+	mysql_client="$MYSQL_BIN_D/mysql"
+
+#	Override these variables as needed
+	mysql_db_name="$PRODNAME"
+	mysql_passwd_file="$product_etc/.${PRODNAME}.shadow"
+	prev_mysql_passwd_file="$PREV_PRODUCT_ROOT_D/admin/conf/admin.conf"
+
+ 	if [ -z "$mysql_unconfigured" ];then
+#	Need for mysql_status related function
+		set_mysql_server_params	
+		set_mysql_auth
+	fi
+
+	mysql_args="-N"
+	mysql_args_raw="-Br"
+
+	# For backward compatibility only, should use mysql() and mysql_raw() instead
+	mysql=mysql
+	mysql_raw=mysql_raw
+}
+
+generate_mysql_credentials()
+{
+	mysql_defaults="$1"
+	shift
+	mysql_user=${1:+--user=$1}
+	shift
+	mysql_passwd=${*:+--password=$*}
+}
+
+# This function must be called *ONLY* for psa installation
+setup_admin_login()
+{
+	unset MYSQL_PWD
+	local mysql_db_name="mysql"
+	local IFS_OLD
+	local sl
+	local inten="define valid mysql credentials"
+	local i
+
+	echo_try "$inten"
+	get_admin_passwd
+	IFS_OLD=$IFS
+
+# --no-defaults:admin:$admin_passwd		admin with pass
+# --no-defaults:root:					root without pass
+# :root:								root with pass in defaults
+# --no-defaults:admin:					admin withiyt pass
+# --no-defaults:admin:$PRODUCT_DEFAULT_PASSWORD		admin with default pass
+# :admin:								admin with pass in defaults
+# ::									user and pass in defaults
+# --defaults-file=/root/.my.cnf			hspc defaults (paranoid)
+#
+	for sl in `sequence 20`; do
+		for i in	"--no-defaults:admin:$admin_passwd" 					"--no-defaults:root:" 					":root:" 					"--no-defaults:admin:" 					"--no-defaults:admin:$PRODUCT_DEFAULT_PASSWORD" 					":admin:" 					"::" 					"--defaults-file=/root/.my.cnf::"; do
+			IFS=":"
+			generate_mysql_credentials $i
+			IFS=$IFS_OLD
+			if mysql_test_connection; then
+				suc
+# 	create/Update admin superuser
+				echo "grant all privileges on *.* to 'admin'@'localhost' identified by '$admin_passwd' with grant option;flush privileges" | mysql_direct mysql
+				update_psa_shadow
+				set_mysql_auth
+#	backup private my.cnf if it contains password (vz/hspc related)
+				rm -f /.my.cnf
+				grep -q '\s*password\s*=' /root/.my.cnf 2>/dev/null && mv -f /root/.my.cnf /root/.my.cnf.bak
+				return 0
+			fi
+		done
+		p_echo "One more attempt to connect"
+		sleep "$sl"
+	done
+	die "$inten"
+}
+
+update_psa_shadow()
+{
+	echo "$admin_passwd" > $mysql_passwd_file || die
+	chown $admin_user:$admin_group ${mysql_passwd_file} || die
+	chmod 600 ${mysql_passwd_file} || die
+}
+
+# iF YOUR package want to use mysql db you must call this function directly
+set_mysql_auth()
+{
+	local inten="set up mysql authentification"
+	get_admin_passwd
+
+	pleskrc mysql start
+
+	mysql_user="--user=admin"
+	mysql_passwd="--password=$admin_passwd"
+	unset mysql_defaults
+
+	if [ -z "$MYSQL_AUTH_SKIP_CONNECTION_CHECK" ]; then
+		mysql_test_connection 60 || die "$inten"
+	fi
+	suc
+}
+
+get_admin_passwd()
+{
+    [ -z "$admin_passwd" ] || return 0
+
+    if [ -f "$mysql_passwd_file" ]; then
+		admin_passwd=`cat "$mysql_passwd_file"`
+		return 0
+    fi
+
+	admin_passwd=`get_random_string 12 'A-Za-z0-9_'`
+
+	[ -n "$admin_passwd" ] || admin_passwd="$PRODUCT_DEFAULT_PASSWORD"
+}
+
+reset_admin_passwd()
+{
+	[ -n "$admin_passwd" ] || die "admin_passwd is not set yet"
+	# I bet someone somewhere replaces 'localhost' with '%' (for weird automation purposes), so be nice
+	echo "SET PASSWORD FOR 'admin'@'localhost' = PASSWORD('$admin_passwd')" | mysql_direct mysql || 	echo "SET PASSWORD FOR 'admin'@'%'         = PASSWORD('$admin_passwd')" | mysql_direct mysql
+}
+
+#Invoke mysql
+mysql()
+{
+	mysql_anydb -D$mysql_db_name "$@"
+}
+
+mysql_anydb()
+{
+	$mysql_client $mysql_user $mysql_passwd $mysql_args "$@" 2>>"$product_log"
+
+	local status=$?
+	if [ $status -gt 0 ]; then
+		$mysql_client $mysql_user $mysql_passwd $mysql_args -D$mysql_db_name $mysql_args_raw -e "SHOW ENGINE innodb status" >>"$product_log" 2>&1
+	fi
+	return $status
+}
+
+# Invoke mysql without any wrapper or something else
+mysql_direct()
+{
+	$mysql_client $mysql_defaults $mysql_user $mysql_passwd $mysql_args "$@" 2>>"$product_log"
+}
+
+# Invoke mysql in raw mode
+mysql_raw()
+{
+	mysql $mysql_args_raw "$@"
+}
+
+mysql_raw_anydb()
+{
+	mysql_anydb $mysql_args_raw "$@"
+}
+
+mysql_start_linux_suse_ex()
+{
+	if [ -x "/sbin/service" ]; then
+		action_cmd="/sbin/service mysql"
+	else
+		action_cmd="$SYSTEM_RC_D/$mysql_service"
+	fi
+
+	$action_cmd start >> $product_log 2>&1
+}
+
+true mysql_start_linux_suse
+mysql_start_linux_suse()
+{
+	inten="start service mysql"
+	echo_try "$inten"
+
+	mysql_start_linux_suse_ex
+	local rc="$?"
+
+# bug 52690. MySQL init script reports failure if protected mysqld is running (true for SuSE >= 11.3)
+	if [ "$rc" -ne 0 ]; then
+		local mysqld_bin="/usr/sbin/mysqld"
+		killall -TERM mysqld >> $product_log 2>&1
+		if [ -x "$mysqld_bin" ]; then
+			for i in 2 4 8 16 32; do
+				get_pid "$mysqld_bin" false
+				local pid="$common_var"
+				if test "$pid" -eq 1; then
+					break
+				fi
+				killall -TERM mysqld >> $product_log 2>&1
+				sleep $i
+			done
+		fi
+		mysql_start_linux_suse_ex
+		rc="$?"
+	fi
+
+	[ "$rc" -eq 0 ] && suc || warn "$inten"
+	return $rc
+}
+
+mysql_test_connection()
+{
+	inten="establish test connection"
+	echo_try $inten
+	attempts=${1:-1}	
+	for i in `sequence $attempts`; do
+		echo "" | mysql_direct mysql >> "$product_log" 2>&1
+		if [ "$?" -eq "0" ]; then
+			p_echo "connected"
+			return 0
+		fi
+		[ "$attempts" -eq "1" ] || sleep 2
+	done
+
+	p_echo "failed"
+	return 1
+}
+
+###	FIXME: probably need var service_restart warn
+mysql_stop()
+{
+	local op_result i
+
+	inten="stop MySQL server"
+	echo_try $inten
+
+	$PRODUCT_RC_D/$mysql_service stop >> $product_log 2>&1
+
+	op_result=$?
+
+	if [ "X$linux_distr" = "Xdebian" ]; then
+# Debian has well designed mysql stopping code
+		[ "$op_result" -eq 0 ] || die $inten
+		suc
+		return 0
+	fi
+
+	for i in 2 4 6 8 16; do
+		if ! mysql_status ; then
+			suc
+			return 0
+		fi
+
+		case $machine in
+			BSD*|Darwin*)
+				#In BSD systems mysqld must to be killed without -9 flag
+				killall mysqld mysqld_safe >> $product_log 2>&1
+			;;
+			*)
+				# I just want to be sure that mysql really stopped
+				killall -TERM mysqld mysql safe_mysqld mysqld_safe >> $product_log 2>&1
+			;;
+		esac
+		sleep $i
+	done
+
+	die "$inten"
+}
+
+mysql_status()
+{
+	local file
+
+    #Check with native script first
+	#debian script always return 0. bug #111825
+	[ "X$linux_distr" = "Xdebian" ] && msqld_status_supported="no"
+	
+	if [ -z "$msqld_status_supported" ]; then
+# MySQL AB packages doesn't know about status command
+		if LC_MESSAGES=C $PRODUCT_RC_D/$mysql_service 2>&1 | grep -q "status"; then
+			msqld_status_supported="yes"
+		else
+			msqld_status_supported="no"
+		fi
+	fi
+
+	if [ "$msqld_status_supported" = "yes" ]; then
+# Common RPM mysql's and FreeBSD
+	$PRODUCT_RC_D/$mysql_service status >> $product_log 2>&1 		&& return 0
+	fi
+
+	if [  "$msqld_status_supported" = "no" ]; then
+# MySQL AB packages
+		file="/usr/sbin/mysqld"
+	fi
+
+    if [ -x "$file" ]; then
+		#standard build and debian
+		get_pid "$file" false
+		pid=$common_var
+		if test "$pid" -ne 1; then
+			echo "$file (pid $pid) is running..." >>$product_log 2>&1
+			return 0
+		else
+			echo "$file is stopped" >>$product_log 2>&1
+			return 1
+		fi
+	fi
+
+	return 1
+}
+
+check_db()
+{
+	local myOK db_connected db_password
+
+	inten="find $PRODNAME database"
+	echo_try $inten
+
+#	If database not exists
+	if ! db_test --any-db "SHOW DATABASES" '/^psa$/'; then
+		p_echo "not found"
+		local mysql_db_name="mysql"
+		db_do "drop database if exists test"
+		db_do "delete from user where User=''"
+		db_do "delete from user where User='root'"
+		db_do "flush privileges"
+		return 1
+	fi
+#	Database found, but version undefined
+	if ! db_select "select val from misc where param='version'" || [ -z "$db_select_output" ]; then
+		p_echo "DATABASE ERROR!!!"
+		p_echo "Database $PRODNAME found, but version undefined"
+		die $inten
+	fi
+
+	prev_db_version="$db_select_output"
+
+# Now check psa database version
+	p_echo "version is $prev_db_version"
+	prev_db_short_version=`expr ${prev_db_version} / 10`
+
+	if [ "0$prev_db_short_version" -ne "0$prev_short_version" -a 		 "0$product_db_version" -ne "0$prev_db_version" ]; then
+		p_echo "DATABASE ERROR!!!"
+		p_echo "Previous product version is ${prev_version}, but previous database"
+		p_echo "version is ${prev_db_version}. In most of cases it is result of"
+		p_echo "previous upgrade try failure. Please, restore previous version"
+		p_echo "from backup, and try again or contact technical support."
+		die "check database version"
+    fi
+
+	# this message for situation, where psa was deleted, but database not
+    if [ "X$prev_db_version" = "X$product_db_version" -o 		 "X${product_db_version}" = "X$prev_db_version" ]; then
+	    p_echo "Version is OK, no need to create $PRODNAME database."
+    fi
+
+	return 0;
+}
+
+product_install_db()
+{
+	p_echo "===> Installing $PRODNAME database"
+
+#	Start mysql without test connection mysql isn't initialize yet
+	pleskrc mysql start
+
+	setup_admin_login	
+
+	get_mysql_socket
+
+	inten="check ${PRODNAME} database"
+	echo_try $inten
+	if check_db; then
+	    # product database OK, no need to create it
+	    return 0
+	fi
+
+	inten="install initial $PRODUCT_NAME database"
+	echo_try $inten
+	[ -f "$product_db_sql" ] || die "$inten: file not found: $product_db_sql"
+	mysql_anydb < $product_db_sql && suc || die $inten
+
+	db_do "replace into misc (param,val) values('def_locale', '$default_locale')"
+	db_do "$query replace into locales(id) values('$default_locale')"
+	db_do "$query alter table clients alter locale set default '$default_locale'"
+
+	db_install_dashboard_presets
+
+	db_init_updater_state
+
+	set_db_version
+	db_do "REPLACE INTO misc(param, val) VALUES('mysql41_compatible', 'true')"
+}
+
+db_install_dashboard_presets()
+{
+	local inten
+	inten="install initial Desktop presets"
+	mysql < "$PRODUCT_BOOTSTRAPPER_DIR/db/${PRODNAME}_db_dashboard_presets.sql" >> "$product_log" 2>&1 || die "$inten"
+}
+
+db_init_updater_state()
+{
+	local disable_updater="false"
+	$mysql <<EOF || die "init updater state"
+		REPLACE INTO misc(param, val) VALUES('disable_updater', '$disable_updater');
+EOF
+}
+
+set_db_version()
+{
+	#install db version
+	echo_try "set psa database version to $product_db_version"
+	db_do "replace into misc (param,val) values('version', '$product_db_version')"
+}
+
+configure_mysql_innodb()
+{
+	local my_cnf awk_script
+	my_cnf=$1
+
+	if ! $mysql_client --version | grep -q '3\.23'; then
+		return
+	fi
+
+	if ! (test -f $my_cnf && grep -q '^\[mysqld\]' "$my_cnf"); then
+		echo "[mysqld]" >> $my_cnf
+		echo "innodb_data_file_path=ibdata1:10M:autoextend" >> $my_cnf
+		echo "safe-show-database" >> $my_cnf
+		return
+	fi
+
+	awk_script='/^\[mysqld\]$/{print; print "innodb_data_file_path=ibdata1:10M:autoextend"; next;} {print}'
+	if ! grep -q '^innodb_data_file_path' "$my_cnf"; then
+		awk "$awk_script" "$my_cnf" >"$my_cnf.tmp" && mv "$my_cnf.tmp" "$my_cnf" || die "edit $my_cnf"
+	fi
+
+	awk_script='/^\[mysqld\]$/{print; print "safe-show-database"; next;} {print}'
+	if ! grep -q '^safe-show-database' "$my_cnf"; then
+		awk "$awk_script" "$my_cnf" >"$my_cnf.tmp" && mv "$my_cnf.tmp" "$my_cnf" || die "edit $my_cnf"
+	fi
+}
+
+#bug #46837. Disable "LOAD DATA LOCAL INFILE" command.
+configure_mysql_infile()
+{
+	local my_cnf awk_script sys
+	my_cnf=$1
+
+	if ! (test -f $my_cnf && grep -q '^\[mysqld\]' "$my_cnf"); then
+		echo "[mysqld]" >> $my_cnf
+		echo "local-infile=0" >> $my_cnf
+		return
+	fi
+
+	awk_script='/^\[mysqld\]$/{print; print "local-infile=0"; next;} {print}'
+	if ! grep -q '^local-infile' "$my_cnf"; then
+		awk "$awk_script" "$my_cnf" >"$my_cnf.tmp" && mv "$my_cnf.tmp" "$my_cnf" || die "edit $my_cnf"
+	fi
+}
+
+configure_mysql_nonlocal()
+{
+	local my_cnf
+	my_cnf=$1
+
+	if grep -q '^bind-address' "$my_cnf"; then
+		sed -e "s|^\(bind-address[[:space:]]*=[[:space:]]*127\.0\.0\.1.*\)|# \1|g" 			"$my_cnf" >"$my_cnf.tmp" && mv "$my_cnf.tmp" "$my_cnf" || die "edit $my_cnf"
+	fi
+}
+
+configure_mysql_disable_old_passwords()
+{
+	local my_cnf="$1"
+	local awk_script='/^[[:space:]]*old_passwords/ { print "# Forced OLD_PASSWORD format is turned OFF by Plesk\n#" $0; next } { print }'
+
+	mysql_disable_old_passwords_conf_changed=0
+	if awk "$awk_script" "$my_cnf" > "$my_cnf.tmp" || die "edit $my_cnf"; then
+		if diff -q "$my_cnf" "$my_cnf.tmp" 1>/dev/null ; then
+			rm -f "$my_cnf.tmp"
+		else
+			mysql_disable_old_passwords_conf_changed=1
+			mv "$my_cnf.tmp" "$my_cnf" || die "disable old_passwords in $my_cnf"
+		fi
+	fi
+}
+
+run_configure_mysql_funcs()
+{
+	local funcs="$@"
+	local cnf_files="/etc/my.cnf /etc/mysql/my.cnf /var/db/mysql/my.cnf"
+
+	for my_cnf in $cnf_files; do
+		if [ -f ${my_cnf} ]; then
+			break
+		fi
+	done
+
+	for func in $funcs; do
+		eval "$func $my_cnf"
+	done
+
+	return 0
+}
+
+mysql_install_init()
+{
+	cnf_files="/etc/my.cnf /etc/mysql/my.cnf /var/db/mysql/my.cnf"
+
+	for my_cnf in $cnf_files; do
+		if [ -f ${my_cnf} ]; then
+			break
+		fi
+	done
+
+	#Bug #117044. 
+	dir="`echo $my_cnf | sed -e 's|\(.*\)\/.*|\1|g'`"
+	if [ ! -d $dir ]; then
+	    mkdir -p $dir 
+	    chown ${mysql_user}:${mysql_group} $dir
+	    chmod 755 $dir
+	fi
+
+	configure_mysql_innodb "$my_cnf"
+	configure_mysql_infile "$my_cnf"
+	configure_mysql_nonlocal "$my_cnf"
+	configure_mysql_disable_old_passwords "$my_cnf"
+
+
+	product_install_db
+	update_mysql4_permissions
+	mysql_fix_remove_empty_users
+	tune_vz_mysql "$my_cnf"
+	pleskrc mysql restart
+}
+
+mysql_fix_remove_empty_users()
+{
+	db_do "DELETE FROM mysql.user WHERE user = ''; FLUSH PRIVILEGES;"
+}
+
+dump_db()
+{
+	${MYSQL_BIN_D}/mysqldump $mysql_user $mysql_passwd --quote-names --databases $*
+}
+# -- start of mysqlnd old passwords upgrade --
+
+# The reason why this code is not in the db/upgrade_db_1100.sh file is the following:
+# It turned out that during the upgrade from 8.6 to 11.0 sw-engine may be installed to
+# satisfy bootstrapper's dependency; new sw-engine with the mysqlnd extenstion refused to work 
+# with the passwords in the old format. So passwords upgrade should be done prior the the database upgrade.
+# This is vital as there are PHP-scripts (working with the database) invoked during the upgrade.
+
+upgrade_mysqlnd_old_passwd()
+{
+	# It's probably better to extract all child functions into .in file
+	run_configure_mysql_funcs configure_mysql_disable_old_passwords
+	if [ "$mysql_disable_old_passwords_conf_changed" = "1" ]; then
+		pleskrc mysql restart
+	fi
+
+	db_test "SELECT length(PASSWORD('test'))" '$1 == 41' || die "disable old_passwords=1 in my.cnf"
+	check_mysql_users_with_old_passwd_format || return 0
+
+	inten="upgrade MySQL password format"
+	reset_admin_passwd || die "$inten for admin"
+	reset_sitebuilder_passwd || die "$inten for Sitebuilder user"
+	reset_billing_passwd || die "$inten for Billing user"
+	reset_apsc_passwd || die "$inten for APS controller user"
+	reset_horde_passwd || die "$inten for Horde webmail user"
+	reset_atmail_passwd || die "$inten for AtMail webmail user"
+	reset_mysql_dbusers_passwd || die "$inten for Panel DB users"
+	reset_phpmyadmin_passwd || die "$inten for phpMyAdmin control user"
+	reset_siteeditor_passwd || die "$inten for SiteEditor user"
+	check_mysql_users_with_old_passwd_format && warn_mysql_old_passwd_users
+}
+
+check_mysql_users_with_old_passwd_format()
+{
+	local mysql_db_name=mysql
+	db_test "SELECT User FROM user WHERE length(Password) != 41 LIMIT 1" '1'
+}
+
+reset_user_password()
+{
+	local user="$1"
+	local passwd="$2"
+	local host="${3:-localhost}"
+
+	echo "SET PASSWORD FOR '$user'@'$host' = PASSWORD('$passwd')" | mysql_direct mysql || 
+	[ "$host" = "127.0.0.1" -o "$host" = "::1" ] && host="localhost" && 	echo "SET PASSWORD FOR '$user'@'$host' = PASSWORD('$passwd')" | mysql_direct mysql ||
+	echo "SET PASSWORD FOR '$user'@'%'     = PASSWORD('$passwd')" | mysql_direct mysql
+}
+
+is_local_mysql_instance()
+{
+	local host="$1"
+	[ -z "$host" -o "$host" = "localhost" -o "$host" = "127.0.0.1" -o "$host" = "::1" ]
+}
+
+check_db_accessible()
+{
+	local mysql_db_name="$1"
+	local mysql_user="--user=$2"
+	local mysql_passwd="--password=$3"
+
+	db_do --inten "check that DB $1 is accessible to user $2" ""
+}
+
+reset_sitebuilder_passwd()
+{
+	local sb_conf="/usr/local/sb/config"
+	[ -f "$sb_conf" ] || return 0
+
+	local sb_host=`    get_ini_conf_var "$sb_conf" "database" "host"`
+	local sb_username=`get_ini_conf_var "$sb_conf" "database" "username"`
+	local sb_password=`get_ini_conf_var "$sb_conf" "database" "password"`
+	local sb_dbname=`  get_ini_conf_var "$sb_conf" "database" "dbname"`
+
+	is_local_mysql_instance "$sb_host" || return 0
+
+	reset_user_password "$sb_username" "$sb_password" "$sb_host" && 	check_db_accessible "$sb_dbname" "$sb_username" "$sb_password"
+}
+
+reset_billing_passwd()
+{
+	local billing_db_bin="/usr/share/plesk-billing/billing-db"
+	local bil_host bil_user bil_passwd bil_dbname bil_mysql_local bil_info
+
+	[ -x "$billing_db_bin" ] || return 0
+	bil_mysql_local=`$billing_db_bin --is-local 2>/dev/null`
+	if [ "$?" -eq 0 ]; then
+		# New billing-db version is shell-friendly
+		bil_dbname=`$billing_db_bin --get name`
+		bil_user=`  $billing_db_bin --get user`
+		bil_host=`  $billing_db_bin --get host`
+	else
+		# Slightly older ones provide --info option
+		bil_info=`$billing_db_bin --info 2>/dev/null`
+		if [ "$?" -eq 0 ]; then
+			bil_dbname=`echo "$bil_info" | sed -ne 's/Database Name:\s*\(.*\)/\1/p'`
+			bil_user=`  echo "$bil_info" | sed -ne 's/Database User:\s*\(.*\)/\1/p'`
+			bil_host=`  echo "$bil_info" | sed -ne 's/Database Hostname:\s*\(.*\)/\1/p'`
+			bil_mysql_local=
+		fi
+	fi
+	if [ -z "$bil_dbname" -o -z "$bil_user" ]; then
+		# And finally, if invoked w/o arguments, billing-db switches into MySQL prompt
+		bil_info=`echo 'select database() \G select current_user() \G' | $billing_db_bin`
+		[ "$?" -eq 0 ] || return 1
+		local bil_auth=`echo "$bil_info" | sed -ne 's/current_user():\s*\(.*\)/\1/p'`
+		bil_dbname=`    echo "$bil_info" | sed -ne 's/database():\s*\(.*\)/\1/p'`
+		bil_user=`get_narg_fs "$bil_auth" '@' 1`
+		bil_host=`get_narg_fs "$bil_auth" '@' 2`
+		bil_mysql_local=
+	fi
+	bil_passwd=`get_random_string 12 'A-Za-z0-9_'`
+
+	is_local_mysql_instance "$bil_host" || return 0
+	[ -z "$bil_mysql_local" -o "$bil_mysql_local" = "yes" ] || return 0
+
+	reset_user_password "$bil_user" "$bil_passwd" "$bil_host" && 	$billing_db_bin --set --password "$bil_passwd" && 	check_db_accessible "$bil_dbname" "$bil_user" "$bil_passwd" && 
+	{
+		$billing_db_bin --is-configured 2>/dev/null | grep -q yes || 		$billing_db_bin --is_configured 2>/dev/null | grep -q yes 
+	}
+}
+
+reset_apsc_passwd()
+{
+	check_apsc_installed || return 0
+	read_apsc_connection_params_db
+
+	is_local_mysql_instance "$apsc_db_host" || return 0
+
+	reset_user_password "$apsc_db_user" "$apsc_db_passwd" "$apsc_db_host" && 	check_db_accessible "$apsc_db_name" "$apsc_db_user" "$apsc_db_passwd"
+}
+
+get_webmail_config_param()
+{
+	local webmail_config="$1"
+	local config_var="$2"
+	local param="$3"
+	local default_val="$4"
+	local result=`sw_engine_pleskrun -n -r 'include "'$webmail_config'"; echo $'${config_var}${param}';' 2>/dev/null`
+	[ -n "$result" ] || result="$default_val"
+	echo "$result"
+}
+
+get_horde_config_param()
+{
+	get_webmail_config_param "/usr/share/psa-horde/config/conf.php" "conf" "$1" "$2"
+}
+
+get_atmail_config_param()
+{
+	get_webmail_config_param "/var/www/atmail/libs/Atmail/Config.php" "pref" "$1" "$2"
+}
+
+reset_horde_passwd()
+{
+	set_horde_params
+
+	local horde_shadow="$horde_passwd_file"
+	[ -f "$horde_shadow" ] || horde_shadow="/etc/psa/.webmail.shadow"
+	local hor_host=`  get_horde_config_param "['sql']['hostspec']" "localhost"`
+	local hor_user=`  get_horde_config_param "['sql']['username']" "horde"`
+	local hor_dbname=`get_horde_config_param "['sql']['database']" "horde"`
+	local hor_passwd=`get_horde_config_param "['sql']['password']"`
+	[ -n "$hor_passwd" ] || hor_passwd=`cat "$horde_shadow" 2>/dev/null`
+	[ -n "$hor_passwd" -a -n "$hor_user" -a -n "$hor_dbname" ] || return 0
+
+	is_local_mysql_instance "$hor_host" || return 0
+
+	reset_user_password "$hor_user" "$hor_passwd" "$hor_host" && 	check_db_accessible "$hor_dbname" "$hor_user" "$hor_passwd"
+}
+
+reset_atmail_passwd()
+{
+	set_atmail_params
+
+	local atmail_shadow="$atmail_passwd_file"
+	local at_host=`  get_atmail_config_param "['sql_host']" "localhost"`
+	local at_user=`  get_atmail_config_param "['sql_user']" "atmail"`
+	local at_dbname=`get_atmail_config_param "['sql_table']" "atmail"`
+	local at_passwd=`get_atmail_config_param "['sql_pass']"`
+	[ -n "$at_passwd" ] || at_passwd=`cat "$atmail_shadow" 2>/dev/null`
+	[ -n "$at_passwd" -a -n "$at_user" -a -n "$at_dbname" ] || return 0
+
+	is_local_mysql_instance "$at_host" || return 0
+
+	reset_user_password "$at_user" "$at_passwd" "$at_host" && 	check_db_accessible "$at_dbname" "$at_user" "$at_passwd"
+}
+
+reset_mysql_dbusers_passwd()
+{
+	local mysql_db_name=mysql
+	db_do --inten "Convert MySQL DB users passwords to new format" 		"UPDATE mysql.user m 
+				INNER JOIN psa.db_users u ON (m.User = u.login) 
+				INNER JOIN psa.accounts a ON (u.account_id = a.id) 
+				INNER JOIN psa.data_bases d ON (u.db_id = d.id) 
+		SET m.Password = PASSWORD(a.password) 
+		WHERE d.type = 'mysql' AND a.type = 'plain'; 
+		FLUSH PRIVILEGES;"
+}
+
+reset_phpmyadmin_passwd()
+{
+	local pmahost="localhost"
+	local controlpass pmadb
+	set_phpmyadmin_params
+
+	local pma_config="$PHPMYADMIN_CONFIG.save"
+	[ -f "$pma_config" ] || pma_config="$PHPMYADMIN_CONFIG"
+	pma__set_values_from_config "$pma_config" 'controluser' 'controlpass' 'pmadb'
+
+	[ -n "$controlpass" -a -n "$controluser" -a -n "$pmadb" ] || return 0
+
+	reset_user_password "$controluser" "$controlpass" "$pmahost" && 	check_db_accessible "$pmadb" "$controluser" "$controlpass"
+}
+
+reset_siteeditor_passwd()
+{
+        local se_conf="/usr/local/siteeditor/config"
+        [ -f "${se_conf}" ] || return 0
+
+        local se_host=`get_ini_conf_var "${se_conf}" "database" "host"`
+        local se_username=`get_ini_conf_var "${se_conf}" "database" "username"`
+        local se_password=`get_ini_conf_var "${se_conf}" "database" "password"`
+        local se_dbname=`  get_ini_conf_var "${se_conf}" "database" "dbname"`
+
+        is_local_mysql_instance "$se_host" || return 0
+
+        reset_user_password "${se_username}" "${se_password}" "${se_host}" &&         check_db_accessible "$se_dbname" "$se_username" "$se_password"
+}
+
+warn_mysql_old_passwd_users()
+{
+	local mysql_db_name=mysql
+	local query="SELECT concat(User, '@', Host) FROM user WHERE length(Password) != 41"
+
+	if [ -n "$controluser" ]; then
+		# There is an error in old phpMyAdmin upgrade routine: DB was recreated every time
+		query="$query AND (User not like 'pma\_%' OR User = '$controluser')"
+	fi
+
+	query="$query AND (User != 'debian-sys-maint')"
+
+	db_select "$query"
+	local problem_users="$db_select_output"
+
+	[ -n "$problem_users" ] || return 0
+	report_problem "Passwords for some MySQL users were not upgraded." 		"All MySQL DB users that may be used by Panel MUST have passwords in new 41-character format in order for Panel to function properly." 		"Currently following users have passwords in old format: `echo -n $problem_users | sed -e 's/ /, /g'`." 		"Please ensure that MySQL server is not forced to use old password hashing algorithm and upgrade password format manually for users from the list above. Consult with MySQL server manual on detailed steps." 		"You may skip certain users if you are sure they weren't created and aren't used by Panel."
+}
+
+# -- end of mysqlnd old passwords upgrade --
+#!/bin/sh
+
+__tune_vz_mysql_sig_handler() {
+    local rc=$?
+    trap - EXIT
+    rm -f -- "$1"
+    exit $rc
+}
+
+__tune_vz_mysql()
+{
+    local myCnf myCnfTemp ||:
+
+    myCnf=$1
+    if test -z "$myCnf"; then
+	warn "E:usage: $PROG /path/to/my.cnf"
+	return 1
+    fi
+
+    if ! test -s "$myCnf" ; then
+	warn "E: $myCnf doesn't exist or empty"
+	return 100
+    fi
+    
+    myCnfTemp=`mktemp ${myCnf}.XXXXXXX`
+    if test $? -ne 0 ; then
+	warn "E:Unable to create a temporary configuration file"
+	return 2
+    fi
+    
+    $cp_preserve $myCnf $myCnfTemp || {
+	warn "E:Unable to create a temporary configuration file"
+	return 2
+    }
+
+    trap "__tune_vz_mysql_sig_handler \"$myCnfTemp\""  HUP PIPE INT TERM EXIT
+
+    local rc ||:
+
+    local db_select_output
+    db_select "SHOW VARIABLES LIKE 'have_innodb'"
+    local have_innodb=`get_narg 2 ${db_select_output}`
+    [ -n "$have_innodb" ] || have_innodb="NO"
+
+    db_select "SHOW VARIABLES LIKE 'have_bdb'"
+    local have_bdb=`get_narg 2 ${db_select_output}`
+    [ -n "$have_bdb" ] || have_bdb="NO"
+
+    cat "$myCnf" | gawk 		-v have_innodb="${have_innodb}" 		-v have_bdb="${have_bdb}" 		'
+function getsize(sizestr)
+{
+  if (match(sizestr, "[^[:digit:]]")) {
+    size=substr(sizestr, 0, RSTART);
+    mult=substr(sizestr, RSTART, 1);
+    if ("K" == mult) {
+      mult=1024;
+    } else if ("M" == mult) {
+      mult=1024*1024;
+    } else if ("G" == mult) {
+      mult=1024*1024*1024;
+    }
+    size = size * mult;
+  } else {
+    size = sizestr;
+  }
+  return size;
+}
+
+# add unspecified variables
+function finalize_section()
+{
+  if (have_bdb && 0 == skipbdb) {
+    printf("skip-bdb\n\n");
+    changed=1;
+  }
+  if (have_innodb && 0 == ibp_size) {
+    print "innodb_buffer_pool_size=2M"
+    changed=1;
+  }
+  if (have_innodb && 0 == iamp_size) {
+    print "innodb_additional_mem_pool_size=500K"
+    changed=1;
+  }
+  if (have_innodb && 0 == ilb_size) {
+    print "innodb_log_buffer_size=500K"
+    changed=1;
+  }
+  if (have_innodb && 0 == thread_conc_set) {
+    print "innodb_thread_concurrency=2"
+    changed=1;
+  }
+}
+
+# decrease value of "varname" if it exceed the upper bound limit.
+# If value fit (less or equal), leave it unmodified.
+function adjustSetting(varstr, varname, minsize, sizestr)
+{
+  if (match(varstr,"^[[:space:]]*(set-variable[[:space:]]*=[[:space:]]*)?" varname "[[:space:]]*=[[:space:]]*")) {
+    if (have_innodb) {
+      size = getsize(substr(varstr, RSTART+RLENGTH));
+      if (minsize < size) {
+        changed = 1;
+        print "#", $0;
+        print varname "=" sizestr;
+      } else {
+        print $0
+      }
+    } else {
+      # we do not have innodb so we need to disable this setting
+      print "#", $0;
+      changed = 1;
+    }
+    return 1;
+  }
+  return 0;
+}
+
+function reset_variables()
+{
+  skipbdb=0;   # already have skip-bdb
+  ibp_size=0;  # already set innodb_buffer_pool_size
+  iamp_size=0; # already set innodb_additional_mem_pool_size
+  ilb_size=0;  # already set innodb_log_buffer_size
+  thread_conc_set=0; # -*- innodb_thread_concurrency
+}
+
+BEGIN {
+  insect=0;    # within one of server sections
+  changed=0;   # already changed smth
+  have_bdb = (tolower(have_bdb) == "yes") ;
+  have_innodb = (tolower(have_innodb) == "yes") ;
+  reset_variables()
+}
+/^[[:space:]]*\[.+\]/ {
+  if (0 != insect) {
+# need to close a previous section
+    finalize_section();
+    # section is ended. Reset variables
+    reset_variables()
+    insect    = 0;
+  }
+  if ( match($0, "^[[:space:]]*\\[(mysqld|server|mysqld_safe|safe_mysqld)\\]")) {
+    insect = 1;
+#    print "# in server section";
+  }
+}
+
+(match($0, "^[[:space:]]*(set-variable[[:space:]]*=)?[[:space:]]*") && 0 != insect) {
+  varstr=substr($0, RSTART+RLENGTH);
+  if (adjustSetting(varstr, "innodb_buffer_pool_size", 2 * 1024 * 1024, "2M")) { ibp_size=1; next; }
+  if (adjustSetting(varstr, "innodb_additional_mem_pool_size", 500 * 1024, "500K")) { iamp_size=1; next; }
+  if (adjustSetting(varstr, "innodb_log_buffer_size", 500 * 1024, "500K")) { ilb_size=1; next; }
+  if (adjustSetting(varstr, "innodb_thread_concurrency", 2, "2")) { thread_conc_set=1; next; }
+}
+
+(adjustSetting($0, "innodb_buffer_pool_size", 2 * 1024 * 1024, "2M")) { ibp_size=1; next; }
+(adjustSetting($0, "innodb_additional_mem_pool_size", 500 * 1024, "500K")) { iamp_size=1; next; }
+(adjustSetting($0, "innodb_log_buffer_size", 500 * 1024, "500K")) { ilb_size=1; next; }
+(adjustSetting($0, "innodb_thread_concurrency", 2, "2")) { thread_conc_set=1; next; }
+
+/^[[:space:]]*skip-bdb[[:space:]]*(#.*)?$/ { skipbdb=1; }
+
+{ print $0; }
+
+END {
+  if (0 != insect) {
+    finalize_section();
+  }
+
+  if (0 == changed) {
+    exit 110;
+  }
+}
+' > "$myCnfTemp"
+    rc=$?
+
+    if test $rc -eq 110; then
+	# nothing was changed
+	p_echo "I: nothing to change in $myCnf"
+	return 0
+    fi
+
+    if test $rc -ne 0; then
+	warn "E: unable to process ${myCnf}: rc=$rc"
+	return 2
+    fi
+    
+    local myCnfBak ||:
+    myCnfBak="${myCnf}.bak"
+
+    if ! ln -f "$myCnf" "$myCnfBak" ; then
+	warn "E: Unable to create a backup file"
+	return 3
+    fi
+
+    if ! mv -f "$myCnfTemp" "$myCnf"; then
+	warn "E: Unable to overwrite the configuration file"
+	return 4
+    fi
+    
+    trap - EXIT
+    return 0
+}
+
+tune_vz_mysql()
+{
+    # check if we in VZ environment
+    test "x$PLESK_VZ" = "x1" || return 0;
+    # run in subshell to isolate TRAP usage
+    ( __tune_vz_mysql "$1" )
+}
+
+true named_status_linux_debian
+named_status_linux_debian()
+{
+    get_pid "/usr/sbin/named" false
+    local pid=$common_var
+    if test "$pid" -ne 1; then
+# running
+		return 0
+    fi
+    return 1
+}
+
+phpmyadmin_config_backup()
+{
+	set_phpmyadmin_params
+	[ -f "$PHPMYADMIN_CONFIG" ] && cp "$PHPMYADMIN_CONFIG" "$PHPMYADMIN_CONFIG.save"
+}
+
+set_phpmyadmin_params()
+{
+	PHPMYADMIN_D="$PRODUCT_ROOT_D/admin/htdocs/domains/databases/phpMyAdmin"
+	PHPMYADMIN_CONFIG="$PHPMYADMIN_D/libraries/config.default.php"
+}
+
+pma__set_values_from_config()
+{
+	eval `pma__read_values "$@"`
+}
+
+pma__read_values()
+{
+	local PHPMYADMIN_CONFIG="$1"
+	shift
+
+	[ -f $PHPMYADMIN_CONFIG ] && sw_engine_pleskrun -r '
+			try {
+				error_reporting(0);
+				$GLOBALS["db_host"] = "localhost";
+				class vz {
+					public static function in_vzcp_proxy() { return false; }
+				}
+				function in_vzcp_proxy() { return false; }
+				require_once("'$PHPMYADMIN_CONFIG'");
+				for ($i = 1; $i < $argc; $i++)
+					if (isset($cfg["Servers"][1][$argv[$i]]))
+						echo $argv[$i] . "=\"" . $cfg["Servers"][1][$argv[$i]] . "\"\n";
+			} catch (Exception $e) {}' -- "$@" 2>/dev/null || true
+}
+
+poppassd_super_server_config()
+{
+	local action="$1"
+
+	if [ -f /proc/net/if_inet6 ]; then 
+		FLAGS="flags                   = KEEPALIVE IPv6"
+	else
+		FLAGS="flags                   = KEEPALIVE"
+	fi
+
+	case "$superserver" in
+	    inetd)
+		poppassd_rec="poppassd stream tcp nowait/1000 root /usr/sbin/tcpd $PRODUCT_ROOT_D/admin/sbin/poppassd"
+		;;	
+	    xinetd)
+		poppassd_rec="service poppassd
+{
+socket_type             = stream
+protocol                = tcp
+port                    = 106
+wait                    = no
+disable                 = no
+user                    = root
+instances               = 1000
+$FLAGS
+server                  = $PRODUCT_ROOT_D/admin/sbin/poppassd
+}"
+		;;
+	    *)
+		    die "Super server name unknown"
+		;;
+	esac
+
+	super_server_action "$action" poppassd "$poppassd_rec"
+}
+
+true exim_status_linux_debian
+exim_status_linux_debian()
+{
+	get_pid /usr/lib/exim/exim3 false
+	local pid=$common_var
+
+	if test "$pid" -ne 1; then
+		#running
+		return 0;
+	fi
+	return 1
+}
+#qmail
+
+set_qmail_params()
+{
+    QMAIL_DIR="/var/qmail"
+    QMAIL_USERS="alias:2021:nofiles:false:alias  qmaild:2020:nofiles:false:  qmaill:2022:nofiles:false:  qmailp:2023:nofiles:false:  qmailq:2520:qmail:  qmailr:2521:qmail:  qmails:2522:qmail:"
+    QMAIL_GROUPS="qmail:2520  nofiles:2020"
+
+    #variable from psa.conf but used in mail-qc-driver
+    #so we need define this before install psa base package
+    if [ -z "$QMAIL_ROOT_D" ]; then 
+	    QMAIL_ROOT_D="/var/qmail"
+    fi
+
+    mm_mailgroup=12
+
+    qmail_service="qmail"
+    qmail_extra_cmd=""
+    qmail_log="/var/log/maillog"
+}
+
+## @@constructor set_qmail_params
+qmail_super_server_config()
+{
+    local action="$1"
+    local service="$2"
+    qmail_xinetd_templates
+
+    eval "template=\$${service}_rec"
+    super_server_action "$action" "$service" "$template"
+}
+
+qmail_xinetd_templates()
+{
+    local TRUE_BIN
+    TRUE_BIN=$QMAIL_DIR/bin/true
+
+    if [ -f /proc/net/if_inet6 ]; then
+	    V6_FLAGS="flags		= IPv6"
+    else
+	    V6_FLAGS=""
+    fi
+
+smtp_rec="service smtp
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	disable		= no
+	user            = root
+	$V6_FLAGS
+	instances       = UNLIMITED
+	env             = SMTPAUTH=1
+	server          = $QMAIL_DIR/bin/tcp-env
+	server_args     = -Rt0 $QMAIL_DIR/bin/relaylock $QMAIL_DIR/bin/qmail-smtpd $QMAIL_DIR/bin/smtp_auth $TRUE_BIN $QMAIL_DIR/bin/cmd5checkpw $TRUE_BIN
+}" 
+
+smtps_rec="service smtps
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	disable		= no
+	user            = root
+	$V6_FLAGS
+	instances       = UNLIMITED
+	env             = SMTPAUTH=1
+	server          = $QMAIL_DIR/bin/tcp-env
+	server_args     = -Rt0 $QMAIL_DIR/bin/relaylock $QMAIL_DIR/bin/qmail-smtpd $QMAIL_DIR/bin/smtp_auth $TRUE_BIN $QMAIL_DIR/bin/cmd5checkpw $TRUE_BIN
+}" 
+
+submission_rec="service submission
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	disable		= no
+	user            = qmaild
+	$V6_FLAGS
+	instances       = UNLIMITED
+	env             = SUBMISSION=1 SMTPAUTH=1
+	server          = $QMAIL_DIR/bin/tcp-env
+	server_args     = -Rt0 $QMAIL_DIR/bin/qmail-smtpd $QMAIL_DIR/bin/smtp_auth $TRUE_BIN $QMAIL_DIR/bin/cmd5checkpw $TRUE_BIN
+}" 
+
+}
+
+
+rsr_backup()
+{
+	target="$1"
+	dup="$2"
+	opts="$3"
+	common_var=0
+
+#	if [ -$opts "$target" ]; then
+		if [ -$opts "$target.$product_suff" ]; then
+			case "$dup" in
+				mv)
+					mv -f  $target.$product_suff $target>> $product_log 2>&1
+					common_var=1
+					return 1
+					;;
+				cp)
+					cp -fp  $target.$product_suff $target>> $product_log 2>&1
+					common_var=1
+					return 1
+					;;
+				*)
+					p_echo " rsr_backup: wrong option -- must be 'cp' or 'mv'"
+					;;
+			esac
+		else
+			if [ -$opts "$target.$product_suffo" ]; then
+			    case "$dup" in
+				mv)
+					mv -f  $target.$product_suffo $target>> $product_log 2>&1
+					common_var=1
+					return 1
+					;;
+				cp)
+					cp -fp  $target.$product_suffo $target>> $product_log 2>&1
+					common_var=1
+					return 1
+					;;
+				*)
+					p_echo " rsr_backup: wrong option -- must be 'cp' or 'mv'"
+					;;
+			    esac
+			fi
+		fi
+#	else
+#		case "$opts" in
+#			f|d)
+#				;;
+#			*)
+#				p_echo " rsr_backup: wrong option -- must be 'f' or 'd'"
+#				;;
+#		esac
+#	fi
+}
+
+restore_named()
+{
+	cd "$PRODUCT_ROOT_D" >> $product_log 2>&1
+	[ -f /etc/sysconfig/named ] && mv -f "/etc/sysconfig/named" "/etc/sysconfig/named.bak"
+	rsr_backup "/etc/sysconfig/named" mv f
+
+	[ -L $named_conf ] && rm -f "$named_conf"
+	rsr_backup "$named_conf" mv f
+
+	[ -L $rndc_conf ] && rm -f "$rndc_conf"
+	rsr_backup "$rndc_conf" mv f
+
+	case "$machine" in
+		BSD*)
+			rsr_backup /etc/named.boot mv f
+			;;
+		linux)
+		    case "$linux_distr" in
+			redhat)
+			    chkconfig --add named >> $product_log 2>&1
+#			    std_named_sh="/etc/rc.d/init.d/named"
+#			    rsr_backup $std_named_sh mv f
+#				if [ -f "$std_named_sh" ]; then
+#					mv -f "$std_named_sh.${product}" "$std_named_sh"
+#				fi
+				;;
+			slackware)
+			    rsr_backup /etc/rc.d/rc.inet2 cp f
+				;;
+		    esac
+			rsr_backup /etc/named.boot mv f
+			;;
+		solaris)
+			rsr_backup /etc/named.boot mv f
+			;;
+	esac
+}
+
+
+restore_sendmail()
+{
+	[ -L $sendmail ] && rm -f "$sendmail"
+	[ -L /usr/lib/sendmail ] && rm -f "/usr/lib/sendmail"
+
+	rsr_backup "$sendmail" mv f
+
+	case "$machine" in
+		BSDI)
+			rsr_backup /etc/sendmail.cf mv f
+			;;
+		*)
+			;;
+	esac
+
+	if [ -f "$mail_local" ]; then
+#		case "$machine" in
+#			BSD)
+#				chflags schg "$mail_local" >> $product_log 2>&1
+#				;;
+#			*)
+#				;;
+#		esac
+
+		rsr_backup "$mail_local" mv f
+
+		chmod 4555 "$mail_local" >> $product_log 2>&1
+	fi
+	case "$machine" in
+		linux )
+		    case "$linux_distr" in
+			redhat)
+			    chkconfig --add sendmail >> $product_log 2>&1
+#			    rsr_backup "$sndml_ini" mv f
+				;;
+			slackware)
+			     rsr_backup /etc/rc.d/rc.M mv f
+				;;
+		    esac
+			;;
+		solaris)
+			rsr_backup "$sndml_ini" mv f
+			;;
+		*)
+			;;
+	esac
+
+}
+
+delete_startup_scripts()
+{
+	cd "$PRODUCT_ROOT_D" >> $product_log 2>&1
+
+	case "$machine" in
+		BSD)
+			rm -f /usr/local/etc/rc.d/${product}.sh >> $product_log 2>&1
+	#		rsr_backup /etc/rc.conf cp f
+
+			rc_service "sendmail" "enable" "YES"
+			rc_service "named" "enable" "YES"
+			rc_service "mysqld" "enable" "NO"
+			;;
+		BSDI)
+			if [ -f /etc/rc.local.${product} ]; then
+				cp -p  /etc/rc.local.${product} /etc/rc.local >> $product_log 2>&1
+			fi
+			;;
+		linux)
+		    case "$linux_distr" in
+			redhat)
+			    chkconfig --del ${product}
+			    rm -f /etc/rc.d/init.d/${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc0.d/K15${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc1.d/K15${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc2.d/K15${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc3.d/S77${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc4.d/S77${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc5.d/S77${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc6.d/K15${product} >> $product_log 2>&1
+				;;
+			slackware)
+			    if [ -f /etc/rc.d/rc.local.${product} ]; then
+				cp -p  /etc/rc.d/rc.local.${product} /etc/rc.d/rc.local >> $product_log 2>&1
+			    fi
+				;;
+		    esac
+		    ;;
+		solaris)
+			rm -f  /etc/init.d/${product} >> $product_log 2>&1
+			if [ -f /etc/rc0.d/K01${product} ]; then
+				rm -f /etc/rc0.d/K01${product} >> $product_log 2>&1
+			fi
+
+			if [ -f /etc/rc1.d/K01${product} ]; then
+				rm -f /etc/rc1.d/K01${product} >> $product_log 2>&1
+			fi
+
+			if [ -f /etc/rc2.d/S77${product} ]; then
+				rm -f /etc/rc2.d/S77${product} >> $product_log 2>&1
+			fi
+			;;
+	esac
+}
+
+delete_crontab()
+{
+
+	$crontab -l 2>/dev/null > /tmp/crontab.${product}
+
+	sed -e "s/^.*\/${product}\/admin\/sbin\/statistics.*//g" 		-e "s/^.*\/${product}\/bin\/mysqldump.*//g" 		-e "s/^.*\/usr\/sbin\/ntpdate.*//g" 		< /tmp/crontab.${product} > /tmp/crontab.${product}_tmp
+
+	mv -f /tmp/crontab.${product}_tmp /tmp/crontab.${product} >> $product_log 2>&1
+
+	$crontab /tmp/crontab.${product}  >> $product_log 2>&1
+
+	rm -f /tmp/crontab.${product} >> $product_log 2>&1
+
+}
+
+remove_ftpuser()
+{
+	user=$1
+	ftpusers_file="/etc/ftpusers"
+
+	egrep "^$user" $ftpusers_file >> /dev/null 2>&1
+
+	case "$?" in
+			0)
+				sed -e "/$user/d" < $ftpusers_file > $ftpusers_file.tmp
+				mv -f $ftpusers_file.tmp $ftpusers_file
+				;;
+			1)
+				;;
+			*)
+				;;
+	esac
+
+}
+
+remove_product_users_groups()
+{
+
+#	delete users of this(unsuccessful) installation
+	for i in $users_created; do
+		delete_user "$i"
+	done
+#	delete users with group=psacln (ftpusers and webusers)
+	for i in `perl -e '$gid=getgrnam("'$clients_group'"); exit if (($gid eq "") || ($gid == 0)); while(($n,$u,$g) = (getpwent)[0,2,3]) {print "$n\n" if (($gid == $g) && ($u >= 500))}'`
+	do
+		delete_user "$i"
+		remove_ftpuser "$i"
+	done
+#	delete users psaadm, psaftp
+#	delete_user "$admin_user"  >> "$product_log" 2>&1
+#	delete_user "$anonftp_user"  >> "$product_log" 2>&1
+
+#	delete groups of this(unsuccessful) installation
+	for i in $groups_created; do
+		delete_group "$i"
+	done
+#	delete groups psaadm, psaftp, psacln
+	delete_group "$admin_group"  >> "$product_log" 2>&1
+	delete_group "$anonftp_group"  >> "$product_log" 2>&1
+	delete_group "$clients_group"  >> "$product_log" 2>&1
+
+}
+
+
+undo_install()
+{
+	p_echo
+
+	if pleskrc mysql status; then
+		p_echo "===>Removing installed $PRODUCT_NAME components ... "
+		remove_modules
+		pleskrc mysql stop
+
+		mysql_pid_file=$mysql_bddir/*.pid
+		if [ -f "$mysql_pid_file" ]; then
+			rm -f "$mysql_pid_file"
+		fi
+	fi
+
+	$START_SH stop >> "$product_log" 2>&1
+
+	proftpd_super_server_config remove
+
+	super_server_action remove pop3
+	super_server_action remove pop-3
+	super_server_action remove imap4
+	super_server_action remove imap2
+	super_server_action remove imap
+	qmail_super_server_config remove smtp
+	qmail_super_server_config remove smtps
+	qmail_super_server_config remove submission
+	poppassd_super_server_config remove
+
+	remove_product_users_groups
+
+	if [ -f "/etc/ftpchroot" ]; then
+	    sed -e "s/^@$clients_group//g" < /etc/ftpchroot > /etc/ftpchroot.tmp
+	    mv -f /etc/ftpchroot.tmp /etc/ftpchroot  >> $product_log 2>&1
+	fi
+
+	if [ -f /etc/shells ]; then
+	    case "$machine" in
+		BSD|BSDI)
+		    sed -e "s/[/]*sbin[/]*nologin//" < /etc/shells > /etc/shells.tmp
+		;;
+		linux|solaris)
+		    sed -e "s/[/]*bin[/]*false//" < /etc/shells > /etc/shells.tmp
+		;;
+	    esac
+	    mv -f /etc/shells.tmp /etc/shells  >> $product_log 2>&1
+	fi
+
+	remove_tmp_state
+
+	restore_named
+	restore_sendmail
+	delete_startup_scripts
+	delete_crontab
+
+	cd /usr/local  >> $product_log 2>&1
+
+	suc
+}
+
+smart_undo_install()
+{
+	[ "X$trigger_uninstall" = "X1" -o "X$do_patch" = "X1" -o "X$do_reconfigure" = "X1" ] && return
+	[ "X$PLESK_INSTALLER_NOUNDO" != "X" ] && return
+	# trigger_uninstall - trigger what smart_undo_install is already working now(recurrence)
+	trigger_uninstall=1
+
+	if [ "X$can_uninstall" = "X1" ]; then
+		if [ "X$do_upgrade" = "X1" ]; then
+			undo_upgrade
+		else
+		    if [ "X$machine" != "XBSD" ]; then
+			undo_install
+		    fi
+		fi
+	fi
+
+	# put suggestions for user what to do
+	call_optional_function failure_note
+}
+
+
+prepare_upgrader()
+{
+
+    INSTALLED_VERSION=`form_undotted_version ${prev_version}`
+
+    PRODKEY_CHANGED=0
+
+    echo "===> Preparing upgrade"
+
+    db_backup
+
+    save_old_key_id
+
+	get_old_domain
+
+	db_added_columns=''
+
+	stop_before_upgrade
+
+	phpmyadmin_config_backup
+
+	upgrade_mysqlnd_old_passwd
+}
+
+save_old_key_id()
+{
+    if test "$INSTALLED_VERSION" -le 70; then
+		awk 'NR == 3 { print; }' $PRODUCT_ROOT_D/admin/conf/settings >$PRODUCT_ROOT_D/tmp/old_key_id
+	else
+		# it must be already registered
+		rm -f $PRODUCT_ROOT_D/tmp/old_key_id
+	fi
+}
+
+db_backup()
+{
+	local timestamp
+	timestamp=`date +%Y%m%d-%H%M%S`
+	dfile="$DUMP_D/mysql.preupgrade.${prev_version}-${product_version}.${timestamp}.dump.gz"
+
+	if test -f $dfile; then
+		# dump names should not collide, but better be safe than sorry
+		local i
+		i=1
+		while test -f "$dfile.$i"; do
+			i=$(($i+1))
+		done
+		mv -v "$dfile" "$dfile.$i" >> "$product_log" || die "save previous backup $dfile"
+	fi
+
+	inten="backup MySQL database"
+	echo_try "$inten"
+	if ! test -d "$DUMP_D"; then
+		mkdir -p "$DUMP_D"
+	fi
+	touch "$dfile" || die "$inten"
+	chown 0:0 "$dfile" || die "$inten"
+	chmod 600 "$dfile" || die "$inten"
+	dump_db "$PRODNAME" horde mysql | gzip > "$dfile" || die "$inten"
+	suc
+	p_echo " MySQL databases are dumped to $dfile"
+}
+safe_prep_db_upgrade()
+{
+	p_echo
+	p_echo "===> Upgrading database"
+	p_echo
+
+	mysql_unconfigured=
+	set_mysqld_params
+	check_db
+
+	# backup database and register rollback action
+	db_backup
+	SAFE_PREP_DB_BACKUP="$dfile"
+	transaction_add_rollback_action "safe_prep_db_upgrade_rollback"
+
+	run_db_upgrade_functions
+}
+
+safe_prep_db_upgrade_rollback()
+{
+	if [ -n "$SAFE_PREP_DB_BACKUP" ]; then
+		p_echo
+		p_echo "===> Restoring database from backup $SAFE_PREP_DB_BACKUP"
+		p_echo
+		zcat "$SAFE_PREP_DB_BACKUP" | mysql_anydb
+		if [ $? -ne 0 ]; then
+			p_echo
+			p_echo "    [ERROR] Database restoring failed"
+			p_echo "    Try to restore database from $SAFE_PREP_DB_BACKUP manually"
+			p_echo
+			return
+		fi
+		SAFE_PREP_DB_BACKUP=
+	fi
+}
+
+safe_prep_db_install()
+{
+	mysql_unconfigured=1
+	set_default_locale
+	mysql_install_init
+	insert_fullhostname
+}
+
+safe_prep_db()
+{
+	p_echo
+	p_echo "===> Performing safe prep-install database actions"
+	p_echo
+
+	# perform database-related prep actions
+	if [ "$do_upgrade" -ne 0 ]; then
+		safe_prep_db_upgrade
+	else
+		safe_prep_db_install
+	fi
+}
+
+transaction_begin()
+{
+	[ -n "$TRANSACTION_STARTED" ] && die "Another transaction in progress!"
+	TRANSACTION_STARTED="true"
+	TRANSACTION_ROLLBACK_FUNCS=
+	TRANSACTION_COMMIT_FUNCS=
+	trap "transaction_rollback" HUP PIPE INT QUIT TERM EXIT
+}
+
+transaction_rollback()
+{
+	[ -z "$TRANSACTION_STARTED" ] && die "Transaction is not started!"
+	# perform rollback actions
+	local f
+	for f in ${TRANSACTION_ROLLBACK_FUNCS}; do
+		"$f"
+	done
+	TRANSACTION_STARTED=
+	TRANSACTION_ROLLBACK_FUNCS=
+	TRANSACTION_COMMIT_FUNCS=
+	trap - HUP PIPE INT QUIT TERM EXIT
+	exit 1
+}
+
+transaction_commit()
+{
+	[ -z "$TRANSACTION_STARTED" ] && die "Transaction is not started!"
+	# perform commit actions
+	local f
+	for f in ${TRANSACTION_COMMIT_FUNCS}; do
+		"$f"
+	done
+	TRANSACTION_STARTED=
+	TRANSACTION_ROLLBACK_FUNCS=
+	TRANSACTION_COMMIT_FUNCS=
+	trap - HUP PIPE INT QUIT TERM EXIT
+}
+
+transaction_add_rollback_action()
+{
+	[ -z "$TRANSACTION_STARTED" ] && die "Transaction is not started!"
+	# LIFO rollback order
+	[ -z "$TRANSACTION_ROLLBACK_FUNCS" ] 		&& TRANSACTION_ROLLBACK_FUNCS="$1" 		|| TRANSACTION_ROLLBACK_FUNCS="$1 $TRANSACTION_ROLLBACK_FUNCS"
+}
+
+transaction_add_commit_action()
+{
+	[ -z "$TRANSACTION_STARTED" ] && die "Transaction is not started!"
+	# FIFO commit order
+	[ -z "$TRANSACTION_COMMIT_FUNCS" ] 		&& TRANSACTION_COMMIT_FUNCS="$1" 		|| TRANSACTION_COMMIT_FUNCS="$TRANSACTION_COMMIT_FUNCS $1"
+}
+undo_upgrade()
+{
+	p_echo   "    The attempt to upgrade $prev_product_full"
+	p_echo   "    from version $prev_version to $product_full $product_version has failed."
+
+	if [ -f "$product_sav_tar" ]; then
+	
+		p_echo 
+
+		p_echo "    Now restore contents of $PRODUCT_NAME from $product_sav_tar"
+		p_echo 
+		get_pid $PRODUCT_ROOT_D/mysql/bin/safe_mysqld true root
+		req_pid=$common_var
+		if [ $req_pid -gt 1 ]; then
+			$K_KILL $req_pid >> $product_log 2>&1 
+			sleep 2
+			mysql_pid_file=$mysql_bddir/*.pid
+			kill_pids $PRODUCT_ROOT_D/mysql/libexec/mysqld mysql
+			sleep 2
+			if [ -f "$mysql_pid_file" ]; then
+				rm -f $mysql_pid_file
+			fi
+		fi
+
+		$START_SH stop >> $product_log 2>&1
+		sleep 2
+
+		rm -Rf $PRODUCT_ROOT_D
+		qmail_super_server_config remove "smtp"
+		qmail_super_server_config remove "smtps"
+		proftpd_super_server_config remove
+		poppassd_super_server_config remove
+		
+
+		cd /
+        	tar xvf $product_sav_tar > /dev/null 2>&1
+		case "$?" in
+			0)
+#				rm -f $product_sav_tar 		
+			;;
+			*)
+				p_echo 
+				p_echo 
+				p_echo "ERROR: restoration of files from $product_sav_tar has failed."
+				p_echo "       Please restore them manually."
+				p_echo 
+				p_echo "Exiting..."
+				p_echo 
+				exit 0
+			;;
+		esac
+	fi
+	
+}
+
+# For now we left QMail upgrading procedures from ancient Plesks here.
+# Starting from Plesk-9.0 all MTA-related upgrading procedures should be
+# placed into *ON-DISK* scripts which *MUST* belong to the corresponding
+# mail-driver
+
+#----------------------- Upgrade functions list constructors --------------------
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_80()
+{
+	db_fix_bf1492_column_types_80
+	db_fix_set_dns_recursion
+
+	# 8.0 -> 8.1
+	upgrade_db_80
+}
+## @@upgraders UPGRADE_FUNCTIONS_80
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_81()
+{
+	db_fix_81
+	# 8.1 -> 8.2
+	upgrade_db_81
+}
+## @@upgraders UPGRADE_FUNCTIONS_81
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_82()
+{
+	db_fix_82
+	#upgrade 8.2 -> 8.3
+	upgrade_db_82
+}
+## @@upgraders UPGRADE_FUNCTIONS_82
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_83()
+{
+	db_fix_83
+}
+## @@upgraders UPGRADE_FUNCTIONS_83
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_84()
+{
+	db_fix_84
+}
+## @@upgraders UPGRADE_FUNCTIONS_84
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_86()
+{
+	db_fix_86
+}
+## @@upgraders UPGRADE_FUNCTIONS_86
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_90()
+{
+	db_pmm_dashboard_90
+	db_fix_90
+}
+## @@upgraders UPGRADE_FUNCTIONS_90
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_92()
+{
+	add_db_changes 920
+}
+## @@upgraders UPGRADE_FUNCTIONS_92
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_95()
+{
+	db_update_exp_event
+}
+# #@@upgraders UPGRADE_FUNCTIONS_95
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_107()
+{
+	add_db_changes 1070
+	db_update_sessions_107
+	db_add_ftp_sys_users
+#	db_add_plans
+	db_add_plans_schema
+	db_add_webspaces
+	db_add_domain_permissions
+	db_billing_integration_107
+	db_migrate_sa_prefs_107
+	db_upgrade_hp_mail_107
+	db_default_skin_107
+}
+## @@upgraders UPGRADE_FUNCTIONS_107
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_108()
+{
+	db_change_domain_admins_length_108
+	db_subscription_limits_default_values_108 'max_site_builder' -1
+	db_subscription_limits_default_values_108 'max_unity_mobile_sites' -1
+}
+## @@upgraders UPGRADE_FUNCTIONS_108
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_109()
+{
+	add_db_changes 1090
+	db_upgrade_clients_idn_109
+	db_upgrade_custom_buttons_109
+	db_upgrade_maintenance_mode_109
+}
+## @@upgraders UPGRADE_FUNCTIONS_109
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_1010()
+{
+    api_rpc_create_persistent_tables
+    api_rpc_upgrade_persistent_tables
+    add_db_changes 10100
+    db_upgrade_ip_addresses_1010
+    db_upgrade_dns_recs_t_1010
+    db_upgrade_domain_services_1010
+    db_upgrade_hosting_1010
+    db_upgrade_subdomains_1010
+	db_upgrade_sso_port_1010
+    db_optimize_configurations_table_1010
+	db_cleanup_exp_event_1010
+}
+## @@upgraders UPGRADE_FUNCTIONS_1010
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_1011()
+{
+    add_db_changes 10110
+	migrate_backup_management_db_into_core_1011
+	migrate_pmm_management_db_into_core_1011
+	db_upgrade_backups_scheduled_1011
+	db_upgrade_exp_event_obj_class_1011
+	db_upgrade_ssobranding_port_1011
+}
+## @@upgraders UPGRADE_FUNCTIONS_1011
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_1012()
+{
+    add_db_changes 10120
+    db_upgrade_parent_domain_id_1012
+    db_upgrade_service_nodes_1012
+    db_upgrade_resp_attach_1012
+	db_upgrade_dns_reverse_ptr_ipv6_1012
+	db_upgrade_upgrade_history_1012
+	db_upgrade_dns_schema_1012
+}
+## @@upgraders UPGRADE_FUNCTIONS_1012
+
+#@@db_upgrade
+DB_UPGRADE_FUNCTIONS_1013()
+{
+	add_db_changes 10130
+	db_upgrade_configurations_1013
+	db_upgrade_secret_key_1013
+	db_upgrade_sessions_1013
+}
+
+run_db_upgrade_functions()
+{
+	# line to prevent upgrade functions from being optimized out
+	true DB_UPGRADE_FUNCTIONS_80 DB_UPGRADE_FUNCTIONS_81 DB_UPGRADE_FUNCTIONS_82 DB_UPGRADE_FUNCTIONS_83 DB_UPGRADE_FUNCTIONS_84 DB_UPGRADE_FUNCTIONS_86 DB_UPGRADE_FUNCTIONS_90 DB_UPGRADE_FUNCTIONS_92 DB_UPGRADE_FUNCTIONS_95 DB_UPGRADE_FUNCTIONS_107 DB_UPGRADE_FUNCTIONS_108 DB_UPGRADE_FUNCTIONS_109 DB_UPGRADE_FUNCTIONS_1010 DB_UPGRADE_FUNCTIONS_1011 DB_UPGRADE_FUNCTIONS_1012 DB_UPGRADE_FUNCTIONS_1013 
+
+	echo "===> Cumulative database upgrade has been started"
+	if run_upgrade_functions "DB_UPGRADE_FUNCTIONS" "$prev_db_short_version"; then
+		echo "===> Upgrade completed."
+	else
+		echo "===> Your version does not require any upgrade."
+	fi
+
+	set_db_version
+}
+
+run_upgrade_functions()
+{
+	local FUNC_PREFIX="$1"
+	local INSTALLED_VERSION="$2"
+
+	# Flag for skipping already upgraded versions
+	local UPGRADE_STARTED="0"
+
+	for i in ${known_product_versions}; do
+
+		if [ "X${UPGRADE_STARTED}" = "X0" -a ${INSTALLED_VERSION} -lt ${i} ]; then
+			echo "    Your version is too old and not supported by this upgrader."
+			exit 1;
+		fi
+
+		if [ "X${INSTALLED_VERSION}" = "X${i}" ]; then
+			UPGRADE_STARTED="1"
+		fi
+
+		if [ "X${UPGRADE_STARTED}" = "X1" ] && is_function "${FUNC_PREFIX}_${i}"; then
+			echo "===> Perform upgrade from ${i}" >> $product_log
+			"${FUNC_PREFIX}_${i}"
+		else
+			echo "no upgrade from ${i}" >> $product_log
+		fi
+
+	done;
+
+	if [ "X${UPGRADE_STARTED}" = "X1" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+
+#webalizer
+
+set_webalizer_params()
+{
+	WEBALIZER_ROOT_D="$PRODUCT_ROOT_D/webalizer"
+}
+
+true postfix_status
+postfix_status()
+{
+	# here be dragons.
+	# the practical experience shows that simple checking of status of
+	# Postfix "master" process is not enough. So we read Postfix master
+	# process pid file if any, then try to look for a process with
+	# name ``qmgr'' and parent pid being equal to
+	# the pid read from the pidfile. If pgrep finds such a process
+	# it returns 0, if not its exit status is non-zero.
+	# pgrep is portable enough to prefer it to "hand-made" alternatives
+	# such as famous ``ps | grep $name | grep -v grep...'' pipes
+	# bug 147822. do not interrupt installation for FreeBSD
+
+	[ -f "/var/spool/postfix/pid/master.pid" ] || return 1
+
+	local ppid
+
+	read ppid </var/spool/postfix/pid/master.pid 2>/dev/null
+	if [ $? -ne 0 -o -z "$ppid" ]; then
+		# not found or other error
+		return 1;
+	fi
+	pgrep -P $ppid qmgr >/dev/null 2>/dev/null
+}
+
+set_horde_params()
+{
+	horde_datadir="/usr/share/psa-horde"
+	horde_confdir="/etc/psa-webmail/horde"
+	horde_sysconfd="$horde_confdir/horde"
+	horde_logdir="/var/log/psa-horde"
+	horde_passwd_file="/etc/psa-webmail/horde/.horde.shadow"
+	horde_title="Horde Web Based mail client"
+
+	imp_datadir="$horde_datadir/imp"
+	imp_sysconfd="$horde_sysconfd/imp"
+	
+	mimp_datadir="$horde_datadir/mimp"
+	mimp_sysconfd="$horde_sysconfd/mimp"
+
+	turba_datadir="$horde_datadir/turba"
+	turba_sysconfd="$horde_sysconfd/turba"
+
+	kronolith_datadir="$horde_datadir/kronolith"
+	kronolith_sysconfd="$horde_sysconfd/kronolith"
+
+	ingo_datadir="$horde_datadir/ingo"
+	ingo_sysconfd="$horde_sysconfd/ingo"
+
+	mnemo_datadir="$horde_datadir/mnemo"
+	mnemo_sysconfd="$horde_sysconfd/mnemo"
+	
+	passwd_datadir="$horde_datadir/passwd"
+	passwd_sysconfd="$horde_sysconfd/passwd"
+}
+set_atmail_params()
+{
+    atmail_passwd_file="/etc/psa-webmail/atmail/.atmail.shadow"
+    atmail_db_tables_template="/var/www/atmail/install/atmail.mysql"
+    atmail_db_create_template="/etc/psa-webmail/atmail/create_db.sql"
+    atmail_title="Atmail Web Based mail client"
+    atmail_root_d="/var/www/atmail"
+}
+# vim:syntax=sh
+
+core_start_std_psa_on_rollback()
+{
+	$PRODUCT_ROOT_D/rc.d/psa start
+}
+
+core_start_std_mailman_on_rollback()
+{
+	$PRODUCT_ROOT_D/rc.d/mailman start
+}
+
+core_groupadd_f()
+{
+    grep -q "^$1:" /etc/group || /usr/sbin/groupadd "$1"
+}
+
+stop_removed_httpsd()
+{
+	# cannot use rc.d script because it can be removed
+	pidfile="$PRODUCT_ROOT_D/admin/logs/httpsd.pid"
+	if test -f "$pidfile"; then
+		httpsd_pid=`cat "$pidfile"`
+		if test "$httpsd_pid" -gt 0 			&& ps -o command -p "$httpsd_pid" | grep -q httpsd
+		then
+			kill -TERM "$httpsd_pid"
+		fi
+	fi
+}
+
+maintainer_main_pre()
+{
+	ignore_miss_conf=1
+	interactive_allowed=0
+	mysql_unconfigured=1
+
+	set_local_params
+	set_ftpd_params
+
+	get_config_parameters
+
+
+	# debian will try upgrade unconfigured package
+	# it is not an upgrade, actually
+	if [ "X$do_upgrade" = "X1" ]; then
+		if [ ! -s ${PRODUCT_ROOT_D}/version ]; then
+			do_upgrade=0
+		fi
+	fi
+
+# Upgrade psa -> plesk-core
+	if [ "X$do_upgrade" = "X0" -a -s ${PRODUCT_ROOT_D}/version ]; then
+			do_upgrade=1
+	fi
+
+	preinstall_checks
+
+	if [ "X$do_upgrade" = "X1" ]; then
+
+		set_mysqld_params
+
+		# Check mysqld status for non-debian based distros
+		if [ "$linux_distr" != "debian" -a "$linux_distr" != "ubuntu" ]; then
+			pleskrc mysql start 1 || die "Unable to start mysql service"
+		fi
+
+		if [ -s ${PRODUCT_ROOT_D}/version ]; then
+			cp ${PRODUCT_ROOT_D}/version ${PRODUCT_ROOT_D}/version.upg
+		fi
+	fi
+
+	set_apache_accounts
+	necessary_system_accounts_prep_install
+
+	if [ "X$do_upgrade" = "X1" ]; then
+		if [ -s ${PRODUCT_ROOT_D}/version ]; then
+			get_prev_version $PRODUCT_ROOT_D
+		fi
+		set_mysql_auth
+		prepare_upgrader
+	fi
+
+	core_groupadd_f psacln
+	add_login_shell "$PRODUCT_ROOT_D/bin/chrootsh"
+
+	p_echo "Create PPSB support group"
+    group_op "psasb" "search" false
+    add_user_to_group "psaadm" "psasb"
+    add_user_to_group "www-data" "psasb"
+}
+
+core_register_bsd_compat()
+{
+    local compat4_script compat5_script
+
+    register_service compat4x
+    register_service compat5x
+
+    compat4_script="`find $PRODUCT_RC_D -type f -name "*compat4x*" | head -1`"
+    compat5_script="`find $PRODUCT_RC_D -type f -name "*compat5x*" | head -1`"
+
+    if [ -f $PRODUCT_RC_D/$compat4_script -a "X$compat4_script" != "X" ]; then
+       $PRODUCT_RC_D/$compat4_script start
+    fi
+    if [ -f $PRODUCT_RC_D/$compat5_script -a "X$compat5_script" != "X" ]; then
+       $PRODUCT_RC_D/$compat5_script start
+    fi
+}
+
+core_start_product_on_rollback()
+{
+	start_after_install=1 # for start_product_now
+	start_product_now
+}
+
+sso_port_change_prep()
+{
+	# SSO port is changed in sw-sso 2.6, i.e. on upgrade to 10.2.0
+	[ "X$do_upgrade" = "X1" ] || return 0
+	[ ! -f /etc/sw-cp-server/applications.d/00-sso-cpserver.conf ] || return 0
+
+	# signal to SSO that we upgrade plesk.conf in 10.2.0
+	touch /tmp/pp-bootstrapper-upgrade-cpserver-configs.flag
+
+	# signal to Billing the need to perform upgrade actions
+	touch /tmp/pp-bootstrapper-change-sso-port.flag
+
+	# actual upgrade for Plesk is done in db_upgrade_sso_port_1010
+}
+
+core_bootstrapper_prep_install()
+{
+	selinux_init
+	maintainer_main_pre
+
+	# stop product
+	define_start_script
+	if [ -f $START_SH ]; then
+		# schedule product start on rollback if product is started
+		$START_SH status && transaction_add_rollback_action "core_start_product_on_rollback"
+		stop_before_upgrade
+	else
+		stop_removed_httpsd
+
+	fi
+
+	# Perform safe prep-install db actions
+	safe_prep_db
+
+	sso_port_change_prep
+	selinux_fix_booleans
+
+	selinux_close
+}
+
+
+if [ "X${PLESK_INSTALLER_DEBUG}" != "X" ]; then
+    set -x
+fi
+
+if [ "X${PLESK_INSTALLER_STRICT_MODE}" != "X" ]; then
+	set -e
+fi
+
+do_upgrade=0
+product_build="ubuntu12.04.build110120608.16"
+
+case "$1" in
+	install)
+		package_script_safe_run core_install_pre core_bootstrapper_prep_install plesk-core 11.0.9 ubuntu12.04.build110120608.16 "$1"
+		;;
+	upgrade)
+		# We are the new upgrading package
+		do_upgrade=1
+		prev_version="${2%%-*}"
+		package_script_safe_run core_upgrade_new_pre core_bootstrapper_prep_install plesk-core 11.0.9 ubuntu12.04.build110120608.16 "$1"
+		;;
+	abort-upgrade)
+		;;
+	*)
+		echo "Unknown operation: preinst $*"
+		exit 1
+		;;
+esac

@@ -1,0 +1,16 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/libmyodbc
+/usr/share/doc/libmyodbc/examples
+/usr/share/libmyodbc
+/usr/lib
+/usr/lib/i386-linux-gnu
+/usr/lib/i386-linux-gnu/odbc
+/usr/share/doc/libmyodbc/examples/odbc.ini
+/usr/share/doc/libmyodbc/copyright
+/usr/share/doc/libmyodbc/README.Debian
+/usr/share/doc/libmyodbc/changelog.Debian.gz
+/usr/share/libmyodbc/odbcinst.ini
+/usr/lib/i386-linux-gnu/odbc/libmyodbc.so

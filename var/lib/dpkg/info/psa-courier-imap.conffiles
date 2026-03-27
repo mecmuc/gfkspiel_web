@@ -1,0 +1,11 @@
+/etc/courier-imap/imapd.cnf
+/etc/courier-imap/quotawarnmsg.example
+/etc/courier-imap/pop3d
+/etc/courier-imap/shared/index
+/etc/courier-imap/pop3d.cnf
+/etc/courier-imap/imapd
+/etc/courier-imap/imapd-ssl
+/etc/courier-imap/pop3d-ssl
+/etc/init.d/courier-imap
+/etc/pam.d/pop3
+/etc/pam.d/imap

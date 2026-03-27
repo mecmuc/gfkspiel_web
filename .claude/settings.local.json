@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude init:*)",
+      "Bash(grep -E \"\\\\.\\(js|html|css|py\\)$\")",
+      "Bash(grep -E \"\\\\.\\(js|html|css\\)$\")",
+      "Bash(grep -E \"^[^/]*\\\\.\\(js|html|css|py\\)$|/\\(js|html|css\\)/[^/]*\\\\.\\(js|html|css\\)$\")",
+      "Bash(find /Users/janfoshag/projects/gfkspiel_web -type f \\\\\\(-name *.conf -o -name *.conf.d -o -name httpd.conf \\\\\\))",
+      "Bash(du -sh /Users/janfoshag/projects/gfkspiel_web/*)"
+    ]
+  }
+}

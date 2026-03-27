@@ -1,0 +1,13 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/lib
+/usr/lib/php5
+/usr/lib/php5/20090626+lfs
+/usr/lib/php5/20090626+lfs/gd.so
+/etc
+/etc/php5
+/etc/php5/conf.d
+/etc/php5/conf.d/gd.ini
+/usr/share/doc/php5-gd

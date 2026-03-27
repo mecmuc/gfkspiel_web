@@ -1,0 +1,6 @@
+libcfont 0 libconsole (= 1:0.2.3dbs-65.1ubuntu2)
+libconsole 0 libconsole (= 1:0.2.3dbs-65.1ubuntu2)
+libctutils 0 libconsole (= 1:0.2.3dbs-65.1ubuntu2)
+udeb: libcfont 0 libconsole-udeb (= 1:0.2.3dbs-65.1ubuntu2)
+udeb: libconsole 0 libconsole-udeb (= 1:0.2.3dbs-65.1ubuntu2)
+udeb: libctutils 0 libconsole-udeb (= 1:0.2.3dbs-65.1ubuntu2)

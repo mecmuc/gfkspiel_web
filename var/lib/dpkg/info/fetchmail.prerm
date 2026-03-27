@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+# Stops daemon if it is running under our control
+if [ -x /etc/init.d/fetchmail ]; then
+	if [ -x /usr/sbin/invoke-rc.d ]; then
+		invoke-rc.d --quiet fetchmail stop
+	else
+		/etc/init.d/fetchmail stop
+	fi
+fi
+
+
+
+exit 0

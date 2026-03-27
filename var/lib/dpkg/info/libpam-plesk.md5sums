@@ -1,0 +1,13 @@
+eab8a2c3a46483414be27e63b9dc7c37  lib/security/pam_plesk.so
+07ce967685b4c897cfee29f18208d0c5  opt/psa/pam_plesk_config/PAMConfig/__init__.py
+d3e8a08282cc64f7b347abfc90283ad1  opt/psa/pam_plesk_config/PAMConfig/analyzers.py
+8f646d3f617d92f2a224d506579c3a5f  opt/psa/pam_plesk_config/PAMConfig/confset.py
+7ab8a34e90e338a8953253df7a42536c  opt/psa/pam_plesk_config/PAMConfig/defaults.py
+2f4bf319847127fe5887b6605519c416  opt/psa/pam_plesk_config/PAMConfig/flatteners.py
+2a2a70650e185ecab53fff08b03a2727  opt/psa/pam_plesk_config/PAMConfig/modifiers.py
+b8aa23f9957a659e50b9a227e3622339  opt/psa/pam_plesk_config/PAMConfig/support.py
+77d2be2300dfb65ff30af9bbf23d7f84  opt/psa/pam_plesk_config/pam_plesk_common.py
+bf249cec30c4bb6ae18f653744e81f79  opt/psa/pam_plesk_config/pam_plesk_install
+d2a753f5f4fe92ac3d41a7b3d4818293  opt/psa/pam_plesk_config/pam_plesk_install.py
+6fd210063325e5610ada8863a1d4ebf3  opt/psa/pam_plesk_config/pam_plesk_remove
+32bdfaf41135931a53a676d72e616be8  opt/psa/pam_plesk_config/pam_plesk_remove.py

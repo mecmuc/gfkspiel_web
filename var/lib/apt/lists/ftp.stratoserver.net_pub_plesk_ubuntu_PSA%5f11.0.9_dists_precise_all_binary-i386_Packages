@@ -1,0 +1,1838 @@
+Package: psa-kav
+Priority: extra
+Section: non-free/net
+Installed-Size: 110
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: plesk-core (>= 11.0.9), psa-kav8
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/psa-kav_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 29718
+MD5sum: ea4d2d6b8401d525e03e4537bb595bf2
+SHA1: 87313ccfb6fd89b77ab364b3ba8dbda4dee39b81
+SHA256: 0160249297f91144716b190b1516263132aedc43b20773c7f717924f0140adfd
+SHA512: 709a0c3db344adb15151ead180de07c0fa57622faa384893b6fae823445904a9ef6b51b83a546cc9d485a84da2a9b0f0622a48b6c59025ec6c9b660616d5f742
+Description: Transitional Kaspersky Anti-Virus module for Parallels Panel
+ Transitional Kaspersky Anti-Virus  module for  Parallels Panel
+
+Package: librdbmspp
+Priority: extra
+Section: libs
+Installed-Size: 655
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 2.0-650086.12053112
+Depends: libc6 (>= 2.4), libgcc1 (>= 1:4.1.1), libicu48 (>= 4.8-1), libodbc1 (>= 2.2.11) | unixodbc (>= 2.2.11), libstdc++6 (>= 4.6), platform-runtime
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/librdbmspp_2.0-650086.12053112_i386.deb
+Size: 239302
+MD5sum: 37ffff4c1d9d5c0a27908a08166d65f3
+SHA1: b114f6f8356a04dff335accae887b953e2fb0e3a
+SHA256: a5c185f1703c23619510a307323219b10bd2b574cf19fd7e6e359685b0118b3f
+SHA512: a2e1023b8ce4b6be7d09e73b14af34c66082d2376daa095b5cfdad2199b190391468ad73bb6b0a2197b0b89ce68f20c844ad1f3d51003e20379816847a5a3761
+Description: rdbms++ Database Isolation Library
+
+Package: psa-api-rpc
+Priority: extra
+Section: web
+Installed-Size: 32
+Maintainer: <info@parallels.com>
+Architecture: i386
+Version: 10.0.0-1
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/psa-api-rpc_10.0.0-1_i386.deb
+Size: 1150
+MD5sum: a1814490063139816b9bff00baf0898b
+SHA1: 988bdf4055e7f608ba47369d86b8ae5987339dd1
+SHA256: 2a01d4554d421c510019d6b9373188316260b40f1346125a771d3017b0f78ba5
+SHA512: 2d565dfd3ffd49b9c3e83c69f3b2b26f7d097df36ae3a9aff0ed015bc147fc3930757832a56d33f0948327e1af3014d2da05ee50dcb43cbc134993aca63b0e5f
+Description: Transitional package for psa-api-rpc
+ Transitional package for psa-api-rpc. Feel free to remove it.
+
+Package: psa-spf2
+Priority: extra
+Section: libs
+Installed-Size: 470
+Maintainer: Parallels <info@info.parallels.com>
+Architecture: i386
+Version: 1.2.9-12051808
+Replaces: libspf2-2
+Provides: libspf2-2
+Depends: libc6 (>= 2.15)
+Conflicts: libspf2-2
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/psa-spf2_1.2.9-12051808_i386.deb
+Size: 205710
+MD5sum: e4a62d8fd2147f34ddfae1cbcd46d0d5
+SHA1: 0cba49f3af9b972fd86e900361d4ede043e534d4
+SHA256: 11e4f6c950dc636a83354cc542e1a9daff751fde656b07f408dbbecc091055be
+SHA512: b9d16127bab03a877da0263ea807edd76af1ca94c329c4b9fd05fdd4e6f64cf80d88ecb733488089296d87d251a1b10d1b08bde1ab5c505812b9aef72a0ca0c9
+Description: library for validating mail senders with SPF
+ libspf2 implements the Sender Policy Framework, a part of the SPF/SRS
+ protocol pair. libspf2 is a library which allows email systems such
+ as Sendmail, Postfix, Exim, Zmailer and MS Exchange to check SPF
+ records and make sure that the email is authorized by the domain name
+ that it is coming from. This prevents email forgery, commonly used by
+ spammers, scammers and email viruses/worms.
+ http://www.libspf2.org/
+
+Package: php5-ioncube-loader
+Priority: extra
+Section: Development/Languages
+Installed-Size: 2351
+Maintainer: Parallels, Inc. <info@parallels.com>
+Architecture: i386
+Version: 4.0.14-12051809
+Replaces: php53-ioncube-loader
+Depends: libc6 (>= 2.1.3)
+Conflicts: php53-ioncube-loader
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/php5-ioncube-loader_4.0.14-12051809_i386.deb
+Size: 779166
+MD5sum: ff6c4519eaaabfc039398d3ccab42143
+SHA1: 8ead4875ce581557361ad4cfd0cc8c2de87e7fec
+SHA256: 02434b29efa673ce5aaf30c1a57bf462bd7596cd1b45b2171365a8eb0af7009d
+SHA512: 121e919f3cc40a228544e79290913bb377d2ecd4a1fd9d6f8f7a61d6ad1a8b95b4450b8fdc991d0684d340333a3316a86464cf683fc2d28af31d23ba44f5ba4a
+Description: PHP ionCube Loader
+ This packages contain ionCube Loader for PHP
+
+Package: sw-cp-server
+Priority: extra
+Section: web
+Installed-Size: 1250
+Maintainer: SWsoft, Inc. <info@swsoft.com>
+Architecture: i386
+Version: 1.0-8.201205211713.ubuntu1204
+Depends: libbz2-1.0, libc6 (>= 2.4), libpcre3 (>= 8.10), libssl1.0.0 (>= 1.0.0), zlib1g (>= 1:1.1.4)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/sw-cp-server_1.0-8.201205211713.ubuntu1204_i386.deb
+Size: 435210
+MD5sum: 05b4d0e74b5c57727674e23969b43de3
+SHA1: d38dee00bc483a591fababd8e735a594f0942449
+SHA256: 63139a3b894f1b64216534db5908adb62cc96790488ad2b432c11a4af7171de0
+SHA512: 675ade066c4aae92cdb1d7318e8c6e54c77af579b929840fc33b577fdcb6f99803ce4d8fe7326aaf094ae4f2648169425a445cb6625bb6809a97dddeec3c0f73
+Description: SWsoft control panels server
+ HTTP server for SWsoft control panels based on lighttpd
+
+Package: psa-encrypted-passwords
+Priority: extra
+Section: non-free/utils
+Installed-Size: 8
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120523.19
+Depends: plesk-core (>= 11.0.9)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/psa-encrypted-passwords_11.0.9-ubuntu12.04.build110120523.19_i386.deb
+Size: 676
+MD5sum: 42254b862937633eb5d9b86542f9e1f4
+SHA1: 7169db380545b620798e3a80fbd435726ac5b364
+SHA256: b8915fde974f8ffe50019ffe0e46357724dda77f44b231ca44a864541afef60d
+SHA512: c8f1eea0786bb4440c9e4ba0ee1777c1efb5833a1f2fcf02a3335ae16c2d65340b01cf1c793870895bba442347504a06a273a74af84ae993426962cf4bb82830
+Description: Parallels Panel v11.0.9 user passwords encryption metapackage
+  Parallels Panel
+
+Package: psa-vps-optimized
+Priority: extra
+Section: non-free/utils
+Installed-Size: 8
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.8-ubuntu12.04.build110120518.08
+Depends: plesk-core (>= 11.0.8)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/psa-vps-optimized_11.0.8-ubuntu12.04.build110120518.08_i386.deb
+Size: 660
+MD5sum: 3ff72e795b409429e6ac7e34784e4f63
+SHA1: b697c3efc5ba9f704db3c2d375393e6df079269c
+SHA256: bd4b55cb0430ae7a1723a0294ffbd3ba0e6f555db05049866ab99c9716d9c078
+SHA512: 301feb733ae59cfa72fe2e6d91d51a879f124e1a3d8050b74b15734af4f1bd19807eaa28a1d58da2ea0747aecab2cadd496cd41af06540607468cf6b1fbfe128
+Description: Parallels Panel v11.0.8 VPS optimize metapackage
+  Parallels Panel
+
+Package: libwww-w3c
+Priority: extra
+Section: libs
+Installed-Size: 1084
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 5.4.0-12081417
+Depends: libc6 (>= 2.15), libssl1.0.0 (>= 1.0.0), zlib1g (>= 1:1.1.4)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/libwww-w3c_5.4.0-12081417_i386.deb
+Size: 435802
+MD5sum: d2e40996ac6c70c4c963bc308f878b9e
+SHA1: 48af8a8166dff1e102fbf69898eca2659b916a24
+SHA256: 23702ec8b7f42f158f465d198fcd368e13ebc4c5bb7e871c42c16638cebd1045
+SHA512: 583114148bebd607731939f782acbed0841df56fddd8323d5b013fce5fe6b1bd7897c78c42ffecb3041cc9d0400945761ce5e234ab000bacf91e2737f8d54790
+Description: HTTP library of common code
+ Libwww is a general-purpose Web API written in C for Unix and Windows (Win32).
+ With a highly extensible and layered API, it can accommodate many different
+ types of applications including clients, robots, etc. The purpose of libwww
+ is to provide a highly optimized HTTP sample implementation as well as other
+ Internet protocols and to serve as a testbed for protocol experiments.
+
+Package: platform-runtime
+Priority: optional
+Section: devel
+Installed-Size: 288967
+Maintainer: SWsoft Linux Team <support@sw.com.sg>
+Architecture: i386
+Version: 1.0-42
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/platform-runtime-1.0-42.ubu10.i386.deb
+Size: 110020
+MD5sum: 009bd36523d04d6977752ac813d53b27
+SHA1: 9dadefb6d9c60250aae2c1db083326dad8b217be
+SHA256: 8276cbd24d9ade37f2cd774045838fdc99069e66933526be8ce02b95037c2616
+SHA512: a7b4a1d18fb9680ffdc1b16820b4ee977bb7cd1cfe91ff34461ed94e676fc62295e575c66999c247688aaadca559418e1c13a06f3060d1431817d327dd7b52c6
+Description: Parallels platform runtime
+
+Package: psa-pear
+Priority: extra
+Section: web
+Installed-Size: 4675
+Maintainer: Parallels, Inc. <info@parallels.com>
+Architecture: all
+Version: 1.9.4-20110921.12051809
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/psa-pear_1.9.4-20110921.12051809_all.deb
+Size: 788022
+MD5sum: 8b1a8e221dc8e76a11296fdd920edcd0
+SHA1: dc22e221d0cf61e9d3b4f895145c7a4fa9a11c5c
+SHA256: 608aa9aa8c092a738a104a09dc24487eb19cd88efebf2bd361aa7f28385e653b
+SHA512: 8705847fda7b2098937b01cb0fcd441212d4fd4389ae0ea514c08fcef614909a325db39cdc7b1b0b0d4026ef647fe89db5637cc740f92bbaefcbf6b959bde725
+Description: PEAR - PHP Extension and Application Repository
+ This package contains necessary and base PEAR classes for Plesk, as
+ well as the PEAR installer. PEAR is a framework and distribution
+ system for reusable PHP components.
+ Homepage: http://pear.php.net/
+
+Package: log4cpp-plesk
+Priority: extra
+Section: libs
+Installed-Size: 199
+Maintainer: Parallels <info@info.parallels.com>
+Architecture: i386
+Version: 0.3.5rc2-10.12051808
+Depends: libc6 (>= 2.4), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.6)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/log4cpp-plesk_0.3.5rc2-10.12051808_i386.deb
+Size: 77100
+MD5sum: 881a1422212e25347cdfc744366510f0
+SHA1: 1a1843a0503965fc03d0e75d3c110f14ed63e182
+SHA256: 2e44f1f7fe898901b174141792505382f59c9355b7443bc352bf289e7f2a54fd
+SHA512: 3dea66e01d9549f8f6652a0fdba407439b41b4f3512eff25313af11c44104de255bc1c858e916c5655fc48c7228184bfcd353675cec72833706d115b97abaf21
+Description: C++ logging library packaged for Plesk
+ Log for C++ is a library of classes for flexible logging to files, syslog,
+ and other destinations. It is modeled after the Log for Java library and
+ stays as close to its API as is reasonable.
+ http://log4cpp.sourceforge.net/
+
+Package: sw-engine
+Priority: extra
+Section: web
+Installed-Size: 26450
+Maintainer: SWsoft, Inc. <info@swsoft.com>
+Architecture: i386
+Version: 2.5.2-201410011624.ubuntu1204
+Depends: libaps (>= 1.0.4), libboost-filesystem1.48.0 (>= 1.48.0-1), libboost-system1.48.0 (>= 1.48.0-1), libc-client2007e, libc6 (>= 2.15), libcurl3 (>= 7.16.2-1), libfreetype6 (>= 2.2.1), libgcc1 (>= 1:4.1.1), libicu48 (>= 4.8-1), libidn11 (>= 1.13), libjpeg62 (>= 6b1), libmcrypt4, libpng12-0 (>= 1.2.13-4), libpq5 (>= 8.4~), libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.6), libuuid1 (>= 2.16), libxml2 (>= 2.7.4), libxmlrpc-c++4, libxmlrpc-core-c3, libxslt1.1 (>= 1.1.25), zlib1g (>= 1:1.2.3.3.dfsg)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/sw-engine_2.5.2-201410011624.ubuntu1204_i386.deb
+Size: 8844070
+MD5sum: eca40d104975a4a88eee4826bd97d792
+SHA1: f148db0b94717bee708e0af442525d9a4fa81cc3
+SHA256: 2bd58053f372250cded34448f67e378f83d3ce44d4ffd9930861879613550439
+SHA512: 318262c47d9b899969e4ead8e879ee0169f514cc200ace54a96fefc274945e62f047ecace39d63533e8ecd5c6bfcf52dd7a35835d4847512d2e18e3e6fa75509
+Description: Cross-platform packages build system
+
+Package: plesk-management-node
+Priority: extra
+Section: non-free/net
+Installed-Size: 8
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.8-ubuntu12.04.build110120518.08
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/plesk-management-node_11.0.8-ubuntu12.04.build110120518.08_i386.deb
+Size: 628
+MD5sum: 05e5bd0f3e6ae71995102dcfb19bae94
+SHA1: e9fd1485deb23f58e897f27f4fa095773d0549bb
+SHA256: 9b89bf8befc06635c4236b10bb1acf72fcc432841cbd98e9cf485a36d4d2adad
+SHA512: 951872893889fe75d14b889b1a68c8b9d3e824ab3536ed2fda5421c63f68586fc8eab56e6145d8dac3463aaf13de775460865246f8973a8adca9dedba4efb7d4
+Description: Parallels Panel v11.0.8 core files
+
+Package: sw-libmilter
+Priority: extra
+Section: libs
+Installed-Size: 103
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 8.14.5-12051808
+Depends: libc6 (>= 2.4)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/sw-libmilter_8.14.5-12051808_i386.deb
+Size: 34062
+MD5sum: 9e220bcdeac46d3b00086d25727c05f0
+SHA1: d5edccf02672d142156e2a739a0af5af6370cb72
+SHA256: ccdb2b7c7f8c29c2422dd9e3640a5ad43fa054e79f0645bffbdbe97f412aaa4e
+SHA512: 769c375093dfaa22c2455999765cb170ed178b111637cc5bd2021de46dcbb197fffb3f10db4e761ec6b5134f2756f97c2161eaf2cf1d794ca881d1d0e6b4775a
+Description: Sendmail Mail Filter API (Milter)
+
+Package: libaps
+Priority: extra
+Section: libs
+Installed-Size: 3356
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 1.0.4-768202.12060417
+Depends: libarchive12, libboost-filesystem1.48.0 (>= 1.48.0-1), libboost-regex1.48.0 (>= 1.48.0-1), libboost-serialization1.48.0 (>= 1.48.0-1), libboost-system1.48.0 (>= 1.48.0-1), libboost-thread1.48.0 (>= 1.48.0-1), libc6 (>= 2.4), libgcc1 (>= 1:4.1.1), librdbmspp, libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.6), libuuid1 (>= 2.16), libxml2 (>= 2.7.4)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/libaps_1.0.4-768202.12060417_i386.deb
+Size: 1140650
+MD5sum: 76cfd049ec0a9e93c80b87ad8bf689ba
+SHA1: 672a69411752908a01fa17fab5f7fb81595088bf
+SHA256: c9f300c055f3da2ce465edba62ecdf92fd976b4f4020429e5293e80059df3613
+SHA512: 73ecee2ef9317e262a54ef00e7702f1e946e4f8854238917af2be5237e3c9fc22c762f72204164a9fe6fa7c225ae366ec381ab55b97ccbdc2fc00b6ee571fd24
+Description: APS Controller shared library
+
+Package: plesk-web-hosting
+Priority: extra
+Section: web
+Installed-Size: 8
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.8-ubuntu12.04.build110120518.08
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/plesk-web-hosting_11.0.8-ubuntu12.04.build110120518.08_i386.deb
+Size: 626
+MD5sum: 235f66693554e696a03435c44216bcff
+SHA1: 0db4d445628423a70d9fb27c97d601cceb5ce27d
+SHA256: afcf487c4ec78de006db8808dc3537134dbd6c66a2441ae14962b386ebd7d244
+SHA512: b8898fbfd2b39bcca84672d06700bad7917c3c7b459702cf43cb9d02191c71052cd33656eb41ad8e94cb504229dc8845bb30a6b7da03f71f42a1a9c5dea0c8dc
+Description: Parallels Panel Web Hosting Component
+
+Package: sw-doctrine
+Priority: extra
+Section: web
+Installed-Size: 3296
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 1.0.4-0.280352
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/contrib/sw-doctrine_1.0.4-0.280352_all.deb
+Size: 361292
+MD5sum: cd4023030e950a27aee1065fa4543ef8
+SHA1: 68986e18ec3797895ad99cbf298c5a98eea04ed2
+SHA256: 669d7045179e4a19966234a5da9e76d6c48058670dcbd5e44750c1b1c7a36c68
+SHA512: 1674418035354563741f3ee7c6c9f0b08abd50d67db2be11343c8901e0ccd007d9ef2ab2fb3f037d32c9b9d31ff8b177aa392b4a9e992471248283e1473f8a26
+Description: The PHP Doctrine ORM
+ Doctrine is a PHP ORM (object relational mapper) for PHP 5.2.3+
+ that sits on top of a powerful PHP DBAL
+ (database abstraction layer). One of its key features is the ability
+ to optionally write database queries in an OO (object oriented)
+ SQL-dialect called DQL inspired by Hibernates HQL. This provides
+ developers with a powerful alternative to SQL thatmaintains a maximum of flexibility
+ without requiring needless code duplication.
+
+Package: psa11-php-fakepackage
+Priority: extra
+Section: non-free/utils
+Installed-Size: 8
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/php53/psa11-php-fakepackage_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 626
+MD5sum: 2c8a8709100abec19b509dbab3590f0c
+SHA1: 67cdf3d76b2fe5320a61925e3f306c204abdda85
+SHA256: f0b0b7457d1cd6e4c12960a5706342e565740464f7654d159f3b88f8473b988c
+SHA512: 2458cfe0486323da28f407cf332a408a5658dc72386356fb8a53ac2fc535348d5828ada34c9f4229faf98685faec68b7998446d9750028a053c7f419a60560cd
+Description: Parallels Panel fake php package
+
+Package: psa11-php-fakepackage
+Priority: extra
+Section: non-free/utils
+Installed-Size: 8
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/php5/psa11-php-fakepackage_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 626
+MD5sum: 2c8a8709100abec19b509dbab3590f0c
+SHA1: 67cdf3d76b2fe5320a61925e3f306c204abdda85
+SHA256: f0b0b7457d1cd6e4c12960a5706342e565740464f7654d159f3b88f8473b988c
+SHA512: 2458cfe0486323da28f407cf332a408a5658dc72386356fb8a53ac2fc535348d5828ada34c9f4229faf98685faec68b7998446d9750028a053c7f419a60560cd
+Description: Parallels Panel fake php package
+
+Package: psa-php5-configurator
+Priority: extra
+Section: non-free/utils
+Installed-Size: 99
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 1.6.2-ubuntu12.04.build110120606.19
+Depends: libc6 (>= 2.4), plesk-base (>= 11.0.9), psa11-php-fakepackage, apache2, php5-sqlite, php5-ioncube-loader (>= 4.0.14), libapache2-mod-php5, php5-common, php5-mysql, php5-gd, php5-imap, php5-cli, php5-curl, php5-xsl, php5-cgi
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/php5/psa-php5-configurator_1.6.2-ubuntu12.04.build110120606.19_i386.deb
+Size: 20110
+MD5sum: ae243a2c64475bf2e705a81ad3c4081b
+SHA1: 151c3dbd6f16f4217e24c0c87604a39eaba8174d
+SHA256: 1ebfd923d21bc7be99ec174e9dfed92695641f0bb292b2e06ea64ee256fd37c7
+SHA512: df75d00c36d3bb974b522acdae4b885d2316689eb275abe8ea33a6046fbef25496e05373bd7bd023e07715ef95e63e5d111f6fa6cef84b5321f1101d0645ea9f
+Description: Parallels Panel v1.6.2 configurator for php5
+ This is simple scritpt which configure php5 to make it work with Parallels Panel
+
+Package: psa-rubyrails-configurator
+Priority: extra
+Section: non-free/utils
+Installed-Size: 103
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 1.1.6-ubuntu12.04.build110120606.19
+Depends: plesk-base (>= 11.0.9), apache2, rails | ruby-rails, libfcgi-ruby1.8, libmysql-ruby1.8
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/ruby/psa-rubyrails-configurator_1.1.6-ubuntu12.04.build110120606.19_i386.deb
+Size: 27526
+MD5sum: 1c812bfa475914431171b2e73b131b51
+SHA1: 29912386050b4436c39d3a546f16da4d2eb7b0f3
+SHA256: d96c0ba7aee5518458a53720a6bd75217520d33faf3e62d683e52b17f36db88f
+SHA512: 657ee9e880fb891fd41d6aeb80ad1dacb5f3b73b986422eefc9f582e91bc5debcc476c86579bf7021e4f85e0a50acd038cb9da54247c8467f22bd56aad6d697b
+Description: Parallels Panel v1.1.6 configurator for Ruby on Rails
+ This is simple scritpt which configure Ruby on Rails to make it work with Parallels Panel
+
+Package: psa-migration-manager
+Priority: extra
+Section: non-free/net
+Installed-Size: 1118
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libboost-filesystem1.48.0 (>= 1.48.0-1), libboost-system1.48.0 (>= 1.48.0-1), libc6 (>= 2.15), libgcc1 (>= 1:4.1.1), libidn11 (>= 1.13), libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.6), libxml2 (>= 2.7.4), libxslt1.1 (>= 1.1.25), log4cpp-plesk, plesk-base (>= 11.0.9), psa-backup-manager (>= 11.0.9), plesk-core (>= 11.0.9)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/migration/psa-migration-manager_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 442590
+MD5sum: fdfdc23b1c6a1f3b102f295863f757de
+SHA1: 4f0540bd790fdc4532e04e3a3feafdbfbb5d3580
+SHA256: 06e53360089989b6dffa71ffe135bf9d49883825e17bd6ef758cb0057a1bcdf2
+SHA512: f803039e242745334f5b18ebcb909eaf5561647760827e5d4c1b88abdd3ece978291d651a6750fd9491758eda336a8604624e956c1dd3635127d3d74cc729fbc
+Description: Parallels Panel v11.0.9 migration manager
+ Parallels Panel migration manager helps in migrating from other platforms.
+
+Package: psa-migration-agents
+Priority: extra
+Section: non-free/net
+Installed-Size: 202
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: plesk-base (>= 11.0.9), psa-migration-manager (>= 11.0.9)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/migration/psa-migration-agents_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 34570
+MD5sum: 05bfcbeda8a14a42d62dd21f1d1c4ee2
+SHA1: 4c77480251d41c4d21c97e5bd6fe683493e108d4
+SHA256: 6869ac006b14ace1b034d797ac49b21ae26b6932f406a7c4568757cc44c389b2
+SHA512: 9a8217e7d2c04fc5f52d868c342b91079891385fca2c49628cccc30ea1099857e3c2e2ab1bf732b12a9cda420e7942d59f9a701dd985c28bd06f589f93e80c0f
+Description: Parallels Panel v11.0.9 migration agents
+ Parallels Panel migration agents helps in migrating from other platforms.
+
+Package: libapache2-mod-cloudflare
+Priority: extra
+Section: web
+Installed-Size: 157
+Maintainer: Parallels, Inc. <info@parallels.com>
+Architecture: i386
+Version: 1.1.1-61fa04b.12061915
+Depends: libc6 (>= 2.4), apache2
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/cloudflare/libapache2-mod-cloudflare_1.1.1-61fa04b.12061915_i386.deb
+Size: 34498
+MD5sum: 9cabd4ac1f02ed24c60a44242b32a5a2
+SHA1: a954cb43ff7c78ed66ac4df46c40c43b3e2545bc
+SHA256: 1f9977cd8396add83cd8155f6012560427ae1660c33a6f8116c9d13e914c6996
+SHA512: 1eca7406ab65e557722b0480e1687f7814578f2e34149cffa764fccf722bda3647df0fe1ae14245d49525757e85f3128f55452a59a8a2d34c6ec5fb5ac7bdfa6
+Description: CloudFlare Apcahe module mod_cloudflare to show visitor IPs in logs
+ CloudFlare acts as a proxy, which means that your visitors are routed through
+ the CloudFlare network and you do not see their original IP address. This
+ module uses HTTP headers provided by the CloudFlare proxy to log the real IP
+ address of the visitor.
+ Based on mod_remoteip.c, this apache extension will replace the
+ remote_ip variable in user's logs with the correct remote_ip sent
+ from CloudFlare. This also does authentication, only performing
+ the switch for requests originating from CloudFlare IPs.
+
+Package: psa-autoinstaller
+Priority: extra
+Section: non-free/net
+Installed-Size: 9772
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 3.12.1-120703.11
+Replaces: psa
+Depends: libc6 (>= 2.15), libgcc1 (>= 1:4.1.1), libpam0g (>= 0.99.7.1), libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.6), zlib1g (>= 1:1.2.3.3.dfsg)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/updater/psa-autoinstaller_3.12.1-120703.11_i386.deb
+Size: 4042354
+MD5sum: 6d4289dcaea1655500c4cd6a103fbc2c
+SHA1: a0efed412b8ac18350f036b7a9cd068f984e01a7
+SHA256: 4b83c80882610b7588c705ac7834bab84a2c40b94d9c7bfe7ef7cf3aeb6f819d
+SHA512: 308a1ee00aae7fbd500bb780cd16414ef8ff84b7be145de43fa255af14281cefef6150e8c3f7b50836de395b479df568ef225ba64cc655394fa189f35367680f
+Description: Parallels Products Installer
+ Parallels autoinstaller. It requires for Plesk update
+
+Package: plesk-mail-pc-driver
+Priority: extra
+Section: non-free/net
+Installed-Size: 4990
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Replaces: psa-courier-imap-add, psa-mail-driver, psa-qmail, psa-qmail-rblsmtpd, sendmail
+Provides: psa-mail-driver
+Depends: libboost-filesystem1.48.0 (>= 1.48.0-1), libboost-program-options1.48.0 (>= 1.48.0-1), libboost-regex1.48.0 (>= 1.48.0-1), libboost-system1.48.0 (>= 1.48.0-1), libc6 (>= 2.15), libgcc1 (>= 1:4.1.1), libidn11 (>= 1.13), libmysqlclient18 (>= 5.5.13-1), libsqlite3-0 (>= 3.5.9), libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.6), libtokyocabinet8 (>= 1.4.14), sw-libmilter, plesk-base (>= 11.0.9), psa-mail-driver-common (>= 11.0.9), psa-courier-imap, sqlite3, postfix (>= 2.5), libsasl2-modules, postfix-pcre, xinetd, cron
+Conflicts: psa-courier-imap-add, psa-mail-driver, psa-qmail, psa-qmail-rblsmtpd, sendmail
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/maildrivers/plesk-mail-pc-driver_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 2088374
+MD5sum: 7f8529b459093d72ec63561070e17ccb
+SHA1: 810a9b56059d27be3d74f90b40fd528366b10a0f
+SHA256: b466a8751173d14c895764abce147b8c5f94307a5da4acf9ce1403edafdc00d5
+SHA512: 015318524b2a16fa5e0a55238659a4d59276e7006500f65a4ba28754b2ed65c1674e5c673befb19867da794bdbe4218cb0b6a2bafed7e125408b32b6c3a2750e
+Description: Parallels Panel v11.0.9 mail postfix-courier_imap driver
+ Parallels Panel postfix + courier-imap driver
+
+Package: plesk-mail-qc-driver
+Priority: extra
+Section: non-free/net
+Installed-Size: 1860
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Replaces: postfix, psa-courier-imap-add, psa-mail-driver, sendmail
+Provides: psa-mail-driver
+Depends: libboost-system1.48.0 (>= 1.48.0-1), libc6 (>= 2.15), libgcc1 (>= 1:4.1.1), libidn11 (>= 1.13), libmysqlclient18 (>= 5.5.13-1), libsqlite3-0 (>= 3.5.9), libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.6), psa-mail-driver-common (>= 11.0.9), psa-courier-imap, psa-qmail (>= 1:1.03), psa-qmail-rblsmtpd
+Conflicts: postfix, psa-courier-imap-add, psa-mail-driver, sendmail
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/maildrivers/plesk-mail-qc-driver_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 712486
+MD5sum: f87b6d7c05537c2a6c3d305f9a36fddc
+SHA1: 94df6d89259ed87415ad5a76ec24d9233ea6e58b
+SHA256: d8221997244c29ba9eb5224c5daf88ded3c883fdb954ea5fb4fd3312c44a1fb2
+SHA512: 5f1a2367dbdffea607446307122872decb1a344dc80306fe9372b7e2ab58eeeb41818ecaf4c78c94dd0425afed1b63bda08722d24865377cc4223b3357dc34a6
+Description: Parallels Panel v11.0.9 mail qmail-courier_imap driver
+ Parallels Panel qmail + courier-imap driver
+
+Package: psa-mail-driver-common
+Priority: extra
+Section: non-free/net
+Installed-Size: 1363
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libboost-filesystem1.48.0 (>= 1.48.0-1), libboost-system1.48.0 (>= 1.48.0-1), libc6 (>= 2.8), libgcc1 (>= 1:4.1.1), libidn11 (>= 1.13), libmysqlclient18 (>= 5.5.13-1), libpcre3 (>= 8.10), libsqlite3-0 (>= 3.5.9), libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.6), psa-spf2, plesk-base (>= 11.0.9), sqlite3 (>= 3.3.0), psa-courier-imap
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/maildrivers/psa-mail-driver-common_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 489144
+MD5sum: 97bdbb59c3554f4b98381374d16eacb1
+SHA1: 44de105cef18d2519d0d596de1093e329a75556a
+SHA256: 2537cd699337ef2d38234adf2c17b87a84c7bc22c7127232827194d48a73e725
+SHA512: 7e85115618ce7b58b74bb7467d10655b960acc57fe2ac26d26a1b6ba9f95f452a19b4cb6b271699b7b04b69f24b3a858e6576a1aedef3f4f9700602fcc8d3386
+Description: Parallels Panel v11.0.9 mail drivers common parts
+ Common parts for Parallels Panel mail drivers parts. This includes
+ Parallels Panel (but MTA agnostic) authentication tools.
+
+Package: psa-courier-imap
+Priority: extra
+Section: mail
+Installed-Size: 4541
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 3.0.8-ubuntu12.04.build110120606.19
+Replaces: courier-base, courier-imap, imap-server, pop3-server, popa3d, psa-courier-imap-add
+Provides: imap-server, pop3-server
+Depends: libc6 (>= 2.15), libdb4.8, libssl1.0.0 (>= 1.0.0), libssl0.9.8
+Conflicts: courier-base, courier-imap, imap-server, pop3-server, popa3d, psa-courier-imap-add
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/maildrivers/psa-courier-imap_3.0.8-ubuntu12.04.build110120606.19_i386.deb
+Size: 1657454
+MD5sum: 495facce45520723d83ca44ce91eb38c
+SHA1: 98b5f650245f78470733d54252373ea36c38f941
+SHA256: ab6203371140bc82edebc120cd5ff5cc69eae30c07719bd5ffd99e9000153361
+SHA512: 508ecd481f7853d23abfe9f4e63242731cac6b5de22e5c5dd891c2ff012c22721991085e7f5c50eb70574c401bdba5e94c32879f402b3131d61a4c6e8f92cbd3
+Description: Courier-IMAP v3.0.8 IMAP server
+ Courier-IMAP is an IMAP server for Maildir mailboxes.  This package contains
+ the standalone version of the IMAP server that's included in the Courier
+ mail server package.  This package is a standalone version for use with Parallels Panel
+
+Package: psa-qmail
+Priority: extra
+Section: non-free/mail
+Installed-Size: 1863
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 2:1.03-ubuntu12.04.build110120606.19
+Replaces: mail-transport-agent
+Provides: mail-transport-agent
+Depends: libc6 (>= 2.15), libssl1.0.0 (>= 1.0.0), plesk-base, psa-courier-imap, openssl, libidn11 (>= 0.5.2), xinetd, sqlite3
+Conflicts: mail-transport-agent
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/maildrivers/psa-qmail_1.03-ubuntu12.04.build110120606.19_i386.deb
+Size: 470384
+MD5sum: fe3b04480bf83229ab1e3f9ff8f916f4
+SHA1: 296472229be079aafc6aa6aecef1acf5b405979c
+SHA256: f823a71cb227cbbd60249bcf9ce5d4657efbfc09ce841db7f700978ef5bae107
+SHA512: 17dd164c53961a039db679b86472a8c1873b6048f3dc66ce0f47a99131755fcddec8251f9f904d1a61afeb3bd41b950969a223363a277b2c43611eaa49fc9773
+Description: qmail Mail Transfer Agent
+ qmail is a small, fast, secure replacement for the
+ sendmail package, which is the program that actually receives, routes,
+ and delivers electronic mail.  *** Note: Be sure and read the
+ documentation as there are some small but very significant differences
+ between sendmail and qmail and the programs that interact with them.
+
+Package: psa-watchdog
+Priority: extra
+Section: non-free/net
+Installed-Size: 3508
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libc6 (>= 2.15), libgcc1 (>= 1:4.1.1), libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.6), plesk-core (>= 11.0.9), mysql-server
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/modules/watchdog/psa-watchdog_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 1487802
+MD5sum: 40adc3239d2180f8189d4cce2e39aa5a
+SHA1: af049f4154aaa61c89ca402cf6937da3cfc8077c
+SHA256: 5c4ba9b13c544ee1d1ba21924325fdb6ea586fea3e1cbea62fe72da28cd2d651
+SHA512: 074991a14a52bb4e0c492668c2801284d201a40cb81db7c708ff8b6912b944675ef7ab80f2837ac7444c5c5bbd4181f725712d90a9e576325d81e2d415fc2f63
+Description: The Parallels Panel Watchdog is a module for monitoring services on a UNIX system.
+ Parallels Panel Watchdog is a module for monitoring services on a UNIX system.
+
+Package: psa-vpn
+Priority: extra
+Section: non-free/net
+Installed-Size: 2295
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libc6 (>= 2.15), libssl1.0.0 (>= 1.0.0), plesk-core (>= 11.0.9), plesk-base (>= 11.0.9), mysql-server
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/modules/vpn/psa-vpn_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 975354
+MD5sum: 1a2bca161e4068637df26c693bc7d26d
+SHA1: 6f6350231119302bf1d3f9468756b107e76714d1
+SHA256: b18924eaec54ad65d238fd9ef3473907c1a27df0c2cb122384fe247f4ffba9af
+SHA512: aaa8d08deb14ab3b1d164daad20383746695e175372817ed6e1075d4d16efee257c9234daf619e50893768c81b59dc5aca10517c9453d3710a936c6fc6ec10b5
+Description: The Parallels Panel Virtual Private Networking module builds a secure network over insecure channels
+ Parallels Panel Virtual Private Networking module allows to connect two
+ separated segments into a single network with a secure link
+ using the insecure Internet as the transport medium.
+
+Package: psa-cs-gs
+Priority: extra
+Section: non-free/net
+Installed-Size: 1166
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 2.0.0-ubuntu12.04.build110120608.16
+Provides: plesk-module
+Depends: libc6 (>= 2.8), libgcc1 (>= 1:4.1.1), libmysqlclient18 (>= 5.5.13-1), libstdc++6 (>= 4.6), plesk-core (>= 11.0.9), mysql-server
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/modules/csgs/psa-cs-gs_2.0.0-ubuntu12.04.build110120608.16_i386.deb
+Size: 421404
+MD5sum: bfa351e3ce8d784130604417e08c532b
+SHA1: 5534fea9c9ddc8f8053ddf8a2200ebfce10edd55
+SHA256: cd52628ea232abbfb1e2ff3c541491914531c1bca5bb5b81b6b88608c5bf2820
+SHA512: e3a21c913921382bae73852e197d95fb81aeb7d836520e919ed33425cfeb7fd967151df2dcf02948c5f705f658cb0d9eb7604fdefc252a2752acf5701546914a
+Description: Battlefield 2 game server module for Parallels Panel
+ Battlefield 2 game server module Parallels Panel
+
+Package: psa-atis
+Priority: extra
+Section: non-free/net
+Installed-Size: 432
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 1.1-51
+Provides: plesk-module
+Depends: psa, libdbd-mysql-perl
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/modules/atis/psa-atis_1.1-51_i386.deb
+Size: 105966
+MD5sum: 97184c25f47f1ea6f9ad4bc9bf3ae303
+SHA1: 04798725d0fbed492aeab292d751187b6043ebcb
+SHA256: d011a09052704de38eabe3071b7d4fd2c7399cf31e25d5a0cb0c384969c81160
+SHA512: 4e8b691e6c8488a64c4583d6bcbb53f49e26834877e46c521add2f7bdcf1b4d9bf9024e1a27ab2ffdeca17579271564ec2729dcd261425d330561482cfcaed08
+Description: Acronis True Image Server for Parallels Plesk Control Panel
+ This package contain module Parallels Plesk Control Panel for
+ Acronis True Image Server control
+
+Package: psa-fileserver
+Priority: extra
+Section: non-free/net
+Installed-Size: 672
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libc6 (>= 2.15), libmysqlclient18 (>= 5.5.13-1), libssl1.0.0 (>= 1.0.0), plesk-core (>= 11.0.9), mysql-server
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/modules/fileserver/psa-fileserver_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 212630
+MD5sum: a79ded3ca1bd368f130066a13dd0715a
+SHA1: 21baa5d1418d70037921d56c026dea2ef8f47ae7
+SHA256: e0b2133fbd8a29db6fa603809d3965938c81502edaf67c081624ca637d96e2b8
+SHA512: 23360c4ce0e7524ee10c9c3fd3f74855cb569cfd18cbe9f43ba1f76d0d34ceb9730740e8f25896f79467714e4696c5448869e52d5b1d85f8e98b00f99cb97518
+Description: The Parallels Panel Fileserver module helps your share directories in network
+ The Parallels Panel Fileserver module helps your share directories in network
+
+Package: psa-firewall
+Priority: extra
+Section: non-free/net
+Installed-Size: 870
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libc6 (>= 2.15), libgcc1 (>= 1:4.1.1), libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.4.0), plesk-core (>= 11.0.9), mysql-server
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/modules/firewall/psa-firewall_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 267844
+MD5sum: 5d74334c98b0506abf2516f157bf40ed
+SHA1: 161582ef44e82bfda2ce69cfa8695af6b25d4994
+SHA256: 1c250583ae95effbcddad154a7a682c6c4fb30d102518b5a00ecb6e6a3c512a5
+SHA512: 9cf6c586d6eef3a3f0660e9173dccb0cefbd51d9b21a53b9af4a5cd419281541df18b092c522afe72f3471ff50c0ff276e2c7c803a323463f3750eefcc131b7e
+Description: The Parallels Panel Firewall module helps protect your host and private network from unauthorized access
+ Parallels Panel module allows you to configure the firewall on your machine.
+ Typical firewall administration tasks, such as controlling access to
+ your WWW or FTP server, are done in several clicks. More complex configurations
+ are possible with custom rules.
+
+Package: commtouch
+Priority: extra
+Section: non-free/net
+Installed-Size: 12081
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 2.0.15-ubuntu12.04.build110120905.17
+Provides: plesk-module
+Depends: plesk-core (>= 11.0.9), mysql-server, libwww-w3c
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/modules/commtouch/commtouch_2.0.15-ubuntu12.04.build110120905.17_i386.deb
+Size: 4993312
+MD5sum: 2cde677955c0a4d91ff0148df98db9ea
+SHA1: 3c5696e4fbdab184eac473ef2c4c368810af2d49
+SHA256: e6807c70f956471da190e67d739deb662418feb06752d700f46a66af68150c62
+SHA512: 6384c34631c285730cf5d29360b5787963cafe01529eee993f6050f4cd21581dd6fb7ba7cd0441b36dfe5096279220ec9f2d6820bff5d4b4bb7f9716613b7bec
+Description: Commtouch Outbound Spam Protection solution for the Parallels Panel
+ Commtouch Outbound Spam Protection solution for the Parallels Panel
+
+Package: psa-spamassassin
+Priority: extra
+Section: non-free/net
+Installed-Size: 404
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libc6 (>= 2.15), libmysqlclient18 (>= 5.5.13-1), libsqlite3-0 (>= 3.5.9), libssl1.0.0 (>= 1.0.0), plesk-core (>= 11.0.9), libtext-iconv-perl, libnet-dns-perl, spamassassin (>= 3.0.2), libhtml-parser-perl, spamc, libtime-hires-perl, libtimedate-perl
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/mail/psa-spamassassin_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 108348
+MD5sum: ada2ca609067c4fcf7da98f6a19cc35b
+SHA1: 5fbd16153d6cd4c72f75a837a7e8361cbf429a94
+SHA256: c6af0d21da458053915e60a220b01e30bd175e8dc6b54d8650de9e7fa873eadc
+SHA512: 410e437e9c791dfb239cb2fe8b5fb4dad93b83fdd63f4dadf4cdfed4cf86853a588f418b05fe4247bb7893ffff2d14c81e480e63ec8b7526123bc46a18e6bca4
+Description: Parallels Panel v11.0.9 SpamAssassin support
+ Parallels Panel SpamAssassin spam filter mail handler and utilities.
+
+Package: psa-qmail-rblsmtpd
+Priority: extra
+Section: non-free/net
+Installed-Size: 54
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 0.88-ubuntu12.04.build110120606.19
+Depends: libc6 (>= 2.4), psa-qmail
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/mail/psa-qmail-rblsmtpd_0.88-ubuntu12.04.build110120606.19_i386.deb
+Size: 19778
+MD5sum: 39ee71ce138de2828c29e1ffab0d07db
+SHA1: d319d350ea776e0bbc9dddfafc0547a5aaef587d
+SHA256: 15a40a61c0686b4ac201e242c9ff811e628a2daa0ea9d15cb9cf132757b90c8a
+SHA512: dd81c5598d5445fcba30f3ff06a98210ef8b925babbc0f276608b3a092ccf27a8b8a8a024b10c9ddfb2093251c0ae0acacb8fb0337cc155e9eafb86f4ffa9335
+Description: SPAM blocker for QMail daemon
+ rblsmtpd is a generic tool to block mail from RBL-listed sites.
+
+Package: psa-tomcat-configurator
+Priority: extra
+Section: non-free/net
+Installed-Size: 79
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 11.0.9-ubuntu12.04.build110120606.19
+Depends: plesk-base (>= 11.0.9), libapache2-mod-jk, tomcat6, tomcat6-examples, tomcat6-admin, libtomcat6-java, sun-java6-jdk
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/java/psa-tomcat-configurator_11.0.9-ubuntu12.04.build110120606.19_all.deb
+Size: 21240
+MD5sum: 800db4974011712b064e1c109f69ceb0
+SHA1: a8ca7d54ff6e0c4de86d4a418c8393160eb80879
+SHA256: b7b2a56b7cd6a1c3cc6c8b33de5ed8bf1f8cc50cc1278f2dfe1e1758c3adbed2
+SHA512: 326fa770123f68647b86ffa4f3b49f4faeb0bfea136e6df93912ae29e2ed585c38c9503896ea9759b7b798356872332946710742bc501b3c1f82faf6b946cdb9
+Description: Configurator for Tomcat server
+ tomcat configurator is simple script, that automatically
+ configures tomcat to make it work with installed JDK and Parallels Panel
+
+Package: psa-passwd
+Priority: extra
+Section: web
+Installed-Size: 4232
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 3.1.3-ubuntu12.04.build110120606.19
+Depends: psa-horde, psa-imp
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/horde/psa-passwd_3.1.3-ubuntu12.04.build110120606.19_all.deb
+Size: 1522678
+MD5sum: 07329ceaf714ae681fe9d5070e5c1df0
+SHA1: a171cff5dc007ac0cfe661a6a073be8e2d43285d
+SHA256: 499f846f0ee91bd4d16966c62d00163b72085fc8e8fdc52805a07b34f6084165
+SHA512: 840d60bec957455cbd4e85401260838da5bdc6667f53ab6a1466c6c7c9d4c05215c4922acc6573fd1343f007244216eda0a7d87bd58f39700dd4b92abaa730d6
+Description: Horde password changing application for Parallels Panel
+ Passwd is the Horde password changing application. It provides fairly
+ complete support for changing passwords via poppassd, ldap, unix expect
+ scripts, the unix smbpasswd command for smb/cifs password support,
+ servuftp, vmailmgr, vpopmail, and sql passwords.
+ .
+ The Horde Project writes web applications in PHP and releases them under
+ Open Source licenses.  For more information (including help with Passwd)
+ please visit http://www.horde.org/.
+
+Package: psa-turba
+Priority: extra
+Section: web
+Installed-Size: 6866
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 2.3.6-ubuntu12.04.build110120606.19
+Depends: psa-horde, psa-imp, mysql-server
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/horde/psa-turba_2.3.6-ubuntu12.04.build110120606.19_all.deb
+Size: 2288818
+MD5sum: b83ffcea6d3be9a12fb5fd88897be0b9
+SHA1: 12e327ba0c30e3bb65a8b77720f84959113c26a2
+SHA256: ad06e0d5e4fe56dcc48170b4f20c8b6adb9a9ed83b49adf23905e390bb6a6488
+SHA512: 6c523cdb37dec085f649fb38578607fbf42aaf856c215e976b86215768e68c4f06447e72bd7710019cd880d9cef5a03b6bf8a226fbcef9dec7cc1092d95a7e68
+Description: The Horde contact management application for Parallels Panel
+ Turba is the Horde contact management application, which allows access
+ to and storage of personal contacts (including name, email address,
+ phone number, and other easily customizable fields).  Turba integrates
+ with IMP (Horde's webmail application) as its address book.
+ .
+ The Horde Project writes web applications in PHP and releases them under
+ Open Source licenses.  For more information (including help with Turba)
+ please visit http://www.horde.org/.
+
+Package: psa-imp
+Priority: extra
+Section: web
+Installed-Size: 13686
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 4.3.11-ubuntu12.04.build110120606.19
+Depends: plesk-core (>= 11.0.9), psa-horde (>= 3.3.10), psa-pear, mysql-server
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/horde/psa-imp_4.3.11-ubuntu12.04.build110120606.19_all.deb
+Size: 4261544
+MD5sum: d8568f095fc40e528852f195f15927d7
+SHA1: d54fb19a849cba4fde17fb199d88a49c1213597f
+SHA256: b26575f059f6420b5f49e14e2aeb728d1463268f0e5c157fbf8a12361431b17f
+SHA512: 908c5750f2753e1bd794172ba746f60f207a68639ba58a3c818882ce2493d82bd0d76298c8e4d2580a80e609df37a3f692f38aaceb46aa19279fde152e03bf76
+Description: Web Based IMAP Mail Program for Parallels Panel
+ IMP is the Internet Messaging Program, one of the Horde components.  It
+ provides webmail access to IMAP and POP3 accounts.
+ .
+ The Horde Project writes web applications in PHP and releases them under the
+ GNU Public License.  For more information (including help with IMP) please
+ visit http://www.horde.org/.
+
+Package: psa-horde
+Priority: extra
+Section: web
+Installed-Size: 23214
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 3.3.13-ubuntu12.04.build110120606.19
+Depends: plesk-base (>= 11.0.9), plesk-core (>= 11.0.9), apache2, psa-pear (>= 1.9.0), mysql-server, psa-php5-configurator | psa-php4-configurator
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/horde/psa-horde_3.3.13-ubuntu12.04.build110120606.19_all.deb
+Size: 7632962
+MD5sum: d3f05485aca5e9f81393df096b474ccf
+SHA1: 0e626cc13016b7f47936425c1ddcc53f1babc892
+SHA256: fd7d2a5a2b6721e0b141b062ea59ad029ce6989826e48700e5d4774ab79b4eb3
+SHA512: ae6bad7f7c22e567f482b15c1c1fb2f201ff8c4ee4c946cb05433f6f482c4ebb231fe24b89937ddf974b2391d9da15cc072e3c59eed23b3d0a66fcf3497b34b0
+Description: The Horde framework adopted for Parallels Panel
+ The Horde Framework provides a common structure and interface for Horde
+ applications (such as IMP, a web-based mail program).  This package is
+ required for all other Horde modules.
+ .
+ The Horde Project writes web applications in PHP and releases them under
+ the GNU Public License.  For more information (including help with Horde
+ and its modules) please visit http://www.horde.org/.
+
+Package: psa-kronolith
+Priority: extra
+Section: web
+Installed-Size: 7143
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 2.3.6-ubuntu12.04.build110120606.19
+Depends: psa-horde, psa-imp, mysql-server
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/horde/psa-kronolith_2.3.6-ubuntu12.04.build110120606.19_all.deb
+Size: 2381390
+MD5sum: b89e783f0f2b63e58a8d1658b9039b38
+SHA1: 2384441857465edf0523c18156360f557ea83bc7
+SHA256: 0f3dc09054407069339ee2b1330721f9a4d04c6efc6004f6a20281faae9c9760
+SHA512: d110a0df8cc833b19a3ca2f8388542f518efdc6b0a40767442d82d7ad077a39abd84d41269aed8f1660338c98c602d30e2e9ec98f737352c2c2b54e609947afd
+Description: The Horde calendar application for Parallels Panel
+ Kronolith is the Horde calendar application. It provides a stable and
+ featureful individual calendar system for every Horde user, and
+ collaboration/scheduling features are starting to take shape. It makes
+ extensive use of the Horde Framework to provide integration with other
+
+Package: psa-mnemo
+Priority: extra
+Section: web
+Installed-Size: 4763
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 2.2.5-ubuntu12.04.build110120606.19
+Depends: psa-horde, psa-imp, mysql-server
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/horde/psa-mnemo_2.2.5-ubuntu12.04.build110120606.19_all.deb
+Size: 1664512
+MD5sum: 6aeea2155e5d8c078a1c244b642b0780
+SHA1: 0398e4ac4fa430affa0465a0ccb5aef0fd379f07
+SHA256: 2b6db53191af1224193a840654d07d33dcf10f064b6347c8cb86fb5acf93e3ed
+SHA512: 9cff8ff60b5bb687f667d0e120bb5f95b6139fd6ff3e58d01bfa3d41fffe3a0a43d864d9e61b52fa7fce343d1d66e9ec77d40c1ea113a5bfe0d167e9fcba1dde
+Description: The Horde notes and memos application for Parallels Panel
+ Mnemo is the Horde notes and memos application. It lets users keep
+ free-text notes and other bits of information which doesn't fit as a
+ contact, a todo item, an event, etc. It is very similar in functionality
+ to the Palm Memo application.
+ .
+ The Horde Project writes web applications in PHP and releases them under
+ Open Source licenses.  For more information (including help with Mnemo)
+ please visit http://www.horde.org/.
+
+Package: psa-ingo
+Priority: extra
+Section: web
+Installed-Size: 5810
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 1.2.6-ubuntu12.04.build110120606.19
+Depends: psa-horde, psa-imp
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/horde/psa-ingo_1.2.6-ubuntu12.04.build110120606.19_all.deb
+Size: 1975198
+MD5sum: e884db8f300a492b3438fc0718dbdf2a
+SHA1: 0f854e0f321174a922341222a4ed7635a66d13fe
+SHA256: be18895744d0872a9c760927b490fd34877756965232e7b190124ccd8eaba379
+SHA512: ee4f017fc6f129e6bf970f08417667ae7898efca82a42f5487454e6e86dfbd22578f14deeee273d3658c25f71cf25fce2a4c45c090de72ba0d943d79c4d55589
+Description: The Horde email filter rules manager for Parallels Panel
+ Ingo, the Horde "Email Filter Rules Manager" a generic and complete filter
+ rule frontend hat currently is able to create Sieve , procmail, and
+ IMAP filter rules. It supports a set of "special" rules that are either
+ translated to their native counterparts of the filter script backend
+ or emulated through filter script commands.
+
+Package: psa-mimp
+Priority: extra
+Section: web
+Installed-Size: 3278
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 1.1.4-ubuntu12.04.build110120518.08
+Depends: psa-horde, psa-imp
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/horde/psa-mimp_1.1.4-ubuntu12.04.build110120518.08_all.deb
+Size: 1198718
+MD5sum: 25eddb9f38f3fa38318116c12bc2c6e8
+SHA1: 94c450aaca5e4842e979f4ca7e06872caff3dbe7
+SHA256: c6e3a47d35a3a12a83fa5930763f4c630a0c60816cb2e167b27e84f8cced3068
+SHA512: 6ef16e35602685536802aa0ab15fb6843c615f9f29395851da332a9f22ea60ebb9c5af4190bb3560b614c7947b0833ea4fdd47f879d9698a80ecb39b3eb0ab26
+Description: Version of IMP suitable for mobile devices for Parallels Panel
+ MIMP is a project to create a version of IMP suitable for mobile devices such a
+ s WAP phones or PDAs. Basic IMP functionality is implemented including mailbox
+ viewing and paging, viewing messages, deleting, replying, forwarding, and compo
+ sing new messages.
+ .
+ The Horde Project writes web applications in PHP and releases them under the
+ GNU Public License.  For more information (including help with MIMP) please
+ visit http://www.horde.org/.
+
+Package: sshterm
+Priority: extra
+Section: non-free/net
+Installed-Size: 4996
+Maintainer: Parallels, Inc. <info@parallels.com>
+Architecture: all
+Version: 0.2.2-10.12051808
+Depends: psa
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/sshterm/sshterm_0.2.2-10.12051808_all.deb
+Size: 4436698
+MD5sum: d4616b4bf5805aec3422d88aadbeea0d
+SHA1: b6f7e1a038773a836e990acdf1b6310c81431bf3
+SHA256: 9dc23dfdad00d3b19f0c9e865d7d7c819a63556eb5a662bb19a4dc1c035ac0ba
+SHA512: f19ec704318324cd014e0bf510221bd9ec998373ec603eb1ad6e7cde91aa9e3e8e5fc6eae213e7f7a6d72e7069d5182e646fd095e47d97dbaf66ca6b64da5ba2
+Description: Plesk-packaged version of SSH Java applet
+ SSHTerm is an java applet, that provides useful secure shell access
+ directly from your browser.
+
+Package: psa-backup-manager-vz
+Priority: extra
+Section: non-free/net
+Installed-Size: 22
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.8-ubuntu12.04.build110120518.08
+Depends: psa-backup-manager (>= 11.0.8)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/vz/psa-backup-manager-vz_11.0.8-ubuntu12.04.build110120518.08_i386.deb
+Size: 1412
+MD5sum: bd8b4b1f93ab908f93ccf82e8ac42c0d
+SHA1: 3d733d3d2d5de20a36ee90b47b774f3d3a22cc09
+SHA256: 3b8b27ac886184027fdfc31548a17309a840beb35e15bbb01aaaf99706683112
+SHA512: 0925709b99a875a6debfed83f7be723c02940cbf9f33d649f3aa9431d4fc6d35693c51fb2efec7ecdac23c145562e5423d61ec76c06c483d20134ef2c2cf1fed
+Description: PVC oriented Parallels Panel v11.0.8 Backup Manager
+ Scripts and functions to preserve data during the PVC reinstall.
+
+Package: psa-backup-manager
+Priority: extra
+Section: non-free/net
+Installed-Size: 7869
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libboost-filesystem1.48.0 (>= 1.48.0-1), libboost-program-options1.48.0 (>= 1.48.0-1), libboost-regex1.48.0 (>= 1.48.0-1), libboost-system1.48.0 (>= 1.48.0-1), libc6 (>= 2.15), libcurl3 (>= 7.16.2-1), libgcc1 (>= 1:4.1.1), libidn11 (>= 1.13), libmysqlclient18 (>= 5.5.13-1), libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.6), libxml2 (>= 2.7.4), libxslt1.1 (>= 1.1.25), log4cpp-plesk, plesk-core (>= 11.0.9), psa-ftputil, mysql-server, psa-pylibplesk, python, python-libxml2, psa-libxml-proxy, libcrypt-cbc-perl, libcrypt-rijndael-perl, xsltproc, libtext-iconv-perl, libtime-hires-perl, libtimedate-perl, perl
+Conflicts: psa (<< 10.0.0), psa-migration-manager (<< 10.0.0)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/backup/psa-backup-manager_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 3096770
+MD5sum: 0907bce7ca90e433c8481483bb64f427
+SHA1: 630b89c7604a56593eb6d1ccb0aa0a4a38f54620
+SHA256: 2cca00c09050c2336f8d09f7ee321d6f44c34f7f18afd655c1204bae2cfdb270
+SHA512: fa90fe74a6075850ef0e7e76db850645883f10ff7e818416f30c7bbedf64574e2d70691ff8fc522c4dc4cd23ac703685faf1aa91cf8805d75c3dcc5e27c7422c
+Description: Parallels Panel v11.0.9 Backup Manager
+ Utilities to preserve and restore Parallels Panel data.
+
+Package: psa-libxml-proxy
+Priority: extra
+Section: non-free/utils
+Installed-Size: 1129
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 2.7.8-0.12051809
+Depends: libboost-program-options1.48.0 (>= 1.48.0-1), libc6 (>= 2.15), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.4.0), zlib1g (>= 1:1.2.3.3.dfsg), plesk-core (>= 11.0.8), plesk-base (>= 11.0.8)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/backup/psa-libxml-proxy_2.7.8-0.12051809_i386.deb
+Size: 517670
+MD5sum: eb42fd2820a2d6bb2d19cd8316698a8d
+SHA1: 9535c611455345af6f45f940d008f9a8c5273b26
+SHA256: 7a4e617a607a896e62f0ef2eeb5a7cfdfef7841c52103c0a44637b53aab88bd7
+SHA512: f669ad1439d003149f3946444fec654adaa97e7d57f78aa1586834322e93d654f5a34b906bd108743bf669cc86878e81c50820125f2ab184ea9b4b8ccd067f33
+Description: libxml-proxy to libxml2 with large lines number support
+ Utility linked with libxml2 supporting over 65535 lines
+
+Package: psa-ftputil
+Priority: extra
+Section: python
+Installed-Size: 448
+Maintainer: Parallels, Inc. <info@parallels.com>
+Architecture: all
+Version: 1:2.1.1-1.12051808
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/backup/psa-ftputil_2.1.1-1.12051808_all.deb
+Size: 113366
+MD5sum: 7b44c995040812728dbf0bf35073a74c
+SHA1: 1f159e61173b52fdbe9f14a43f17fe1e82a809d8
+SHA256: 53dc7c2b02958bea0118d73bf3e6ebdea67bdccedcca9c8d3e2a9a9ea505b14c
+SHA512: 54328a7822ee4f199aceffa0999261c1dbe6f632f7a330d822c6014f1dd76a8ce9bd71c54bae519d913f56eb41e3461576b20911286c77ba0a81d297ef4c8592
+Description: Plesk-packaged version of ftputil module
+ ftputil is a high-level FTP client library for Python
+
+Package: sw-librrd
+Priority: extra
+Section: libs
+Installed-Size: 476
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Source: sw-rrdtool
+Version: 1.4.2-12051808
+Depends: libc6 (>= 2.8), libcairo2 (>= 1.2.4), libglib2.0-0 (>= 2.12.0), libpango1.0-0 (>= 1.14.0), libpng12-0 (>= 1.2.13-4), libxml2 (>= 2.7.4)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/hmonitor/sw-librrd_1.4.2-12051808_i386.deb
+Size: 209978
+MD5sum: 96b3f5e4e827a499495b52743f2a2abb
+SHA1: 27723848875bb90d09f770173161da901aa50a98
+SHA256: 687afc0df4b9adf7cbc394240864906b1617a5594f182f53b0361040c1f5d9c5
+SHA512: 76a225f8950fff165f0001881220444874c4c23b7b61a3637e1593d2bc450ca3f98ac0d62bf7cea7a1a569c285c1335b259bf8c87939a9c4514de6742224565e
+Description: RRDtool libraries
+ RRD is the Acronym for Round Robin Database. RRD is a system to store and
+ display time-series data (i.e. network bandwidth, machine-room temperature
+ server load average). This package contains shared libraries.
+
+Package: sw-collectd
+Priority: extra
+Section: utils
+Installed-Size: 841
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 4.9.1-12051809
+Depends: libc6 (>= 2.15), libcurl3 (>= 7.16.2-1), libltdl7 (>= 2.4.2), sw-librrd
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/hmonitor/sw-collectd_4.9.1-12051809_i386.deb
+Size: 269294
+MD5sum: 7a06c825acb10b89c70f7d1ca2a56788
+SHA1: 46db1866f1d6951722d9166c86aa8123ca27e16b
+SHA256: 56f6b238b09a1fb5ead63ebbdd01af3aa046b17d6223221f2c73740e6b1eb256
+SHA512: b8442a0e65e126c0786c763ab6973a41dcc0325e31eced2e9d402353cd42bff8d23f7d65e2225660a5b20d48a90fe87fd2033309a362bf267c0dc0ac626d7c84
+Description: Statistics collection daemon for filling RRD files
+ collectd is a small daemon written in C for performance.  It reads various
+ system  statistics  and updates  RRD files,  creating  them if neccessary.
+ Since the daemon doesn't need to startup every time it wants to update the
+ files it's very fast and easy on the system. Also, the statistics are very
+ fine grained since the files are updated every 10 seconds.
+
+Package: sw-rrdtool
+Priority: extra
+Section: utils
+Installed-Size: 1298
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 1.4.2-12051808
+Depends: libc6 (>= 2.8), libglib2.0-0 (>= 2.12.0), sw-librrd (= 1.4.2-12051808)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/hmonitor/sw-rrdtool_1.4.2-12051808_i386.deb
+Size: 420030
+MD5sum: 60f730b2d09a729cfb55bfbbd6931e43
+SHA1: 613d7d72f3b8a4a9595001a3d5184ff132141ca2
+SHA256: b131519c3e4c4bf343d9a7119ecc8e85b76f06f0b76363e62088c9ded788ea24
+SHA512: a9e1c39d524de644325d80272591908c258fe8b403686b94b41846431e125cdf2594962482dcbb8d9770561d6a67414cd81c12423fbdc2d6d3bf234971064993
+Description: Round Robin Database Tool to store and display time-series data
+ RRD is the Acronym for Round Robin Database. RRD is a system to store and
+ display time-series data (i.e. network bandwidth, machine-room temperature
+ server load average). It stores the data in a very compact way that will not
+ expand over time, and it presents useful graphs by processing the data to
+ enforce a certain data density. It can be used either via simple wrapper
+ scripts (from shell or Perl) or via frontends that poll network devices and
+ put a friendly user interface on it.
+
+Package: psa-health-monitor
+Priority: extra
+Section: non-free/net
+Installed-Size: 160
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 11.0.9-ubuntu12.04.build110120606.19
+Depends: plesk-core (>= 11.0.9), sw-collectd, sw-rrdtool
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/hmonitor/psa-health-monitor_11.0.9-ubuntu12.04.build110120606.19_all.deb
+Size: 28378
+MD5sum: f814d0c63a74eef70d6091dc7c8eaff2
+SHA1: f2421a94b1f92daf139a11a087672a4c6a242a4b
+SHA256: c7e1c5da4341f859b7ac5f8409d81349f8b115db6fb67a4270c9594a93cca402
+SHA512: b4df2d32ffc700443dc61c2caa6420c02204e66020e9b7449be721dd722e84355cef521fd346f421754887f36a9bbb3cffe5c07348d8f26bd15e780770729385
+Description: Parallels Panel health monitor
+
+Package: drweb-base
+Priority: extra
+Section: non-free/utils
+Installed-Size: 36
+Maintainer: <info@parallels.com>
+Architecture: all
+Version: 5.0.1-090811.11
+Conflicts: drweb-updater (<< 5.0.1)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/drweb/drweb-base_5.0.1-090811.11_all.deb
+Size: 1320
+MD5sum: bb06b7aafe4daefda6eee8985f0aa381
+SHA1: 0e4f3aba02f489df7c2dd7fff4e98471b3ba6595
+SHA256: 1e01ef3ddc9b36a98c9e2335203e390e2e869ddff9afe3051fe94ee2297d175a
+SHA512: 9e4d2392986733110901ec5d8cb329970b1fb14eef0870568bcca15569bf49a7d016a984f553ab3c748fbf73eb0fa6c3281bb3b6621d6a178b793f185ac48f10
+Description: DrWeb base transitional package
+ This is empty package for proper upgrade to 5.0.1 version of DrWeb
+
+Package: drweb-bases
+Maintainer: Doctor Web, Ltd.
+Architecture: all
+Version: 5.0.1-0
+Depends: drweb-common
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/drweb/drweb-bases_5.0.1-0_all.deb
+Size: 12291958
+MD5sum: 0967e53c9bf2d95c54270e699d2b58fd
+SHA1: dd4fcfd498982491b59d57d76c937f47652297e3
+SHA256: a91682551f2219cf2be9a994b35bfec1983cfe2c83b424383631e37af2635461
+SHA512: 50bb8211a1bb2aded401b970b3c9151cf407628323d30e911278993658282d29bde936edb104b1bef5e69447136bd1978525c5d58f3277869bb42b07901b9dcb
+Description: DrWeb Bases
+ Copyright: Doctor Web, Ltd.
+ DrWeb Bases
+
+Package: psa-drweb-configurator
+Priority: extra
+Section: non-free/net
+Installed-Size: 656
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libc6 (>= 2.15), libmysqlclient18 (>= 5.5.13-1), libsqlite3-0 (>= 3.5.9), plesk-base (>= 11.0.9), drweb-bases (>= 5.0.1), drweb-daemon (>= 5.0.1), drweb-updater (>= 5.0.1), drweb-common (>= 5.0.1), mail-pc-driver | psa-mail-driver
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/drweb/psa-drweb-configurator_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 185532
+MD5sum: eb665c1b26b3d7ef78bcceb9216e3d29
+SHA1: 39323c165acbe17a1acba6e78a061867b6125717
+SHA256: 8d1f874d70710cfd83f89d131629753fa50ede5039c467b0a2fe925899cde533
+SHA512: 6ddaef3a4c8fd2e19b730ebdc8124b44852913c8ce45c10fd23dfd3b717ee3249a792990f19a02896cd43a4b8dc32d1eecba66e501a711205dc789c527fbe1ce
+Description: DrWeb antivirus for checking mail
+ This addon for DrWeb software scans email for computer viruses.
+
+Package: drweb-common
+Maintainer: Doctor Web, Ltd.
+Architecture: all
+Version: 5.0.1-0plesk
+Replaces: drweb-base
+Provides: drweb-base
+Conflicts: drweb-base (<= 5.0.0)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/drweb/drweb-common_5.0.1-0plesk_all.deb
+Size: 1689674
+MD5sum: b76f37176a2e8271d53d552ed9aa6c1a
+SHA1: a7c792cf817d9ae18128eaf9cf0d382f8dbcefac
+SHA256: 7bf28c89e91a0663405d63ba6ee1dbd7cc0656463502d24b13d28d707c60b716
+SHA512: 346ca984c1e351e27ac8b83f211bbe16b1e2b3bb56de3a9fe59827857c7188c6606c1ecaa3797b8cb0b0b40ba9e3902bf323a70006ba323c9f0f65ca1c2c03e4
+Description: DrWeb Common Files
+ Copyright: Doctor Web, Ltd.
+ DrWeb Common Files
+
+Package: drweb-updater
+Maintainer: Doctor Web, Ltd.
+Architecture: all
+Version: 5.0.1-0plesk
+Depends: drweb-common
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/drweb/drweb-updater_5.0.1-0plesk_all.deb
+Size: 104616
+MD5sum: 6bbf7e2a1ea7f9391a80d49f6dc54d39
+SHA1: f6c66487df6398da7e3b38c8918259ec5b24b151
+SHA256: 01d90386e64bffa9ee9c88403940c17f65fa6c546583c6159b5f1c7ea8182522
+SHA512: a4ffb21af2800e9604a4a4dbd91db653ae0863455b7978f28287364fbb576399e209552a80c1c644dbbcf6b55c8a505b635b64521a8f22015d92490b904ae880
+Description: DrWeb Updater
+ Copyright: Doctor Web, Ltd.
+ DrWeb Updater
+
+Package: drweb-daemon
+Maintainer: Doctor Web, Ltd.
+Architecture: all
+Version: 5.0.1-0plesk
+Depends: drweb-bases
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/drweb/drweb-daemon_5.0.1-0plesk_all.deb
+Size: 1250988
+MD5sum: 75d48ebf5d0930a2fba6caa7d47fee65
+SHA1: 30f5991bf6a755fdf9ff7d3605aa409dc4985afb
+SHA256: b03052080cf2de9bb35253a2e93d06aa9ad3ed5cadcf1cdc37d666bfe767f018
+SHA512: 81c7cdae2a036ad21056ec246397e2c9e63f554ce3d8bf3459288544049fac9b4613675d53bfddbf486c42c59c349d78267f6cfd0ada5bbf6e7abf4629594d55
+Description: DrWeb Antivirus Daemon
+ Copyright: Doctor Web, Ltd.
+ DrWeb Antivirus Daemon
+
+Package: plesk-billing-plugins
+Priority: extra
+Section: non-free/net
+Installed-Size: 10719
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120606.19
+Replaces: hspc-config, hspc-error, hspc-i18n-core, hspc-i18n-en, hspc-lib, hspc-plugin-core, hspc-plugin-pm-op-ccard, hspc-plugin-pp-bt-clieop03, hspc-plugin-pp-bt-dtaus, hspc-plugin-pp-bt-dummy, hspc-plugin-pp-bt-norma19, hspc-plugin-pp-op-assist, hspc-plugin-pp-op-atos, hspc-plugin-pp-op-bancasella, hspc-plugin-pp-op-bancasellassl, hspc-plugin-pp-op-bbva, hspc-plugin-pp-op-wirecard, hspc-plugin-rpc, hspc-release, hspc-upgrade, perllib (<= 3.3.4)
+Depends: libxml-libxml-perl, libio-interface-perl, libcrypt-randpasswd-perl, libconfig-general-perl, libnet-dns-perl, libsort-versions-perl, libsoap-lite-perl, libparams-validate-perl, liberror-perl, libdbd-mysql-perl, libnet-idn-nameprep-perl, libnet-idn-encode-perl, libnet-ssleay-perl, libcrypt-ssleay-perl, liblog-log4perl-perl, libdigest-sha-perl, libfcgi-perl, libpod-wsdl-perl, libtext-template-perl, libxml-validator-schema-perl, libcgi-fast-perl, libxml-simple-perl, libdate-calc-perl, libdate-manip-perl, sw-cp-server
+Conflicts: hspc-config, hspc-error, hspc-i18n-core, hspc-i18n-en, hspc-lib, hspc-plugin-core, hspc-plugin-pm-op-ccard, hspc-plugin-pp-bt-clieop03, hspc-plugin-pp-bt-dtaus, hspc-plugin-pp-bt-dummy, hspc-plugin-pp-bt-norma19, hspc-plugin-pp-op-assist, hspc-plugin-pp-op-atos, hspc-plugin-pp-op-bancasella, hspc-plugin-pp-op-bancasellassl, hspc-plugin-pp-op-bbva, hspc-plugin-pp-op-wirecard, hspc-plugin-rpc, hspc-release, hspc-upgrade, perllib (<= 3.3.4)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/pba/plesk-billing-plugins_11.0.9-ubuntu12.04.build110120606.19_i386.deb
+Size: 2104610
+MD5sum: 20ab35b65fdf6407368833a42507af41
+SHA1: d5e6b53403f4edec9a9ba5e18470fcec33f4bdd7
+SHA256: cbf3878eb489e7f58dd2a80c248ed41d2cf402a2bb928aa051451e9563c54405
+SHA512: 860c0ce64328aee9797c593582d6f83039b448624f89a47558022c58b996de930d2a76664a598d14597f95e9ea1f27de2210869fbeb12a08294020f782c82ef2
+Description: Payment gateway and registrar modules adapted to Business Manager
+
+Package: libcrypt-randpasswd-perl
+Priority: extra
+Section: perl
+Installed-Size: 139
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 0.02-12051809
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/pba/libcrypt-randpasswd-perl_0.02-12051809_i386.deb
+Size: 23014
+MD5sum: 6eb2c1bbb5eb5f840f6425807b2a6e52
+SHA1: 46085095d00af9d70f57fc3602ea53ef36d0e19b
+SHA256: f69a2f79ab6bd12bc9aad782f9a6a49e52bbfc57529501a4deb0cdeb284cb00a
+SHA512: 2efd113eddb87c3eb230dd38657cd2302ad37ce83b07837de76239760f2babb6f8301faefcc1e419f3a317d6554bced63092641f67d7437c7bfd49c5ba3da6c2
+Description: Random password generator
+ Crypt::RandPasswd - random password generator based on FIPS-181
+ By John Porter (JDPORTER@cpan.org)
+ This is an implementation of the Automated Password Generator standard,
+ defined in FIPS Publication 181, "Standard for Automated Password Generator":
+ http://www.itl.nist.gov/fipspubs/fip181.htm
+
+Package: libnet-idn-nameprep-perl
+Priority: extra
+Section: perl
+Installed-Size: 45
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 1.100-12051809
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/pba/libnet-idn-nameprep-perl_1.100-12051809_i386.deb
+Size: 5444
+MD5sum: 97440af4ade140ef0309b5ce56e3d0b4
+SHA1: 3c5263259ec66ea13e40e62b17f0271b24cdaad0
+SHA256: fbac25fea431ba719f5ae5a9038a85cca4dc7a6aeea48b65b607307c28a16ee0
+SHA512: 4dd8484234e013144d679831421c79bfded02b6c7672268cc43e9c822c4a01205db2e045c2b7cf7dd3b04710b4e34cf1584b4c348184dc55089b89cde779ccd4
+Description: Net::IDN::Nameprep - A Stringprep Profile for Internationalized Domain Names
+ This module implements the nameprep specification, which describes how
+ to prepare internationalized domain name (IDN) labels in order to
+ increase the likelihood that name input and name comparison work in ways
+ that make sense for typical users throughout the world. Nameprep is a
+ profile of the stringprep protocol and is used as part of a suite of
+ on-the-wire protocols for internationalizing the Domain Name System
+ (DNS).
+
+Package: libpod-wsdl-perl
+Priority: extra
+Section: perl
+Installed-Size: 172
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 0.05-12051809
+Depends: libxml-writer-perl
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/pba/libpod-wsdl-perl_0.05-12051809_i386.deb
+Size: 48468
+MD5sum: 37de28cbb236701d3f95891257a50672
+SHA1: e6829accc4d942341c48723686269f2f49f46843
+SHA256: 1c98af05211e3274a5215e5a0242a7b3551935922a1acf3f1cf06787644cd659
+SHA512: 52c648056327d69405f373a44c0b5fb2736d894b345ab72ad7acb57bcc024a5055d977932160caab5c5d855634fc0c237fc05b1bff980d284d5b3067eb840cd6
+Description: Pod::WSDL - Creates WSDL documents from (extended) pod
+ Pod::WSDL - Creates WSDL documents from (extended) pod
+
+Package: libnet-idn-encode-perl
+Priority: extra
+Section: perl
+Installed-Size: 81
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 1.100-12051809
+Depends: libnet-idn-nameprep-perl, libunicode-stringprep-perl
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/pba/libnet-idn-encode-perl_1.100-12051809_i386.deb
+Size: 17076
+MD5sum: 8f1bf87c2b06530ace19f373669f249d
+SHA1: a7d8bf6e54f12ef18dc3ff55b1c41075f8678fd1
+SHA256: 833a4b7c5fc03e847cab31f2c2c28f8154ac39281c1e04eb5eaa3fdb95fc3c9d
+SHA512: 0d90d2d9cbc1bcdf89dd57673d288275f138993759a0c19a938b521d9ef05544b66c693d0e167bd4eab34c1ebeae334068e45719e79dc9e9ce437a77c01ed337
+Description: Net::IDN::Encode - Internationalizing Domain Names in Applications (RFC 3490)
+ This module provides an easy-to-use interface for encoding and decoding
+ Internationalized Domain Names (IDNs). IDNs use characters drawn from a
+ large repertoire (Unicode), but IDNA allows the non-ASCII characters to
+ be represented using only the ASCII characters already allowed in
+ so-called host names today (letter-digit-hypen, /[A-Z0-9-]/i).
+
+Package: libunicode-stringprep-perl
+Priority: extra
+Section: perl
+Installed-Size: 169
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 1.103-12051809
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/pba/libunicode-stringprep-perl_1.103-12051809_i386.deb
+Size: 42090
+MD5sum: dc78df9af68555223920b383836fb014
+SHA1: 52b050dd9b0e9d4709af2dd5914dad01eaa00358
+SHA256: 60395337f7276a541937eb3e6c245872fe5ed04cd11950690d5f6651af3aa529
+SHA512: d49a4e49b6da121446510e228bcc5e53bdb7e740f51ff8005ae5fb39bdc933eae4612f00ed71be850322f6575cc45f5dacf605daddac8c505956156d62c04460
+Description: Unicode::Stringprep - Preparation of Internationalized Strings (RFC 3454)
+ This module implements the stringprep framework for preparing Unicode
+ text strings in order to increase the likelihood that string input and
+ string comparison work in ways that make sense for typical users
+ throughout the world. The stringprep protocol is useful for protocol
+ identifier values, company and personal names, internationalized domain
+ names, and other text strings. The stringprep framework does not specify
+ how protocols should prepare text strings. Protocols must create
+ profiles of stringprep in order to fully specify the processing options.
+
+Package: psa-miva
+Priority: extra
+Section: non-free/net
+Installed-Size: 4690
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 1:5.06-ubuntu12.04.build110120606.19
+Depends: libc6 (>= 2.3.6-6~), zlib1g (>= 1:1.1.4), psa, miva-ssl-stub (>= 1.0.1), curl
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/miva/psa-miva_5.06-ubuntu12.04.build110120606.19_i386.deb
+Size: 1815742
+MD5sum: 66b76ff62a1cdeff82858ebf7fde8de8
+SHA1: 39ff46be141e56b84dd2b816ecd9b4e1ce913008
+SHA256: 4b46d54e03a7722f4ede76ec6180ac3ad67adbcc0e3ae1c0e1f1a7b48673e9ea
+SHA512: b3783e60c95367f41b0fa2e7fc2bca95b31adbbcd0c499bb87ed4e4fed256289e9c7453b0190ac57c777c1d506c0f7ef621013921f04a234c79f8026c4dd6fed
+Description: Miva support for Parallels Panel
+ Miva support for Parallels Panel
+
+Package: miva-ssl-stub
+Priority: extra
+Section: web
+Installed-Size: 27
+Maintainer: Parallels, Inc. <info@parallels.com>
+Architecture: i386
+Version: 1.0.1-0.12050313
+Depends: libc6 (>= 2.0), libssl1.0.0 (>= 1.0.0), plesk-base
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/miva/miva-ssl-stub_1.0.1-0.12050313_i386.deb
+Size: 2974
+MD5sum: f5d93a5a4142854c6927fe1d10833fc0
+SHA1: 211a38895899e7e398346a4524f48496fdcb1666
+SHA256: b22cfd46ddbd66c97ae3ddeb196cb81e26930e4b85bb216327da0a65b570439b
+SHA512: b8af9c55c9a2f677ff2420dc62443e8d963a336696bb17f1aabf9d76e850bd6c50147c6852b2f78bcf7cb118cd654fc99e377bc7cc84514e548b745b94d7cc8e
+Description: Miva-openssl configurator for Plesk
+
+Package: psa-kav8
+Priority: extra
+Section: non-free/net
+Installed-Size: 62911
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 8.0.3-0.12051808
+Depends: libc6 (>= 2.4), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.6), libxml2 (>= 2.7.4), plesk-core (>= 10.10.0)
+Conflicts: psa-kav (<< 10.10.0)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/kav/psa-kav8_8.0.3-0.12051808_i386.deb
+Size: 57659574
+MD5sum: 4fd091d73aa0b607b7d9c2a137f70fd4
+SHA1: e78ca78c22bec33eff660ff7c17069fb6b06d15f
+SHA256: 21e70a340e5710a6efa771e760c2fda131097a9893b1a82f3e923a682956a93f
+SHA512: db007906d7eac4bd548a42c3cfa607dbf6687e0f71bb59a34f352b9b242d224e857ed82ade86715f9e2f9df0002962dbc2f4dd97dd457d24011459cc487def69
+Description: Kaspersky Anti-Virus for mailservers module for Parallels Panel
+ Kaspersky Anti-Virus for mailservers management module for  Parallels Panel
+
+Package: psa-mailman-configurator
+Priority: extra
+Section: non-free/net
+Installed-Size: 123
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libc6 (>= 2.3.4), plesk-base (>= 11.0.9), mailman (>= 2.1)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/mailman/psa-mailman-configurator_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 30688
+MD5sum: 9f296e82a896f105e70848d31c4788c0
+SHA1: 9ff0a81fc97ba59cf3ed497309c721f31c440515
+SHA256: 3f78f4489817a96489c438932fcc7f7e4198d997cc3fa89ed42b3d070709f133
+SHA512: c9f8687152284e5d4d408f1cb87fcc1f0a6bfe0c3658d53a3da4f02195ca015467ea46dc860931a40d97c4138c70b6874b312fec109fb510c59b6cc2ac40da6a
+Description: Mailman Fixups and Configuration scripts
+ Mailman Fixups and Configuration scripts
+
+Package: psa-coldfusion-support
+Priority: extra
+Section: non-free/net
+Installed-Size: 8
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 11.0.8-ubuntu12.04.build110120518.08
+Depends: libxp6, libstdc++6
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/coldfusion/psa-coldfusion-support_11.0.8-ubuntu12.04.build110120518.08_all.deb
+Size: 706
+MD5sum: baaec059f14d6a60642422babe55d47b
+SHA1: 13effdc0b2be9a8aec1b8d11c454adc899bb1fe5
+SHA256: 27be648c872bdeee904aced15e4775f51b50af21415b4be1b8e76d8f5a32cdc5
+SHA512: c96769e50b1d89e7d103fb4e0628e9e9fabb22b3b1f21fe9fbeb87c14add88d47e15bce0c149e6ae8065eaeeb4cc2e8831b346a0e22b49b80c2df0a8fc895d68
+Description: ColdFusion support for Parallels Panel
+ This empty package is only for install into your system
+ libraries for Adobe ColdFusion can works.
+
+Package: psa-atmail
+Priority: extra
+Section: non-free/net
+Installed-Size: 14578
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 1:1.05-ubuntu12.04.build110120606.19
+Depends: plesk-base (>= 11.0.9), plesk-core (>= 11.0.9), apache2, idn, mysql-server, psa-php5-configurator | psa-php4-configurator
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/opt/atmail/psa-atmail_1.05-ubuntu12.04.build110120606.19_all.deb
+Size: 3547270
+MD5sum: 5f7175b645d30608cd99300be689e5f7
+SHA1: 04d43ac7dac0124ea04a18162ace456c3884c17c
+SHA256: 4cddba5718bb478d72be6e95d86681f370da2961832f3b797782c9fa6784aee5
+SHA512: ee561f48988f0660a740736ed13198f7eb0ea9ae7e8235d3e08aadac314561de5035359abb00f6eb49374438ae66eda02ee6242f32b3068800e575f8535052e8
+Description: The @mail webmail adopted for Parallels Panel
+ @Mail provides a complete Webmail system for existing POP3/IMAP accounts.
+ Use the software as a professional Webmail interface for existing customers
+ and provide more then just standard Webmail. http://www.atmail.com
+
+Package: pp11.0.9-bootstrapper
+Priority: extra
+Section: non-free/net
+Installed-Size: 673
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: mysql-server, sw-engine (>= 2.0)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/bootstrapper/pp11.0.9-bootstrapper_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 146814
+MD5sum: ea5ccda36ad961f6890412293a8b792a
+SHA1: 3048cbabcad39874082708050ddc0b860a45d0a6
+SHA256: 42ccf1d2a0aaeba8eee2f835d694a86a542156182db136db9228a059f3bfdf7d
+SHA512: a6bdfc21adbaa3ff0dfe211a154e1e8af48e6f24ec71c08bfefbe997fcfed9a511149c073e9b7fabed027316262f0001d0654caa8efcf02bbcf91b7bede9f787
+Description: Parallels Panel v11.0.9 Bootstrapper
+ Parallels Panel Bootstrapper. It provides scripts to install Parallels Panel and to upgrade from previous versions.
+
+Package: plesk-base
+Priority: extra
+Section: non-free/net
+Installed-Size: 326
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libc6 (>= 2.8), mysql-server, sw-cp-server (>= 1.0-8), sw-engine (>= 2.5.1)
+Pre-Depends: pp11.0.9-bootstrapper
+Conflicts: javascript-common
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/plesk-base_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 64584
+MD5sum: 7302de1cdfa9297ff4bb3e0076772e0e
+SHA1: e8ae00828be0aecbafbe6d6cca17167de47adfe2
+SHA256: 56e08a6b9bb8155c1af35f0ce5fbd869662aa8f40a1ad7bb8df7f1a510a8cf03
+SHA512: cc9c472225b52f7ae05c2c9157f8a9ac724938f45aaf1782e2caead673b1fec4a93946a169725b6a80d855e1a241eed5738938635bea1dc1e00cdefa0bcf8352
+Description: Parallels Panel v11.0.9 config and base files
+ Parallels Panel config and base files. It provides minimal feture set to get Parallels Panel installed.
+
+Package: psa-vhost
+Priority: extra
+Section: non-free/net
+Installed-Size: 268
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 11.0.9-ubuntu12.04.build110120606.19
+Provides: plesk-vhost
+Depends: plesk-core (>= 11.0.9), rsync
+Conflicts: psa (<< 10.0)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/psa-vhost_11.0.9-ubuntu12.04.build110120606.19_all.deb
+Size: 167454
+MD5sum: 19e7662efef1f0410ca3c9ab5d44c581
+SHA1: 1d2dd902076b222cf675ce970e3b3ce449cb3c3a
+SHA256: f1111b01d09f2ebc03e3918b4a37019f933fdc17166f7a8a9a0cba8f9ace94ad
+SHA512: 9d517d200dda2bcb1aa2dcfc1c63d2a5961659f970c27a57e54313d67b38142aab74b2854b30769ff20138adb756031c05dd57595831016599760b7f130a244f
+Description: Parallels Panel v11.0.9 default virtual host and files
+
+Package: psa-updates
+Priority: extra
+Section: non-free/utils
+Installed-Size: 57
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 11.0.9-ubuntu12.04.build110141001.16
+Depends: psa (>= 11.0.9), sw-engine (>= 2.5.2)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/psa-updates_11.0.9-ubuntu12.04.build110141001.16_all.deb
+Size: 14846
+MD5sum: 43a7e7371d3c4a56c6ed1c17b5abbecc
+SHA1: f9de79370c4850d74bcb54fa5cc310ff98c3c5ed
+SHA256: c7325db288871748233fe7eec553d6a28f56115819ad9d7eaa8c24366da5d3a4
+SHA512: b87c0c145694a7c83e0221b5024a38678bcc7fe9e64e61ca747fa4c74a78b8024417a7c46300f178ab9cc52176a16c196a47bafdd23ed78e3cdd2862b5a09921
+Description: Dependency package for Parallels Panel v11.0.9 updates
+ This package is a dependency package, which contains depends on Parallels Panel updates
+
+Package: psa
+Priority: extra
+Section: non-free/net
+Installed-Size: 557
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: plesk-core (>= 11.0.9), plesk-base (>= 11.0.9), psa-vhost, geoip-database, plesk-skins (>= 11.0.0), webalizer, pp-sitebuilder (>= 11.0.0)
+Conflicts: psa-backup-manager (<< 11.0.9)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/psa_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 80842
+MD5sum: 39afce141a4bae6f7360cbc388f31b8a
+SHA1: 13dbec033dcf385d8b87323b571ab96d112307ec
+SHA256: 822792a0d34b2a4ccfc5c478db3cba7771e9c3f644bcf23bf48d898928046fd5
+SHA512: 947a37cd3742ba253476131ddf8f6c936ec9664b8365e9f0ddc5873d30c8fccdfaf5448154c23888a6bd0b9ef33f8f0a03a889c5d886be6f20b37e305c1f3e1c
+Description: Parallels Panel v11.0.9 core files
+
+Package: plesk-skins
+Priority: extra
+Section: web
+Installed-Size: 2830
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 11.0.8-12051809
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/plesk-skins_11.0.8-12051809_all.deb
+Size: 1636694
+MD5sum: 3cc9fcf8849dafd77cd00595d72e6ddc
+SHA1: 146ec6f233c246fdf38230b8656dcacba6cfb119
+SHA256: edc3f83413cc5f0d31916763d301a523e82cee39e0d3d7b7d208538f6a32569c
+SHA512: f64fab4118f97372dd4b8a7278bdb6e197800df027016bddded0d56a867394f1d20b523495faf0a936e09d03b91fe705133e5b032a7ecbb52afa228a07dae993
+Description: Skins pack for Parallels Panel v 11.0.8
+
+Package: psa-pylibplesk
+Priority: extra
+Installed-Size: 106
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: plesk-base (>= 11.0.9), python
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/psa-pylibplesk_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 21824
+MD5sum: 55dbe76eb9fc2fcc5972d26023d6a849
+SHA1: e0930847687fb4a6df0e34c8f66605fac165e055
+SHA256: d3226b02df797293e47ffdfd2ca996144ecade55e37d86f19a143c39fe4e1f63
+SHA512: 5ab991f8b34a1e232d2a0526a6d580a2531d5ff1be45c4300f1ead958cf5473b82dd542d107b667de864f6d0acbc90cc0a505f9082289003b35db1c6a23c3541
+Description: Various Python modules used Parallels Panel v11.0.9
+ pylibplesk is a set of modules developed to support various
+ aspects of >Parallels Panel activities as well as a number of modules
+ used to provide backward compatibility for older Pythons
+
+Package: psa-proftpd
+Priority: extra
+Section: net
+Installed-Size: 6732
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 1.3.4a-ubuntu12.04.build110120606.19
+Replaces: psa-proftpd-inetd
+Depends: libc6 (>= 2.15), libncurses5 (>= 5.5-5~), libpam0g (>= 0.99.7.1), libssl1.0.0 (>= 1.0.0), libtinfo5, xinetd
+Pre-Depends: pp11.0.9-bootstrapper
+Conflicts: psa-proftpd-inetd
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/psa-proftpd_1.3.4a-ubuntu12.04.build110120606.19_i386.deb
+Size: 2191924
+MD5sum: 7c0e80d542a5082f4b0f85f4d6bbc2d1
+SHA1: f8b2b2edb8ff27e197bec092494274bc528e0602
+SHA256: ed1b6ea05099a91ab8036fcd274a00c7aa5b95123ce57f549ca6ac1125abec4b
+SHA512: d929fb29bc9b4f93ef5d3e46ec01870d0d4a08afa56303b63d7e263bfd5f808f994e853cfa784def7b53fd8f11f314cfa80bf340bfe7210add988d6f89722d3d
+Description: ProFTPD -- Professional FTP Server.
+ ProFTPD is an enhanced FTP server with a focus toward simplicity, security,
+ and ease of configuration.  It features a very Apache-like configuration
+ syntax, and a highly customizable server infrastructure, including support for
+ multiple 'virtual' FTP servers, anonymous FTP, and permission-based directory
+ visibility.
+ .
+ This package is built for PLESK with our own mod_quota patch.
+
+Package: psa-locale-base-en-us
+Priority: extra
+Section: web
+Installed-Size: 1371
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 11.0.9-ubuntu12.04.build110120911.11
+Provides: psa-locale-base-11.0.9
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/psa-locale-base-en-us_11.0.9-ubuntu12.04.build110120911.11_all.deb
+Size: 252964
+MD5sum: e2d495ec672c9ca8e24b0cb079674d5b
+SHA1: 2b3ffb2c15cb1495c4636f4a1a0f28b6ba45e4c6
+SHA256: 64e8c0a1e26c22e2a74769fd8d835ba1e1e18f905cd762dab18a222c7451a6a0
+SHA512: ec26ab5fdb72f61ca2a2450d574f9125e6f19487f76058f72528c5b868c14ba09bc16e90cf17e12384b89c29210fcdaa63db6d49e4593c76e9ad8e7df2f243fb
+Description: en-US locale (base) for Parallels Panel v 11.0.9
+ Parallels Panel base locale package contains
+ components where basic message language is en-US and help texts.
+
+Package: psa-logrotate
+Priority: extra
+Section: net
+Installed-Size: 192
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 3.7-ubuntu12.04.build110120606.19
+Depends: libc6 (>= 2.4), libpopt0 (>= 1.14), plesk-base (>= 11.0.9)
+Conflicts: psa (<< 10.0.0)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/psa-logrotate_3.7-ubuntu12.04.build110120606.19_i386.deb
+Size: 50324
+MD5sum: 16d947636716aa3de4931a566ebd4547
+SHA1: d4bbf087d540f035d5fdf922b6bba4552ebcab80
+SHA256: bbacd80aa892b934e6ddaa69ea0db92582025aca08b52b8bd9705360d96bd02b
+SHA512: 9620059af727580e3703eea9a1fcad993aaf2103d197bc6b3f17892e4df0b824c0433f0a2ade02094f21f4362f90161e33ded405d27169a31817b8fbe18156ca
+Description: Rotates, compresses, removes and mails system log files.
+ The logrotate utility is designed to simplify the administration of
+ log files on a system which generates a lot of log files. Logrotate
+ allows for the automatic rotation compression, removal, and mailing of
+ log files. Logrotate can be set to handle a log file daily, weekly,
+ monthly, or when the log file gets to a certain size. Normally,
+ logrotate runs as a daily cron job.
+
+Package: plesk-l10n
+Priority: extra
+Section: web
+Installed-Size: 27440
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 11.0.9-ubuntu12.04.build110120827.16
+Replaces: ppsmbe-locale-de-de (<< 11.0.9), ppsmbe-locale-es-es (<< 11.0.9), ppsmbe-locale-fr-fr (<< 11.0.9), ppsmbe-locale-it-it (<< 11.0.9), ppsmbe-locale-ja-jp (<< 11.0.9), ppsmbe-locale-nl-nl (<< 11.0.9), ppsmbe-locale-ru-ru (<< 11.0.9), ppsmbe-locale-zh-cn (<< 11.0.9), ppsmbe-locale-zh-tw (<< 11.0.9), psa-locale-de-de, psa-locale-es-es (<< 11.0.9), psa-locale-fr-fr (<< 11.0.9), psa-locale-it-it (<< 11.0.9), psa-locale-ja-jp (<< 11.0.9), psa-locale-nl-nl (<< 11.0.9), psa-locale-ru-ru (<< 11.0.9), psa-locale-zh-cn (<< 11.0.9), psa-locale-zh-tw (<< 11.0.9)
+Depends: plesk-core (>= 11.0.9)
+Conflicts: ppsmbe-locale-de-de (<< 11.0.9), ppsmbe-locale-es-es (<< 11.0.9), ppsmbe-locale-fr-fr (<< 11.0.9), ppsmbe-locale-it-it (<< 11.0.9), ppsmbe-locale-ja-jp (<< 11.0.9), ppsmbe-locale-nl-nl (<< 11.0.9), ppsmbe-locale-ru-ru (<< 11.0.9), ppsmbe-locale-zh-cn (<< 11.0.9), ppsmbe-locale-zh-tw (<< 11.0.9), psa-locale-de-de, psa-locale-es-es (<< 11.0.9), psa-locale-fr-fr (<< 11.0.9), psa-locale-it-it (<< 11.0.9), psa-locale-ja-jp (<< 11.0.9), psa-locale-nl-nl (<< 11.0.9), psa-locale-ru-ru (<< 11.0.9), psa-locale-zh-cn (<< 11.0.9), psa-locale-zh-tw (<< 11.0.9)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/plesk-l10n_11.0.9-ubuntu12.04.build110120827.16_all.deb
+Size: 4739016
+MD5sum: 9041fb1a9a48fd89d20a27104c559094
+SHA1: 194f96225b37eb534a2ab4aed639481693bfaac8
+SHA256: ff0e5102e1079277fd84a2364126054f7bdef42e12a939e3613d90606fa88652
+SHA512: 9d06d2b269457e01a52c5d69bb2e6848ebe73a7ad5eb4df2cc9fd4bdd5cc34295dbdb8f24cde92b076215e68f835d46e9bc189af74d279a2429e384ef1104720
+Description: Translations for Parallels Panel v 11.0.9
+ Parallels Panel locales contains transation for
+ de-DE es-ES fr-FR it-IT ja-JP nl-NL ru-RU zh-CN zh-TW pl-PL pt-BR ko-KR languages.
+
+Package: psa-mod-fcgid-configurator
+Priority: extra
+Section: web
+Installed-Size: 58
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 2.0.0-ubuntu12.04.build110120606.19
+Depends: libapache2-mod-fcgid-psa (>= 2.3.5)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/psa-mod-fcgid-configurator_2.0.0-ubuntu12.04.build110120606.19_i386.deb
+Size: 15238
+MD5sum: cc7648112593bcb2d5b970d8e4dc58ac
+SHA1: d1e59a9bac3041d01317e86a860a46fd91035c75
+SHA256: 72e2f5c5821f7fdb04d0f43452aad92345b299187c4a10ed0673b6b0dfb32178
+SHA512: 444e84bf56d795b9ce00049235edec2c3f3202aafaf4777d58867fcef23ba5e80e117786f550cf31ecf0ed4ae46c5f756c8f3b481e47ba352ea0f820908f2ebb
+Description: Parallels Panel Alternative FastCGI module for Apache2 configurator
+
+Package: psa-awstats-configurator
+Priority: extra
+Section: non-free/net
+Installed-Size: 58
+Maintainer: Parallels <info@parallels.com>
+Architecture: all
+Version: 11.0.9-ubuntu12.04.build110120606.19
+Depends: plesk-base (>= 11.0.9), awstats
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/psa-awstats-configurator_11.0.9-ubuntu12.04.build110120606.19_all.deb
+Size: 15168
+MD5sum: c6c610d860b69af54458ed98ab891557
+SHA1: 4022888d2697ae5d835f3a04f8fb0fbeabd6212e
+SHA256: 6838c38dc9e630ca4e73818a4be472379b960990db57b81b4454db3edc1fedb6
+SHA512: f70f5aac33db16cb9fd8d921d4a622b1f08ee90d4178f7882dbb2a905551a2efd12d3f941757921927579069bfb2cfbb04990bc3a3d5e2bdf315617564f02dff
+Description: Parallels Panel v11.0.9 awstats configurator
+ Parallels Panel configurator for awstats statistics
+
+Package: libpam-plesk
+Priority: extra
+Section: non-free/security
+Installed-Size: 293
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Depends: libc6 (>= 2.8), libmysqlclient18 (>= 5.5.13-1), libpam0g (>= 0.99.7.1), libssl1.0.0 (>= 1.0.0), psa-pylibplesk, passwd
+Conflicts: plesk-core (<< 11.0.9)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/libpam-plesk_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 83166
+MD5sum: d861e70a8aa65222d8492f3029b3cfb9
+SHA1: 89e6efc36f2ba79d16c7e72fd3028038f7d8bc19
+SHA256: 969cb5b0d9dd95178102136c745e0a6438ce15e206b3c207a1303a3871d43fde
+SHA512: 6b40d8861ba368a1d6f016b9bbe3d5f2877a8228945efa5cd827f108604c9f6bdf71b95e61c05e2ee8ddee34152ffd2ee1347ff99f71bfcdc630386372b7d2f8
+Description: PAM module to authorize  via Parallels Panel Users Database
+ pam_plesk module allows to perform authorization via.
+ Parallels Panel Users Database for PAM-aware services
+
+Package: libapache2-mod-aclr2-psa
+Priority: extra
+Section: web
+Installed-Size: 46
+Maintainer: Parallels, Inc. <info@parallels.com>
+Architecture: i386
+Version: 12051809-9e86c2f
+Depends: libc6 (>= 2.4), apache2
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/libapache2-mod-aclr2-psa_12051809-9e86c2f_i386.deb
+Size: 4542
+MD5sum: 55fa6d4883ad02d60848fd5469babc0f
+SHA1: 0670695e00239c4fa27bad1570a49e80b7199758
+SHA256: 125829ec555199d6df117208fa3bea31f90a5bd3e7d15e3345e44cb1476051a2
+SHA512: 3e1405262ddaf1b37c2c82874cdb29b0dd475fa4463e073a454407c5a39e9efa0d154a60001682a617e4e0e10e18a17c4545dbd5a00c5238e50ef0506c9daa12
+Description: Module for Apache2 to automate serving static content with NGINX
+ Module for Apache 2.x which automates serving static content with NGINX local proxy.
+ mod_aclr2 ("aclr" comes from ACceL Redirect) is the module for Apache 2.x that makes
+ it possible to easily deploy NGINX as a local reverse proxy in front of Apache.
+ As a result, all your static content can now be automatically served by NGINX, while
+ the other legacy and Apache-specific things like RewriteRule, .htaccess, CGI, embedded
+ PHP/Perl will work as they worked before.
+ This module, in contrast to mod_aclr, works only under Apache 2.x.
+ .
+ Copyright (c) 2011-2012 Andrey Belov
+ Original module for Apache 1.3 Copyright (c) Dmitry MikSir
+
+Package: plesk-core
+Priority: extra
+Section: non-free/net
+Installed-Size: 86611
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 11.0.9-ubuntu12.04.build110120608.16
+Replaces: psa-api (<< 10.0.0), psa-api-rpc (<< 10.0.0), psa-bf1942 (<< 9.0.0), psa-bf2 (<< 9.0.0)
+Depends: libboost-filesystem1.48.0 (>= 1.48.0-1), libboost-regex1.48.0 (>= 1.48.0-1), libboost-system1.48.0 (>= 1.48.0-1), libc6 (>= 2.15), libcurl3 (>= 7.16.2-1), libgcc1 (>= 1:4.1.1), libidn11 (>= 1.13), libmysqlclient18 (>= 5.5.13-1), libpam0g (>= 0.99.7.1), libpq5, libsqlite3-0 (>= 3.5.9), libssl1.0.0 (>= 1.0.0), libstdc++6 (>= 4.6), libxml2 (>= 2.7.4), plesk-base (>= 11.0.9), psa-logrotate, libpam-plesk, apache2, libapache2-mod-perl2, libapache2-mod-python, libapache2-mod-rpaf, libapache2-mod-aclr2-psa, bind9 (>= 9.2.1), dnsutils, psa-awstats-configurator, psa-proftpd (>= 1.3.3), libmyodbc, sw-doctrine, psa-pylibplesk, python, psa-locale-base-en-us (>= 11.0.0) | psa-locale-base-11.0.9, psa-php5-configurator (>= 1.6.2), ntpdate, passwd, adduser, cron, gnupg, file, awk, gawk, psmisc, sharutils, mailx, rsync, zip, unzip, psa-mail-driver, lsof, unixodbc
+Pre-Depends: pp11.0.9-bootstrapper, mysql-server
+Conflicts: psa-api (<< 10.0.0), psa-api-rpc (<< 10.0.0), psa-bf1942 (<< 9.0.0), psa-bf2 (<< 9.0.0), psa-imp (<< 4.3.9)
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/plesk-core_11.0.9-ubuntu12.04.build110120608.16_i386.deb
+Size: 32316932
+MD5sum: 2f3d89655064fe58b9eed79307985158
+SHA1: cf7abd25157ff0e1c1034803d34415f7c74c4a10
+SHA256: 3511d16aba9f4a29a98d1c1e6ab2a948e8e7ba122856c488eeb64982b694afce
+SHA512: 24683e829081fee14dc9fd9e40b902cbe8719919390a81a857cdf015b8a018264dcbfedcdfb80aa0406a149d995e64c74a829a318720478dedf72d3b48f44595
+Description: Parallels Panel v11.0.9 core files
+
+Package: libapache2-mod-fcgid-psa
+Priority: extra
+Section: web
+Installed-Size: 300
+Maintainer: Parallels <info@parallels.com>
+Architecture: i386
+Version: 2.3.6-12051809
+Replaces: libapache2-mod-fcgid
+Depends: libc6 (>= 2.4), apache2
+Conflicts: libapache2-mod-fcgid
+Filename: ../../PSA_11.0.9/dist-deb-Ubuntu-12.04-i386/base/libapache2-mod-fcgid-psa_2.3.6-12051809_i386.deb
+Size: 60088
+MD5sum: fc7b30d4f887b70b4e4a60199154b2b8
+SHA1: 7f87430568617c483a821db9c59642d093a0f7ae
+SHA256: 37fbef804cf6474ab1682da096124c85ed5546c0239dc9dd0831fc9388633b2d
+SHA512: 602cd7fae7950ebdb883dbabcaeb344325b2738deb5d8a9984c8a378a266798ea24a8f6c3986ab06b1d11e48884bca4e1913240a30015bb7338c48adbc832eee
+Description: Alternative FastCGI module for Apache2
+  It is a binary compatibility alternative to Apache module mod_fastcgi.
+ mod_fcgid has a new process management strategy, which concentrates on
+ reducing the number of fastcgi server, and kick out the corrupt fastcgi
+ server as soon as possible
+
+Package: sun-java6-bin
+Priority: optional
+Section: partner/java
+Installed-Size: 85544
+Maintainer: Debian Java Maintainers <pkg-java-maintainers@lists.alioth.debian.org>
+Architecture: i386
+Source: sun-java6
+Version: 6.20dlj-1ubuntu3
+Depends: sun-java6-jre (>= 6.20dlj-1ubuntu3), unixodbc, libc6
+Pre-Depends: debconf (>= 0.5) | debconf-2.0
+Recommends: libasound2, libx11-6, libxext6, libxi6, libxtst6, libnss-mdns
+Suggests: binfmt-support
+Conflicts: binfmt-support (<< 1.1.2)
+Filename: ../../PSA_11.0.9/thirdparty-deb-Ubuntu-12.04-i386/sun-java6-bin_6.20dlj-1ubuntu3_i386.deb
+Size: 29437898
+MD5sum: c3c1e1545743dc22b610ed5c5bf2db01
+SHA1: 14d7c6dc4baa1ca8db8a6f7145bb79cf101a7d3f
+SHA256: c3a6f0961a0c2a1db266507ae4eff2a1b3435db0e995767609840cc82e47bfac
+SHA512: 3d81082139311f885818454208f2237945b8e75d3215cae400adecb7e93252c2e79c77e4c160f49b267a468f326e91ab7b09e8b7f2e8ed38fc90ba88e5b802a7
+Description: Sun Java(TM) Runtime Environment (JRE) 6 (architecture dependent files)
+ The Sun Java Platform Standard Edition Runtime Environment (JRE) 6
+ contains the Java virtual machine, runtime class libraries, and
+ Java application launcher that are necessary to run programs written
+ in the Java progamming language. It is not a development environment and
+ doesn't contain development tools such as compilers or debuggers.
+ For development tools, see the Java Development Kit JDK(TM) 6
+ (package sun-java6-jdk).
+ .
+ This package contains architecture dependent files.
+Homepage: http://java.sun.com/javase/
+
+Package: sun-java6-jdk
+Priority: optional
+Section: partner/java
+Installed-Size: 61048
+Maintainer: Debian Java Maintainers <pkg-java-maintainers@lists.alioth.debian.org>
+Architecture: i386
+Source: sun-java6
+Version: 6.20dlj-1ubuntu3
+Provides: java-compiler, java-sdk, java2-compiler, java2-sdk, java5-sdk, java6-sdk
+Depends: sun-java6-bin (>= 6.20dlj-1ubuntu3), libc6, libx11-6
+Pre-Depends: debconf (>= 0.5) | debconf-2.0
+Suggests: sun-java6-demo, openjdk-6-doc, sun-java6-source
+Filename: ../../PSA_11.0.9/thirdparty-deb-Ubuntu-12.04-i386/sun-java6-jdk_6.20dlj-1ubuntu3_i386.deb
+Size: 20745008
+MD5sum: 5878f618e0287c680a2f749d836176b3
+SHA1: f75e2347341b689ce5b9023cb1e9a5802b7c7bf2
+SHA256: f856a4a237c94c16069add2d5bd5d76c59441e0294bb7cdc0b7e8c797f4b78f1
+SHA512: a5b4d921041fc0f1b9db7bb63d155234ca239b8271ae0309a1bfc1edaa9043f2b7c8c30a7ebfb738e361db2771731d1db3ae70c6f9b9c904417f06396e90f389
+Description: Sun Java(TM) Development Kit (JDK) 6
+ The JDK(TM) is a development environment for building applications,
+ applets, and components using the Java programming language.
+ .
+ The JDK includes tools useful for developing and testing programs
+ written in the Java programming language and running on the Java
+ Platform.
+ .
+ NOTE: You must accept Sun's EULA prior to successfully installing
+ this package
+Homepage: http://java.sun.com/javase/
+
+Package: sun-java6-jre
+Priority: optional
+Section: partner/java
+Installed-Size: 14316
+Maintainer: Debian Java Maintainers <pkg-java-maintainers@lists.alioth.debian.org>
+Architecture: all
+Source: sun-java6
+Version: 6.20dlj-1ubuntu3
+Replaces: ia32-sun-java6-bin, sun-java6-bin
+Provides: java-runtime, java-runtime-headless, java-virtual-machine, java2-runtime, java2-runtime-headless, java5-runtime, java5-runtime-headless, java6-runtime, java6-runtime-headless
+Depends: java-common (>= 0.24), locales, sun-java6-bin (>= 6.20dlj-1ubuntu3) | ia32-sun-java6-bin (>= 6.20dlj-1ubuntu3)
+Pre-Depends: debconf (>= 0.5) | debconf-2.0
+Recommends: gsfonts-x11
+Suggests: sun-java6-plugin | ia32-sun-java6-plugin, sun-java6-fonts, ttf-baekmuk | ttf-unfonts | ttf-unfonts-core, ttf-kochi-gothic | ttf-sazanami-gothic, ttf-kochi-mincho | ttf-sazanami-mincho, ttf-arphic-uming
+Conflicts: j2se-common
+Filename: ../../PSA_11.0.9/thirdparty-deb-Ubuntu-12.04-i386/sun-java6-jre_6.20dlj-1ubuntu3_all.deb
+Size: 6409830
+MD5sum: c9d1fb7809ba1e2e83444fd79cf955e7
+SHA1: 7fd1bc0c0efccb9a166980b0d761d66490783478
+SHA256: 9899eab7f6b2983eb5ad93dc27dca45517ba79793cf2c37d90a6c8a615ff6ca0
+SHA512: 13440cc900048d2c726466bbdfbf56ed1d1ab4c97711915c92436af069967ef186c2f0769adf21b50ea2986ca49be932e557fe7e2ceb1edaf11ce8f54c8821e3
+Description: Sun Java(TM) Runtime Environment (JRE) 6 (architecture independent files)
+ The Sun Java Platform Standard Edition Runtime Environment (JRE) 6
+ contains the Java virtual machine, runtime class libraries, and
+ Java application launcher that are necessary to run programs written
+ in the Java progamming language. It is not a development environment and
+ doesn't contain development tools such as compilers or debuggers.
+ For development tools, see the Java Development Kit JDK(TM) 6
+ (package sun-java6-jdk).
+ .
+ NOTE: You must accept Sun's EULA prior to successfully installing
+ this package
+ .
+ This package contains architecture independent files.
+Homepage: http://java.sun.com/javase/
+

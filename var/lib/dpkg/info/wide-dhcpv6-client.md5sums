@@ -1,0 +1,9 @@
+49bda2db739f9f467d918d6db78ff2ff  usr/sbin/dhcp6c
+f7f1ea78946aaa3cc6eaa07eb4aef1b1  usr/sbin/dhcp6ctl
+8d7704f989b5fdfeb9080b247696a811  usr/share/doc/wide-dhcpv6-client/NEWS.Debian.gz
+c615493cfcc153a17fd3b1e8f061209f  usr/share/doc/wide-dhcpv6-client/changelog.Debian.gz
+7ce720c601d87f73d45b77d7d22a1816  usr/share/doc/wide-dhcpv6-client/copyright
+2123b4ec6c80aa7845c663fa05d656bb  usr/share/doc/wide-dhcpv6-client/examples/dhcp6c.conf.sample
+5c83e856e7dfb624d626638c531279f2  usr/share/man/man5/dhcp6c.conf.5.gz
+57d9c3ba5cd862478db730f33f477ad8  usr/share/man/man8/dhcp6c.8.gz
+9a3d21cd79d5ea334bdf3910d30bd3d4  usr/share/man/man8/dhcp6ctl.8.gz

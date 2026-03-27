@@ -1,0 +1,2 @@
+/etc/php5/conf.d/pdo.ini
+/etc/cron.d/php5

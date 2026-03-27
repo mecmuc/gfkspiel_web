@@ -1,0 +1,11 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/libbsd0
+/lib
+/lib/i386-linux-gnu
+/usr/share/doc/libbsd0/copyright
+/usr/share/doc/libbsd0/changelog.Debian.gz
+/lib/i386-linux-gnu/libbsd.so.0.3.0
+/lib/i386-linux-gnu/libbsd.so.0

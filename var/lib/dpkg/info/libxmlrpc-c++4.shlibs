@@ -1,0 +1,16 @@
+libxmlrpc_server_pstream++ 4 libxmlrpc-c++4
+libxmlrpc++ 4 libxmlrpc-c++4
+libxmlrpc_server_cgi++ 4 libxmlrpc-c++4
+libxmlrpc_client++ 4 libxmlrpc-c++4
+libxmlrpc_server_abyss++ 4 libxmlrpc-c++4
+libxmlrpc_packetsocket 4 libxmlrpc-c++4
+libxmlrpc_server++ 4 libxmlrpc-c++4
+libxmlrpc_cpp 4 libxmlrpc-c++4
+udeb: libxmlrpc_server_pstream++ 4 libxmlrpc-core-c3-udeb
+udeb: libxmlrpc++ 4 libxmlrpc-core-c3-udeb
+udeb: libxmlrpc_server_cgi++ 4 libxmlrpc-core-c3-udeb
+udeb: libxmlrpc_client++ 4 libxmlrpc-core-c3-udeb
+udeb: libxmlrpc_server_abyss++ 4 libxmlrpc-core-c3-udeb
+udeb: libxmlrpc_packetsocket 4 libxmlrpc-core-c3-udeb
+udeb: libxmlrpc_server++ 4 libxmlrpc-core-c3-udeb
+udeb: libxmlrpc_cpp 4 libxmlrpc-core-c3-udeb

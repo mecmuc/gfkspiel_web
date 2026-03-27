@@ -1,0 +1,14 @@
+/.
+/lib
+/lib/i386-linux-gnu
+/selinux
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/libselinux1
+/usr/share/lintian
+/usr/share/lintian/overrides
+/lib/i386-linux-gnu/libselinux.so.1
+/usr/share/doc/libselinux1/copyright
+/usr/share/doc/libselinux1/changelog.Debian.gz
+/usr/share/lintian/overrides/libselinux1

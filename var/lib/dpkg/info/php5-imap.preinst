@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+
+
+if [ -L /usr/share/doc/php5-imap ]; then
+	# We must be upgrading from a version that was previously
+	# built from the php5 source package
+	rm -f /usr/share/doc/php5-imap
+fi
+
+exit 0

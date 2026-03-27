@@ -1,0 +1,14 @@
+/.
+/usr
+/usr/bin
+/usr/share
+/usr/share/doc
+/usr/share/doc/lzma
+/usr/share/doc/lzma/examples
+/usr/share/man
+/usr/share/man/man1
+/usr/bin/lzmp
+/usr/share/doc/lzma/examples/deb-lzma
+/usr/share/doc/lzma/copyright
+/usr/share/doc/lzma/changelog.Debian.gz
+/usr/share/man/man1/lzmp.1.gz

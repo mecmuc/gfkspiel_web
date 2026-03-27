@@ -1,0 +1,16 @@
+2202b27f8316eca6de5f7a596ead426f  usr/lib/i386-linux-gnu/libodbcinst.so.1.0.0
+a0bf2a302d0d7f0ceaaff8ddcf643b3c  usr/lib/i386-linux-gnu/odbc/libesoobS.so
+0b9569059ae8220be46f8ab2db3eaec5  usr/lib/i386-linux-gnu/odbc/libmimerS.so
+ea7df682a3f3584930952d570cf8784b  usr/lib/i386-linux-gnu/odbc/libodbcdrvcfg1S.so
+71169cc7a1d448788a15806378f41461  usr/lib/i386-linux-gnu/odbc/libodbcdrvcfg2S.so
+7b109a9dc32267ed10ddb2876cad90e8  usr/lib/i386-linux-gnu/odbc/libodbcminiS.so
+aa64206d5b916b3a52274253a85f1d56  usr/lib/i386-linux-gnu/odbc/libodbcmyS.so
+557d17e2466041e57ad8bbf865ad4f0c  usr/lib/i386-linux-gnu/odbc/libodbcnnS.so
+3e041b1944d23540aa5dd68e7cc2dbbb  usr/lib/i386-linux-gnu/odbc/libodbcpsqlS.so
+26b97e108304a1606b1b09d054f97a36  usr/lib/i386-linux-gnu/odbc/libodbctxtS.so
+329c5599f000614719c55609152c6a0e  usr/lib/i386-linux-gnu/odbc/liboplodbcS.so
+17b69fc184757d764fe8cff7a3260354  usr/lib/i386-linux-gnu/odbc/liboraodbcS.so
+e4790c94cee2f0f2f22c12e1ed31689c  usr/lib/i386-linux-gnu/odbc/libsapdbS.so
+90b5f22352ce93d75a6dd5cd875e76a3  usr/lib/i386-linux-gnu/odbc/libtdsS.so
+a41a84e564fd9781e7dd465e1693c775  usr/share/doc/odbcinst1debian2/copyright
+4d08daf25642dc0eb622326c0c8b028e  usr/share/lintian/overrides/odbcinst1debian2

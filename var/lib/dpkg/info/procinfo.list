@@ -1,0 +1,17 @@
+/.
+/usr
+/usr/bin
+/usr/share
+/usr/share/doc
+/usr/share/doc/procinfo
+/usr/share/man
+/usr/share/man/man8
+/usr/bin/socklist
+/usr/bin/procinfo
+/usr/bin/lsdev
+/usr/share/doc/procinfo/copyright
+/usr/share/doc/procinfo/README.Debian
+/usr/share/doc/procinfo/changelog.Debian.gz
+/usr/share/man/man8/procinfo.8.gz
+/usr/share/man/man8/socklist.8.gz
+/usr/share/man/man8/lsdev.8.gz

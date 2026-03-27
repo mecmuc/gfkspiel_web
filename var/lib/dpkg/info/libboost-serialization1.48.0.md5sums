@@ -1,0 +1,7 @@
+f067e78a910d2c46abd859151b1fc94a  usr/lib/libboost_serialization.so.1.48.0
+644134635be23cb34f038851e413463a  usr/lib/libboost_wserialization.so.1.48.0
+ef7f213b58eac20fa98346d1871322de  usr/share/doc/libboost-serialization1.48.0/NEWS.Debian.gz
+e7f9f35286ba55ac18cb4e0187710fbd  usr/share/doc/libboost-serialization1.48.0/README.Debian.gz
+0fe52933c2cdd6312ed775ec25a8d652  usr/share/doc/libboost-serialization1.48.0/changelog.Debian.gz
+e66425771863c34de39265516529d049  usr/share/doc/libboost-serialization1.48.0/copyright
+7fe806aeb508ed4966d4d5eafc3d3588  usr/share/lintian/overrides/libboost-serialization1.48.0

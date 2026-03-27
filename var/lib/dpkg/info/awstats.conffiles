@@ -1,0 +1,4 @@
+/etc/cron.d/awstats
+/etc/default/awstats
+/etc/awstats/awstats.conf
+/etc/awstats/awstats.conf.local

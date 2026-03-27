@@ -1,0 +1,10 @@
+80a562509d8941410e2820f8dbc053ad  usr/lib/libxmlrpc++.so.4.16
+68af8a95f807d19a1b80f30c0f7b6081  usr/lib/libxmlrpc_client++.so.4.16
+efe79c01eb093982c9d808c8f212945f  usr/lib/libxmlrpc_cpp.so.4.16
+5884e08c47b0bac4873181de78ecddf8  usr/lib/libxmlrpc_packetsocket.so.4.16
+f2667834774cfba822dd83b03cd25b18  usr/lib/libxmlrpc_server++.so.4.16
+58fd9dcf241da59fcdc085472545e270  usr/lib/libxmlrpc_server_abyss++.so.4.16
+c6f4cbe1793e1ca6f038b5cb39550c5c  usr/lib/libxmlrpc_server_cgi++.so.4.16
+2c7dd893bdd5aaddbb6adb3e430699a3  usr/lib/libxmlrpc_server_pstream++.so.4.16
+1c02d3d87e352b107c27d62cfa454302  usr/share/doc/libxmlrpc-c++4/copyright
+7e9836c5cbcdf0d3dc476c9be0aa1e21  usr/share/lintian/overrides/libxmlrpc-c++4

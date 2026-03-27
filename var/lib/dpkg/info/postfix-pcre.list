@@ -1,0 +1,11 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/postfix-pcre
+/usr/share/doc/postfix-pcre/copyright
+/usr/share/doc/postfix-pcre/README.Debian
+/usr/lib
+/usr/lib/postfix
+/usr/lib/postfix/dict_pcre.so
+/usr/share/doc/postfix-pcre/changelog.Debian.gz

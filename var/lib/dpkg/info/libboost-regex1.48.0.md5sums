@@ -1,0 +1,6 @@
+7faecb1225f60b4f32dda5eb75bbaf62  usr/lib/libboost_regex.so.1.48.0
+ef7f213b58eac20fa98346d1871322de  usr/share/doc/libboost-regex1.48.0/NEWS.Debian.gz
+e7f9f35286ba55ac18cb4e0187710fbd  usr/share/doc/libboost-regex1.48.0/README.Debian.gz
+49278b6c265b73210e33d80c77afa444  usr/share/doc/libboost-regex1.48.0/changelog.Debian.gz
+e66425771863c34de39265516529d049  usr/share/doc/libboost-regex1.48.0/copyright
+8f72eac3854ac4f799b3eaaf12792b08  usr/share/lintian/overrides/libboost-regex1.48.0

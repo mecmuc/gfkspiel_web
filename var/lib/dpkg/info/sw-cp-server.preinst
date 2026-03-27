@@ -1,0 +1,222 @@
+#!/bin/sh
+#
+# (c) Copyright 1999-2007 Parallels
+# All rights reserved
+#
+
+
+
+# Usage:  pleskrc <service> <action> [args]
+# Define this variables before usage:
+# <service>_log           Define error log file. 
+#                         Need for get additional info which print
+#                         to stdout if error occured.
+# <service>_extra_cmd     Extra functions which was used instead default.
+#                         For example: 
+#                             mysql_extra_cmd="status"
+#                             mysql_status() { .... }
+#                             pleskrc mysql status
+
+pleskrc()
+{
+	[ 2 -le $# ] || die "Not enough arguments"
+
+	local service_name=$1
+	local action=$2
+	shift
+	shift
+	local args="$*"
+	local action_cmd
+	local extra_flag
+	local status
+	local inten
+
+	eval "service=\$${service_name}_service"
+	[ -n "$service" ] || die "Empty service name for $service_name"
+
+	local inten="$action service $service"
+
+	eval "extra_cmd=\$${service_name}_extra_cmd"
+	eval "service_log=\$${service_name}_log"
+
+	if [ -z "$service_log" ]; then 
+		echo "Variable 'service_log' was not defined. ple"
+		echo "Please correct this or define '/dev/null' instead real filename"
+		return 1
+	fi
+
+	if [ -f "$service_log" ]; then 
+	    log_label="$(wc -l $service_log | awk '{print $1}')"
+	else
+	    log_label=0
+	fi
+
+	log_label=$(expr $log_label + 1)
+
+	for cmd in $extra_cmd; do
+		if [ "$cmd" = "$action" ]; then
+			func="${service_name}_$action"
+			$func $args
+			status="$?"
+			extra_flag=1 
+		fi
+	done
+
+	if [ -z "$extra_flag" ]; then 
+		if [ -x "/usr/sbin/invoke-rc.d" ]; then
+			action_cmd="/usr/sbin/invoke-rc.d $service"
+		elif [ -x "/sbin/service" ]; then
+			action_cmd="/sbin/service $service"
+		elif [ -x  "/etc/init.d/$service" ]; then
+			action_cmd="/etc/init.d/$service"
+		elif [ ! -z ${PRODUCT_RC_D} -a -x "$PRODUCT_RC_D/$service" ]; then
+			action_cmd="$PRODUCT_RC_D/$service"
+		else
+			die "Unable to handle $service"
+		fi
+
+		case "$action" in
+			start)
+				    pleskrc $service_name status || $action_cmd $action $args
+			    ;;
+			stop)
+				    pleskrc $service_name status && $action_cmd $action $args
+			    ;;
+			restart)
+				    pleskrc $service_name status && $action_cmd $action $args
+				    pleskrc $service_name status || $action_cmd $action $args
+			    ;;
+			status)
+				    pleskrc_status $action_cmd
+				    return $?
+			    ;;
+			    *)
+				    $action_cmd $action $args
+			    ;;
+		esac
+
+		status="$?"
+	fi
+
+	if [ "$status" -ne 0 ]; then 
+		warn $inten
+
+		if [ -f "$service_log" ]; then
+			tail -n $log_label $service_log
+		else
+			warn "find '$service_log'. Unable to output additional information"
+		fi
+
+		return 1
+	fi
+
+	return 0
+}
+
+pleskrc_status()
+{
+	local action_cmd="$@"
+
+	$action_cmd status
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+
+	return 0
+}
+
+p_echo()
+{
+    echo "$*"
+}
+
+die()
+{
+	PACKAGE_SCRIPT_FAILED="$*"
+
+	p_echo
+	p_echo "ERROR while trying to $*"
+	echo "Check the error reason(see log file: ${product_log}), fix and try again"
+
+	selinux_close
+
+	exit 1
+}
+
+warn()
+{
+local inten
+inten="$1"
+p_echo
+p_echo "WARNING!"
+echo -n "During the $inten found some problems"
+echo "(see log file: ${product_log})"
+p_echo
+p_echo "Continue..."
+p_echo
+
+}       
+
+call_optional_function()
+{
+	export LANG=C LC_MESSAGES=C
+	local type_output="`type \"$1\" 2>/dev/null | head -n 1`"
+	case "$type_output" in
+		*function)
+			"$@"
+			;;
+		*)
+			return 0
+			;;
+	esac
+}
+
+superserver_restart()
+{
+    pleskrc superserver reload
+}
+
+selinux_close()
+{
+	if [ -z "$SELINUX_ENFORCE" -o "$SELINUX_ENFORCE" = "Disabled" ]; then
+		return
+	fi
+
+	setenforce "$SELINUX_ENFORCE"
+}
+
+sw_cp_server_install_pre()
+{
+	groupadd sw-cp-server && useradd -g sw-cp-server -s /bin/true -d / sw-cp-server || true
+}
+
+sw_cp_server_upgrade_new_pre()
+{
+	/etc/init.d/sw-cp-server stop
+}
+
+if [ "X${PLESK_INSTALLER_DEBUG}" != "X" ]; then
+    set -x
+fi
+
+trap "call_optional_function sw_cp_server_cleanup_preinst" EXIT
+
+do_upgrade=0
+
+case "$1" in
+	install)
+		call_optional_function sw_cp_server_install_pre
+		;;
+	upgrade)
+		# We are the new upgrading package
+		do_upgrade=1
+		prev_version="${2%%-*}"
+		call_optional_function sw_cp_server_upgrade_new_pre
+		;;
+	abort-upgrade)
+		;;
+	*)
+		echo "Unknown operation: preinst $*"
+		exit 1
+		;;
+esac

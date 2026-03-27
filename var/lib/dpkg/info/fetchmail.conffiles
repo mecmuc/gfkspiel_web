@@ -1,0 +1,7 @@
+/etc/ppp/ip-up.d/fetchmail
+/etc/ppp/ip-down.d/fetchmail
+/etc/resolvconf/update-libc.d/fetchmail
+/etc/logcheck/ignore.d.workstation/fetchmail
+/etc/logcheck/ignore.d.server/fetchmail
+/etc/default/fetchmail
+/etc/init.d/fetchmail

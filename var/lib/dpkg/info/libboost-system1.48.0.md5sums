@@ -1,0 +1,6 @@
+f00990fd61c1961264d666d5cb45a4be  usr/lib/libboost_system.so.1.48.0
+ef7f213b58eac20fa98346d1871322de  usr/share/doc/libboost-system1.48.0/NEWS.Debian.gz
+e7f9f35286ba55ac18cb4e0187710fbd  usr/share/doc/libboost-system1.48.0/README.Debian.gz
+44b3418ea4e92950e4f900b134855e6f  usr/share/doc/libboost-system1.48.0/changelog.Debian.gz
+e66425771863c34de39265516529d049  usr/share/doc/libboost-system1.48.0/copyright
+e6d7bfac42fd23a5d1ef7ed5021d1837  usr/share/lintian/overrides/libboost-system1.48.0

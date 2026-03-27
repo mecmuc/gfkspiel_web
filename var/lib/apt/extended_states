@@ -1,0 +1,76 @@
+Package: git-man
+Architecture: i386
+Auto-Installed: 1
+
+Package: liberror-perl
+Architecture: i386
+Auto-Installed: 1
+
+Package: libcurl3-gnutls
+Architecture: i386
+Auto-Installed: 1
+
+Package: patch
+Architecture: i386
+Auto-Installed: 1
+
+Package: libgmp10
+Architecture: i386
+Auto-Installed: 1
+
+Package: libmpfr4
+Architecture: i386
+Auto-Installed: 1
+
+Package: manpages-dev
+Architecture: i386
+Auto-Installed: 1
+
+Package: libc-dev-bin
+Architecture: i386
+Auto-Installed: 1
+
+Package: linux-libc-dev
+Architecture: i386
+Auto-Installed: 1
+
+Package: gcc-4.6
+Architecture: i386
+Auto-Installed: 1
+
+Package: cpp
+Architecture: i386
+Auto-Installed: 1
+
+Package: gcc
+Architecture: i386
+Auto-Installed: 1
+
+Package: libc6-dev
+Architecture: i386
+Auto-Installed: 1
+
+Package: libquadmath0
+Architecture: i386
+Auto-Installed: 1
+
+Package: cpp-4.6
+Architecture: i386
+Auto-Installed: 1
+
+Package: libmpc2
+Architecture: i386
+Auto-Installed: 1
+
+Package: g++-4.6
+Architecture: i386
+Auto-Installed: 1
+
+Package: libstdc++6-4.6-dev
+Architecture: i386
+Auto-Installed: 1
+
+Package: libterm-readkey-perl
+Architecture: i386
+Auto-Installed: 1
+

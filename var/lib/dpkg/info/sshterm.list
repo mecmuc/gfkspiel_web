@@ -1,0 +1,17 @@
+/.
+/opt
+/opt/psa
+/opt/psa/admin
+/opt/psa/admin/htdocs
+/opt/psa/admin/htdocs/sshterm
+/opt/psa/admin/htdocs/sshterm/SSHTools-small-logo2.gif
+/opt/psa/admin/htdocs/sshterm/jce-jdk13-119.jar
+/opt/psa/admin/htdocs/sshterm/SSHTermApplet-jdkbug-workaround-signed.jar
+/opt/psa/admin/htdocs/sshterm/xmlParserAPIs.jar
+/opt/psa/admin/htdocs/sshterm/commons-logging.jar
+/opt/psa/admin/htdocs/sshterm/LICENSE
+/opt/psa/admin/htdocs/sshterm/SSHTermApplet-signed.jar
+/opt/psa/admin/htdocs/sshterm/xercesImpl.jar
+/opt/psa/admin/htdocs/sshterm/instructions.htm
+/opt/psa/admin/htdocs/sshterm/sshterm-applet.htm
+/opt/psa/admin/htdocs/sshterm/SSHTermApplet-jdk1.3.1-dependencies-signed.jar

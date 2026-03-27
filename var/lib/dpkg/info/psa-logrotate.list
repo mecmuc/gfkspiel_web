@@ -1,0 +1,11 @@
+/.
+/opt
+/opt/psa
+/opt/psa/logrotate
+/opt/psa/logrotate/sbin
+/opt/psa/logrotate/man
+/opt/psa/logrotate/man/man8
+/opt/psa/etc
+/opt/psa/logrotate/sbin/logrotate
+/opt/psa/logrotate/man/man8/logrotate.8
+/opt/psa/etc/logrotate.conf.sample

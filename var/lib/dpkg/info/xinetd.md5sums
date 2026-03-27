@@ -1,0 +1,16 @@
+40ad945d7cf54e2e2ffaa97f9021f175  usr/sbin/itox
+505e72536bb477de9bd45c3dfd284b68  usr/sbin/xconv.pl
+cd3687c54a16538446bc83937c3665c9  usr/sbin/xinetd
+b486175ff4ac34842521bd3be54ef064  usr/share/doc/xinetd/NEWS.Debian.gz
+a5ad59f3ce26fb2dfcc168af66fa45fc  usr/share/doc/xinetd/README.Debian
+1c60055ea35fbdf352f66e7cc88f86a6  usr/share/doc/xinetd/README.gz
+084e65eae303f1c9096e9c9d61fb4458  usr/share/doc/xinetd/README.update-inetd
+b1a8eff97e41cc6f50e26635791f5db0  usr/share/doc/xinetd/changelog.Debian.gz
+3eabf8d2c013e30afa760b8c63145785  usr/share/doc/xinetd/copyright
+5739aa742f42dfeeea6adb6eb30fe0f6  usr/share/doc/xinetd/examples/sample.conf.gz
+d339a104b3ebc01ca2f6cf92f1d355dc  usr/share/doc/xinetd/xinetd.org-FAQ.html
+e4d51770026e90ef9e785f56f79ac069  usr/share/man/man5/xinetd.conf.5.gz
+d358fadc2fd18daacf3c65680341e7a9  usr/share/man/man5/xinetd.log.5.gz
+37c7ed9a159b8e13f075267cbbfb4e5e  usr/share/man/man8/itox.8.gz
+4ff17d7d5dc13361cb5941a2304885b8  usr/share/man/man8/xconv.pl.8.gz
+ae927daef2f51667495560a9f4019e7b  usr/share/man/man8/xinetd.8.gz

@@ -1,0 +1,10 @@
+/.
+/usr
+/usr/lib
+/usr/lib/php5
+/usr/lib/php5/20090626+lfs
+/usr/sbin
+/usr/lib/php5/20090626+lfs/ioncube_loader_lin_5.1.so
+/usr/lib/php5/20090626+lfs/ioncube_loader_lin_5.2.so
+/usr/lib/php5/20090626+lfs/ioncube_loader_lin_5.3.so
+/usr/sbin/ion_loader.sh

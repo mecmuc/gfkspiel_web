@@ -1,0 +1,15 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/php5-imap
+/usr/lib
+/usr/lib/php5
+/usr/lib/php5/20090626+lfs
+/etc
+/etc/php5
+/etc/php5/conf.d
+/usr/share/doc/php5-imap/copyright
+/usr/share/doc/php5-imap/changelog.Debian.gz
+/usr/lib/php5/20090626+lfs/imap.so
+/etc/php5/conf.d/imap.ini

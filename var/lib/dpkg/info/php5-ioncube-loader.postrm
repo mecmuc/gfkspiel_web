@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ "0$1" -eq 0 -o "$1" = "remove" -o "$1" = "purge" ]; then
+	php_d="/etc/php5/conf.d"
+	rm -f $php_d/00-ioncube-loader* 2>/dev/null
+fi
+
+:

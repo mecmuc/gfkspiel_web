@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = remove ] || [ "$1" = purge ]; then
+	if [ -e /etc/apache2/apache2.conf ] && [ -x /usr/sbin/a2dismod ]; then
+		a2dismod python || true
+	fi
+fi
+
+
+# Automatically added by dh_python2:
+if which pyclean >/dev/null 2>&1; then
+	pyclean -p libapache2-mod-python 
+else
+	dpkg -L libapache2-mod-python | grep \.py$ | while read file
+	do
+		rm -f "${file}"[co] >/dev/null
+  	done
+fi
+
+# End automatically added section
+
+
+exit 0

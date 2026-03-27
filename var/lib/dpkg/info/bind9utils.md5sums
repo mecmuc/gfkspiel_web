@@ -1,0 +1,13 @@
+be56c0ed3677f7ab8b3a6d7faf047949  usr/sbin/dnssec-keygen
+acda0a50697dc03df4ad2b8fcbb8cabc  usr/sbin/dnssec-signzone
+4169dd2f76c94653fd2d2f490fc9c567  usr/sbin/named-checkconf
+b0aa1008c93455aed02e107b60cd767c  usr/sbin/named-checkzone
+b1fb9fbed7e878b2fbc340a34901f739  usr/sbin/rndc
+a081078573e583593c05a247621ce5eb  usr/sbin/rndc-confgen
+892bf811938a6b4767f4dc54c8dd1d2d  usr/share/doc/bind9utils/copyright
+d0ce153dfe8a71fa5fafa352d7545963  usr/share/man/man8/dnssec-keygen.8.gz
+86c1d3a2c3e9c9d5ab0eb370ffd87536  usr/share/man/man8/dnssec-signzone.8.gz
+770c285fe7f48dd4742fa6cbd38949ae  usr/share/man/man8/named-checkconf.8.gz
+e8b8751b9d19ec7f86b29b9096689b32  usr/share/man/man8/named-checkzone.8.gz
+f1af2d0cad8a23195092416b6f14cdab  usr/share/man/man8/rndc-confgen.8.gz
+84720d04d2b668cea30d5c96063093ea  usr/share/man/man8/rndc.8.gz

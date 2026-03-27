@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# Preinst script for fetchmail
+# $Id: fetchmail.preinst 486 2008-12-22 15:13:12Z nion $
+#
+
+set -e
+
+# Remove a possibly fucked ip-up.d, which was unfortunately not
+# removed due of being a conffile.  This is ugly but the only "clean"
+# way I see right now.
+if [ -f /etc/network/if-up.d/fetchmail ] && [ "$2" = "6.2.4-3" ]; then 
+	rm -f /etc/network/if-up.d/fetchmail
+fi
+
+
+
+exit 0

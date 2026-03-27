@@ -1,0 +1,14 @@
+/.
+/usr
+/usr/bin
+/usr/sbin
+/usr/share
+/usr/share/man
+/usr/share/man/man1
+/usr/share/doc
+/usr/share/doc/pwgen
+/usr/bin/pwgen
+/usr/share/man/man1/pwgen.1.gz
+/usr/share/doc/pwgen/copyright
+/usr/share/doc/pwgen/changelog.gz
+/usr/share/doc/pwgen/changelog.Debian.gz

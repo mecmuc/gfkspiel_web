@@ -1,0 +1,13 @@
+/.
+/usr
+/usr/lib
+/usr/bin
+/usr/lib/libspf2.so.2.1.0
+/usr/bin/spftest_static
+/usr/bin/spf_example
+/usr/bin/spftest
+/usr/bin/spfd_static
+/usr/bin/spf_example_static
+/usr/bin/spfd
+/usr/bin/spfquery_static
+/usr/lib/libspf2.so.2

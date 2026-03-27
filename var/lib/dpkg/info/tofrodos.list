@@ -1,0 +1,17 @@
+/.
+/usr
+/usr/bin
+/usr/share
+/usr/share/man
+/usr/share/man/man1
+/usr/share/doc
+/usr/share/doc/tofrodos
+/usr/bin/fromdos
+/usr/share/man/man1/fromdos.1.gz
+/usr/share/doc/tofrodos/NEWS.Debian.gz
+/usr/share/doc/tofrodos/tofrodos.html
+/usr/share/doc/tofrodos/copyright
+/usr/share/doc/tofrodos/changelog.Debian.gz
+/usr/share/doc/tofrodos/readme.txt.gz
+/usr/bin/todos
+/usr/share/man/man1/todos.1.gz

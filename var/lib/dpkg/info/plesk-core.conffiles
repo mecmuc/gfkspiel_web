@@ -1,0 +1,12 @@
+/opt/psa/admin/smb/application/config/smb.ini
+/opt/psa/admin/conf/aps/catalogs.ini
+/opt/psa/admin/conf/aps/top-categories.ini
+/etc/cron.daily/50plesk-daily
+/etc/init.d/psa
+/etc/sw-cp-server/applications.d/plesk.conf
+/etc/sw-cp-server/applications.d/plesk.socket.sh
+/etc/cron.weekly/50plesk-weekly
+/etc/psa/README.psa.shadow
+/etc/sw/keys/restart/plesk-key-handler
+/etc/sw/keys/restart/apskeyhandler
+/etc/cron.monthly/50plesk-monthly

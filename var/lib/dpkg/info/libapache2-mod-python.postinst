@@ -1,0 +1,59 @@
+#!/bin/sh
+set -e
+
+
+# Automatically added by dh_python2:
+if which pycompile >/dev/null 2>&1; then
+	pycompile -p libapache2-mod-python 
+fi
+
+# End automatically added section
+
+
+OLDENABLED=/etc/apache2/mods-enabled/mod_python.load
+OLDAVAILABLE=/etc/apache2/mods-available/mod_python.load
+
+# Before 3.3.1-3, the module had a different name, so if we are upgrading
+# from such an old package, re-enable the module if it was enabled
+if dpkg --compare-versions "$2" lt-nl "3.3.1-3"; then
+	test -L $OLDENABLED && rm -f $OLDENABLED && a2enmod python >/dev/null || true
+	test -e $OLDAVAILABLE && rm -f $OLDAVAILABLE
+fi
+
+
+reload_apache()
+{
+	if apache2ctl configtest 2>/dev/null; then
+		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+			invoke-rc.d apache2 force-reload || exit $?
+		else
+			/etc/init.d/apache2 force-reload || exit $?
+		fi
+	else
+		echo "Your apache2 configuration is broken, so we're not restarting it for you."
+	fi
+}
+
+PYTHON_LOAD=/etc/apache2/mods-enabled/python.load
+
+# Inspired in libapache2-mod-php5.postinst
+
+if [ "$1" = "configure" -a -n "$2" ]; then
+	# Upgrading from a previous version. Only restart apache
+	# if the python mod is enabled
+	if [ -e $PYTHON_LOAD ]; then
+		reload_apache
+	fi
+	exit 0
+fi
+
+
+if [ "$1" = "configure" ]; then
+	# Not upgrading from a previous version, enable the module
+	if [ -e /etc/apache2/apache2.conf ]; then
+		a2enmod python >/dev/null || true
+		reload_apache
+	fi
+fi
+
+exit 0

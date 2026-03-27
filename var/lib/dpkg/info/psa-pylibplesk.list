@@ -1,0 +1,14 @@
+/.
+/opt
+/opt/psa
+/opt/psa/admin
+/opt/psa/admin/lib
+/opt/psa/admin/lib/python
+/opt/psa/admin/lib/python/compat
+/opt/psa/admin/lib/python/compat/dummy_logging.py
+/opt/psa/admin/lib/python/compat/optparse.py
+/opt/psa/admin/lib/python/compat/dummy_os.py
+/opt/psa/admin/lib/python/compat/__init__.py
+/opt/psa/admin/lib/python/compat/dummy_itertools.py
+/opt/psa/admin/lib/python/compat/textwrap.py
+/opt/psa/admin/lib/python/plesk_config.py

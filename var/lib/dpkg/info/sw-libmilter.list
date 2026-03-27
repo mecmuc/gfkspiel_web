@@ -1,0 +1,10 @@
+/.
+/usr
+/usr/lib
+/usr/lib/sw
+/usr/share
+/usr/share/doc
+/usr/share/doc/sw-libmilter
+/usr/lib/sw/libmilter.so.1.0
+/usr/share/doc/sw-libmilter/README
+/usr/share/doc/sw-libmilter/LICENSE

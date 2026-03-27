@@ -1,0 +1,17 @@
+/.
+/usr
+/usr/lib
+/usr/share
+/usr/share/cracklib
+/usr/share/doc
+/usr/share/doc/libcrack2
+/usr/share/doc-base
+/usr/lib/libcrack.so.2.8.1
+/usr/share/cracklib/cracklib-small
+/usr/share/cracklib/cracklib.magic
+/usr/share/doc/libcrack2/libcrack2.html
+/usr/share/doc/libcrack2/copyright
+/usr/share/doc/libcrack2/README.gz
+/usr/share/doc/libcrack2/changelog.Debian.gz
+/usr/share/doc-base/libcrack2
+/usr/lib/libcrack.so.2

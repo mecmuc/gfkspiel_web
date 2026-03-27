@@ -1,0 +1,2101 @@
+#!/bin/sh
+#!/bin/sh
+#
+# Copyright (c) 1999-2008 Parallels
+# All rights reserved
+#
+
+#
+# Plesk script
+#
+
+
+# Migration manager tables will be managed by plesk
+
+
+# mode: shell-script
+
+remove_tmp_state()
+{
+	if [ -d "/tmp/.state" ]; then
+		rm -Rf "/tmp/.state" >> $product_log 2>&1
+	fi
+}
+
+true apache_status_linux_debian apache_stop_BSD
+
+apache_status_linux_debian()
+{
+	get_pid "/usr/sbin/apache2" false
+	local pid=$common_var
+	if test "$pid" -ne 1; then
+# running
+		return 0
+	fi
+	return 1
+}
+
+apache_stop_BSD()
+{
+	local apache_script
+
+	if [ "$std_to_pkg" -ne 0 ]; then
+		apache_script="$PRODUCT_ROOT_D/rc.d/httpd"
+	else
+		apache_script="$PRODUCT_RC_D/$apache_service_name"
+	fi
+
+	$apache_script stop 2>/dev/null
+}
+
+proftpd_super_server_config()
+{
+	local action="$1"
+
+	case "$superserver" in
+	    inetd)
+		    ftp_rec="ftp stream tcp nowait root $PROFTPD_ROOT/sbin/proftpd proftpd -c $PROFTPD_ETC_D/proftpd.conf"
+		    ;;
+	    xinetd)
+		    ftp_rec="service ftp
+{
+	socket_type		= stream
+	protocol		= tcp
+	wait			= no
+	disable			= no
+	user			= root
+	instances		= UNLIMITED
+	server			= $PROFTPD_ROOT/sbin/proftpd
+	server_args		= -c $PROFTPD_ETC_D/proftpd.conf
+}"
+		    ;;
+	    *)
+		    die "Super server name unknown"
+		    ;;
+	esac
+
+	super_server_action "$action" ftp "$ftp_rec"
+}
+# Usage:  pleskrc <service> <action>
+pleskrc()
+{
+	[ 2 -le $# ] || die "Not enough arguments"
+
+	local service_name=$1
+	local action=$2
+	local ret=0
+	local inten
+	local service_script
+	shift
+	shift
+
+	# Now check redefined functions
+	if test "$machine" = "linux" && is_function "${service_name}_${action}_${machine}_${linux_distr}"; then
+		"${service_name}_${action}_${machine}_${linux_distr}" $@
+		return $?
+	elif is_function "${service_name}_${action}_${machine}"; then
+		"${service_name}_${action}_${machine}" $@
+		return $?
+	elif is_function "${service_name}_${action}"; then
+		"${service_name}_${action}" $@
+		return $?
+	fi
+
+	# Not redefined - call default action
+	eval "service=\$${service_name}_service"
+	[ -n "$service" ] || die "$action $service_name service (Empty service name for '$service_name')"
+
+	inten="$action service $service"
+	[ "$action" = "status" -o "$action" = "exists" ] || echo_try "$inten"
+
+	local scr_path=${SYSTEM_RC_D}/${service}
+	if [ -x ${scr_path} ]; then
+        service_script=${scr_path}
+    fi
+
+	if [ "$action" = "exists" ]; then 
+		[ -n "$service_script" ] && return 0 || return 1
+	else
+		if [ -z "$service_script" ]; then
+            warn "Unable to ${inten} - control script is not exist or not executable"
+            return 1
+        fi
+	fi
+
+
+	if [ -x "/usr/sbin/invoke-rc.d" ]; then
+		action_cmd="/usr/sbin/invoke-rc.d $service"
+	elif [ -x "/sbin/service" ]; then
+		action_cmd="/sbin/service $service"
+	elif [ -n ${service_script} ]; then
+		action_cmd="$service_script"
+	fi
+
+
+	case "$action" in
+		start)
+			pleskrc $service_name status || $action_cmd $action $@ >>$product_log 2>&1
+			;;
+		stop)
+			if pleskrc $service_name status; then
+				$action_cmd $action $@
+			else
+				true
+			fi
+		    ;;
+		restart)
+			if pleskrc $service_name status; then 
+				$action_cmd "restart" $@
+			else 
+				$action_cmd "start" $@
+			fi
+		    ;;
+		reload)
+		    if pleskrc $service_name status; then
+				$action_cmd "reload" $@
+			else
+				true
+			fi
+		    ;;
+		status)
+		    $action_cmd "status"
+		    ;;
+	    *)
+		    $action_cmd $action $@ 
+		    ;;
+	esac >> $product_log 2>&1
+
+	ret="$?"
+	if [ "$action" != "status" ]; then
+		[ "$ret" -eq 0 ] && suc || warn $inten
+	fi
+
+	return $ret
+}
+
+is_function()
+{
+	local type_output="`type -t \"$1\" 2>/dev/null`"
+	case "$type_output" in
+		*function)
+			return 0
+		;;
+		*)
+			return 1
+		;;
+	esac
+}
+
+# echo message to product log, unless debug
+p_echo()
+{
+    if [ -n "$PLESK_INSTALLER_DEBUG" -o -n "$PLESK_INSTALLER_VERBOSE" -o -z "$product_log" ] ; then
+        echo "$@"
+    else
+        echo "$@" >> "$product_log" 2>&1
+    fi
+}
+
+# echo message to product log without new line, unless debug
+pnnl_echo()
+{
+    if [ -n "$PLESK_INSTALLER_DEBUG" -o -n "$PLESK_INSTALLER_VERBOSE" -o -z "$product_log" ] ; then
+        echo -n "$*"
+    else
+        echo -n "$*" >> "$product_log" 2>&1
+    fi
+}
+
+die()
+{
+	PACKAGE_SCRIPT_FAILED="$*"
+
+	if [ "X$trigger_uninstall" != "X1" ]; then
+		printf "\a\a"
+		report_problem 			"ERROR while trying to $*" 			"Check the error reason(see log file: ${product_log}), fix and try again"
+	fi
+
+	smart_undo_install
+
+	selinux_close
+
+	exit 1
+}
+
+warn()
+{
+local inten
+inten="$1"
+p_echo
+p_echo "WARNING!"
+pnnl_echo "Some problems are found during $inten"
+p_echo "(see log file: ${product_log})"
+p_echo
+p_echo "Continue..."
+p_echo
+
+product_log_tail | send_error_report "Warning: $inten"
+
+[ -n "$PLESK_INSTALLER_DEBUG" -o -n "$PLESK_INSTALLER_VERBOSE" ] || 	product_log_tail
+}
+
+# Use this function to report failed actions.
+# Typical report should contain
+# - reason or problem description (example: file copying failed)
+# - how to resolve or investigate problem (example: check file permissions, free disk space)
+# - how to re-run action (example: perform specific command, restart bootstrapper script, run installation again)
+report_problem()
+{
+	p_echo
+	if [ $problems_occured -eq 0 ]; then
+		echo "***** $process problem report *****" >> "$product_problems_log" 2>&1
+	fi
+	for problem_message in "$@"; do
+		p_echo "$problem_message"
+		echo "$problem_message" >> "$product_problems_log" 2>&1
+	done
+	p_echo
+
+	product_log_tail | send_error_report "Problem: $@"
+
+	[ -n "$PLESK_INSTALLER_DEBUG" -o -n "$PLESK_INSTALLER_VERBOSE" ] || 		product_log_tail
+
+	problems_occured=1
+}
+
+echo_try()
+{
+	msg="$*"
+	pnnl_echo " Trying to $msg... "
+}
+
+suc()
+{
+	p_echo "done"
+}
+
+send_error_report()
+{
+	{
+		echo $@
+		echo ""
+		if [ -n "$error_report_context" ]; then
+			echo "Context: $error_report_context"
+			echo ""
+		fi
+		test -t 0 || cat -
+	} | $PRODUCT_ROOT_D/admin/bin/send-error-report "install" >/dev/null 2>&1
+}
+
+set_error_report_context()
+{
+	error_report_context="$@"
+}
+
+# vim:syntax=sh
+
+mk_backup()
+{
+	target="$1"
+	dup="$2"
+	opts="$3"
+
+	if [ -L "$target" ]; then
+		rm "$target"
+	elif [ -$opts "$target" ]; then
+		if [ ! -$opts "$target.$product_suffo" ]; then
+			case "$dup" in
+				mv)
+					mv -f $target $target.$product_suffo || die "mv -f $target $target.$product_suff"
+					;;
+				cp)
+					cp -fp $target $target.$product_suffo || die "cp -fp $target $target.$product_suff"
+					;;
+				*)
+					p_echo " mk_backup: wrong option -- must be 'cp' or 'mv'"
+					die "mk_backup"
+					;;
+			esac
+		else
+			case "$dup" in
+				mv)
+					mv -f $target $target.$product_suff || die "mv -f $target $target.$product_suff"
+					;;
+				cp)
+					cp -fp $target $target.$product_suff || die "cp -fp $target $target.$product_suff"
+					;;
+				*)
+					p_echo " mk_backup: wrong option -- must be 'cp' or 'mv'"
+					die "mk_backup"
+					;;
+			esac
+		fi
+	else
+		case "$opts" in
+			f|d)
+				;;
+			*)
+				p_echo " mk_backup: wrong option -- must be 'f' or 'd'"
+				die "mk_backup"
+				;;
+		esac
+	fi
+}
+
+detect_vz()         
+{                   
+    local vzcheck_file
+        
+    PLESK_VZ=0
+    vzcheck_file="/proc/self/status"
+                    
+    if [ ! -f ${vzcheck_file} ]; then
+        return 1; 
+    fi              
+                    
+    grep -q -E '^envID\:[[:space:]]*([[:digit:]]+)$' < ${vzcheck_file} >/dev/null 2>&1
+                    
+    if [ $? -eq 0 ]; then
+        PLESK_VZ=1  
+        return 0;
+    fi      
+    return 1;
+}       
+
+call_optional_function()
+{
+	export LANG=C LC_MESSAGES=C LC_ALL=C
+	local type_output="`type \"$1\" 2>/dev/null | head -n 1`"
+	case "$type_output" in
+		*function)
+			"$@"
+			;;
+		*)
+			return 0
+			;;
+	esac
+}
+label_file_once()
+{
+	local _fname _mess _messLines _fileHead _tmpFile
+
+	test $# -eq 2 || die 'label_file_once() not enough arguments'
+	
+	_fname="${1}"
+	_mess="${2}"
+
+	inten="add header to file ${_fname}"
+	echo_try $inten
+
+	test -f "${_fname}" || die "file ${_fname} does not exist"
+    _messLines=`printf "${_mess}" | wc -l | awk '{print $NF}'`
+
+	_tmpFile=`basename "${_fname}"`
+	_tmpFile=`mktemp "/tmp/${_tmpFile}.XXXXXX"` || die "can not create temporary file"
+	head -n ${_messLines} "${_fname}" > "${_tmpFile}"
+
+	printf "${_mess}" | diff -q - "${_tmpFile}" 1>/dev/null
+	if [ $? -eq 0 ]; then
+		p_echo "file ${_fname} already contains required header"
+		rm -f "${_tmpFile}"
+		return
+	fi
+	rm -f "${_tmpFile}"
+
+	# preserve permissions, not optimal, need to rework
+	cp -p "${_fname}" "${_fname}.tmp"
+
+	printf "${_mess}" | cat - "${_fname}" > "${_fname}.tmp"
+	cp -f "${_fname}.tmp" "${_fname}"
+	rm -f "${_fname}.tmp"
+	p_echo "completed successfully"
+}
+
+superserver_reconfig()
+{
+    pleskrc superserver reload
+}
+
+configure_xinetd_compat()
+{
+	local inten="configure xinetd compatibility mode with $superserver"
+	if [ "$linux_distr" = "debian" -o "$linux_distr" = "ubuntu" ]; then
+		[ "$superserver_service" = "xinetd" ] || return 1
+		[ -f "/etc/default/xinetd" ] || return 1
+		grep -q 'XINETD_OPTS=.*-inetd_compat' /etc/default/xinetd && return 1
+		echo_try $inten
+
+		if ! grep -q '^\s*XINETD_OPTS' /etc/default/xinetd; then
+			echo 'XINETD_OPTS="-inetd_compat"' >>/etc/default/xinetd
+			suc
+			return 0
+		fi
+
+		eval `grep '^\s*XINETD_OPTS' /etc/default/xinetd`
+		XINETD_OPTS="$XINETD_OPTS -inetd_compat"
+		local tmp_file=`mktemp /tmp/xinetdXXXXXX`
+		sed -e "s/XINETD_OPTS.*/XINETD_OPTS=\"$XINETD_OPTS\"/g" /etc/default/xinetd > $tmp_file && mv -f $tmp_file /etc/default/xinetd
+		suc
+		return 0
+	fi
+	return 1
+}
+
+deconfigure_xinetd_compat()
+{
+	local inten="deconfigure xinetd from compatibility mode with $superserver"
+
+	# non-zero value means no xinetd reload is required
+	local xinetd_restart=1
+
+	if [ "$linux_distr" = "debian" -o "$linux_distr" = "ubuntu" ]; then
+		[ "$superserver_service" = "xinetd" ] || return 1
+		[ -f "/etc/default/xinetd" ] || return 1
+
+		local tmp_file
+		grep -q '^[[:space:]]*INETD_COMPAT[[:space:]]*=.*$' /etc/default/xinetd
+		if [ $? -eq 0 ]; then
+			tmp_file=`mktemp /tmp/xinetdXXXXXX`
+			sed -e "s/^\s*INETD_COMPAT\s*=.*$/INETD_COMPAT=No/g" /etc/default/xinetd > $tmp_file && mv -f $tmp_file /etc/default/xinetd
+
+			# xinetd reload is necessary
+			xinetd_restart=0
+		fi
+
+		grep -q 'XINETD_OPTS=.*-inetd_compat' /etc/default/xinetd || return $xinetd_restart
+		echo_try $inten
+
+		tmp_file=`mktemp /tmp/xinetdXXXXXX`
+		sed -e "s/-inetd_compat//g" /etc/default/xinetd > $tmp_file && mv -f $tmp_file /etc/default/xinetd
+		suc
+
+		# xinetd reload is necessary
+		return 0
+	fi
+
+	# xinetd reload is not necessary
+	return 1
+}
+
+super_server_action()
+{
+    local in out
+    local action="$1"
+    local service="$2"
+    local template="$3"
+
+    inten="$action $service service record for $superserver_service daemon"
+
+    case "$action" in
+	remove) ;;
+	register)
+		[ -z "$template" ] && die "Template for super server $action was not defined"
+		;;
+	comment|disable)
+		;; 
+	configure)
+		case "$superserver_mode" in
+		    native)
+			register_service $superserver_service defaults defaults
+			deconfigure_xinetd_compat && pleskrc superserver restart
+			;;
+		    compat)
+			configure_xinetd_compat && pleskrc superserver restart
+			;;
+		    *)
+			die "Mode for $superserver_service was not defined"
+			;;
+		esac
+
+		return 0
+		;;
+	*)
+		die "Some arguments was not defined or defined incorrect for action with super server"
+		;;
+    esac 
+
+    case "$superserver" in
+	inetd)
+		super_server_modify_inetd "$service" "$action" "$template"
+		;;
+	xinetd)
+		super_server_modify_xinetd "$service" "$action" "$template"
+		;;
+	*)
+		die "Unable to define super server type"
+		;;	
+    esac
+
+    if [ $? -ne 0 ]; then
+	die $inten 
+    fi
+}
+
+super_server_modify_inetd()
+{
+	local service="$1"
+	local action="$2"
+	local template="$3"
+
+	case "$action" in
+		comment|disable)
+			grep -q "^$service[[:space:]]" $superserver_conf || return 0
+			sed -e "s|^$service|#$service|g" < "$superserver_conf" > "$superserver_conf.tmp" 			&& mv -f "$superserver_conf.tmp" "$superserver_conf" 			|| return 1
+			;;
+		remove)
+			if [ -x /usr/sbin/update-inetd ]; then
+				/usr/sbin/update-inetd --enable "$service"
+				/usr/sbin/update-inetd --remove "$service"
+			else
+				grep -q "^$service[[:space:]]" $superserver_conf || return 0
+				sed -e "s|^$service[[:space:]].*||g" < "$superserver_conf" > "$superserver_conf.tmp" 			    	&& mv -f "$superserver_conf.tmp" "$superserver_conf" 			    	|| return 1
+			fi
+			;;
+		register)
+			if [ -x /usr/sbin/update-inetd ]; then
+				/usr/sbin/update-inetd --enable "$service"
+				/usr/sbin/update-inetd --remove "$service"
+				/usr/sbin/update-inetd --add "$template"
+			else
+				egrep -q "$template" $superserver_conf
+				if [ "$?" -ne "0" ]; then 
+					super_server_modify_inetd comment $service && 					echo "$template" >> $superserver_conf || return 1
+				fi
+			fi
+			;;
+	esac
+
+	return 0
+}
+
+super_server_modify_xinetd()
+{
+	local file
+	local service="$1"
+	local action="$2"
+	local template="$3"
+
+	for file in $superserver_dir/*; do
+		grep -q "$service" $file 1>>$product_log 2>&1 || continue
+
+		case "$action" in
+		    remove)
+			    awk "/^[[:space:]]*(#|[[:space:]])*service[[:space:]]+$service($|[[:space:]]+)/,/.*}.*/ 				{next;} {print}
+			    " <$file >$file.tmp 			    && mv -f $file.tmp $file || return 1
+			    ;;
+		    comment)
+			    awk "/^[[:space:]]*service[[:space:]]+$service($|[[:space:]]+)/,/.*}.*/ 			       { print \"#\"\$0; next; }
+			       {print}
+			    " < $file > $file.tmp 			    && mv -f $file.tmp $file || return 1
+			    ;;
+		esac
+	done
+
+	case "$action" in
+	    register)
+		    echo "$template" > "$superserver_dir/${service}_psa" || return 1
+		    label_file_once "$superserver_dir/${service}_psa" "${AUTOGENERATED_CONFIGS_UPGRADE}"
+		    ;;
+	    disable)
+			[ -f "$superserver_dir/${service}_psa" ] && mv -f "$superserver_dir/${service}_psa" "$superserver_dir/${service}.psa"
+		    ;;
+	esac
+
+	return 0
+}
+
+true superserver_status_linux_debian
+superserver_status_linux_debian()
+{
+    get_pid "/usr/sbin/xinetd" false
+    local pid=$common_var
+    if test "$pid" -ne 1; then
+# running
+        return 0
+    fi
+    return 1
+}
+#-*- vim:syntax=sh
+
+product_log_name_ex()
+{
+	local aux_descr="$1"
+	local action="${CUSTOM_LOG_ACTION_NAME-installation}"
+
+	if [ -n "$aux_descr" ]; then
+		aux_descr="_${aux_descr}"
+	fi
+
+	if [ -n "$CUSTOM_LOG_NAME" ]; then
+		echo "${CUSTOM_LOG_NAME}${action:+_$action}${aux_descr}.log"
+	else
+		echo "plesk_11.0.9${action:+_$action}${aux_descr}.log"
+	fi
+}
+
+product_log_name()
+{
+	product_log_name_ex
+}
+
+product_problems_log_name()
+{
+	product_log_name_ex "problems"
+}
+
+problems_log_tail()
+{
+	[ -f "$product_problems_log" ] || return 0
+	tac "$product_problems_log" | awk '/^START/ { exit } { print }' | tac
+}
+
+product_log_tail()
+{
+	[ -f "$product_log" ] || return 0
+	tac "$product_log" | awk '/^START/ { exit } { print }' | tac
+}
+
+cleanup_problems_log()
+{
+	awk 'BEGIN 						{ st = "" } 
+		 /^START/ 					{ st=$0; next } 
+		 /^STOP/ && (st ~ /^START/) { st=""; next } 
+		 (st != "") 				{ print st; st="" } 
+		 							{ print }
+		' "$product_problems_log" > "$product_problems_log.tmp" && 	mv -f "$product_problems_log.tmp" "$product_problems_log" || 	rm -f "$product_problems_log.tmp"
+	
+	if [ ! -s "$product_problems_log" ]; then 
+		rm -f "$product_problems_log"
+	fi
+}
+
+log_start()
+{
+	true product_log_name product_problems_log_name
+
+	local title="$1"
+	product_log="/tmp/`product_log_name`"
+	product_problems_log="/tmp/`product_problems_log_name`"
+	problems_occured=0
+
+	echo "START $title" >>"$product_log" 	&& echo "START $title" >>"$product_problems_log" 	&& chmod 600 "$product_log" "$product_problems_log" 	|| {
+		echo "Cannot write installation log $product_log, $product_problems_log" >&2
+		exit 1
+	}
+}
+
+log_stop()
+{
+	local title="$1"
+	local subject="$2"
+	if [ -z "$subject" ]; then
+		subject="[${title}]"
+	fi
+
+	# check if problems are non-empty, check for problems_occured
+	local status
+	local problem_lines="`problems_log_tail | wc -l`"
+	if [ "$problem_lines" -eq 0 ]; then
+		status="completed successfully"
+	else
+		if [ $problems_occured -ne 0 ]; then
+			status="failed"
+		else
+			status="completed with warnings"
+		fi
+	fi
+
+	p_echo
+	p_echo "**** $subject $status."
+	p_echo
+
+	if [ "$problem_lines" -ne 0 ]; then
+		problems_log_tail >>"$product_log" 2>&1
+		problems_log_tail
+	fi
+
+	echo "STOP $title" >>"$product_log"
+	if [ $problems_occured -ne 0 ]; then
+		echo "STOP $title: PROBLEMS FOUND" >>"$product_problems_log"
+	else
+		echo "STOP $title: OK" >>"$product_problems_log"
+	fi
+
+	if [ "X${PLESK_INSTALLER_KEEP_PROBLEMS_LOG}" = "X" ]; then
+		cleanup_problems_log
+	fi
+}
+
+package_script_begin()
+{
+	if [ "X$process" = "X" ]; then
+		if	 [ "X$do_reconfigure" = "X1" ]; then
+			process="reconfiguration"
+		elif  [ "X$do_upgrade" = "X1" ]; then
+			process="upgrade"
+		else
+			process="installing"
+		fi
+	fi
+
+	log_start "`package_script_log_title`"
+	set_error_report_context "`package_script_log_title`. `report_context_action`"
+
+	product_default_conf
+	initial_conf
+	set_common_params
+	read_conf
+}
+
+package_script_end()
+{
+	packagemng_set_dirty_flag
+
+	log_stop "`package_script_log_title`" "Package $PACKAGE_NAME scriptlet"
+}
+
+package_script_log_title()
+{
+	local stage
+	case "$do_upgrade" in
+		0) stage="installing";;
+		1) stage="upgrading";;
+		*) stage="installing";;
+	esac
+	if [ -n "$PACKAGE_DEB_ACTION" ]; then
+		stage="$stage (deb action: $PACKAGE_DEB_ACTION)"
+	fi
+	echo "$PACKAGE_NAME-$PACKAGE_VERSION-$PACKAGE_RELEASE $stage AT `date`"
+}
+
+report_context_action()
+{
+	local action
+	get_product_versions
+	if [ "X$do_upgrade" = "X1" -o "$product_prev_version" != "$product_this_version" ]; then
+		action="Doing $product_name upgrade from $product_prev_version to $product_this_version"
+	else
+		action="Doing $product_name $product_this_version installation"
+	fi
+	echo "$action"
+}
+
+# <fun> <package_function_name> <bootstrapper_function_name> NAME VERSION RELEASE [DEB_ACTION]
+package_script_safe_run()
+{
+	PACKAGE_NAME="$3"
+	PACKAGE_VERSION="$4"
+	PACKAGE_RELEASE="$5"
+	PACKAGE_DEB_ACTION="$6"
+	# Run functions in subshell because package scriptlet must exit with status code indicating success.
+	# Postpone package problem report till post-install package scriptlet (package_script_safe_run_with_report)
+	package_script_begin
+	(
+		transaction_begin
+		transaction_add_rollback_action "package_script_end"
+		transaction_add_rollback_action "set_upgrade_failure_flag"
+
+		# run package specific script before bootstrapper
+		call_optional_function "$1"
+
+		# perform bootstrapper prep-install actions if required
+		if is_function "$2"; then
+			# NOTE: flag indicates that prep-install not performed yet
+			if [ -f /tmp/pp-bootstrapper-ez-templates-prep-install.flag ]; then
+				# FIXME: temporary w/a for EZ templates
+				# Some  components (at least, sitebuilder) don't use bootstrapper 
+				# but require prep-install performed before package installation.
+				# Run bootstrapper prep-install actions once during package installation.
+				if [ -f $PRODUCT_BOOTSTRAPPER_DIR/bootstrapper.sh ]; then
+					env MAINTAINER_SCRIPT_CONTEXT=1 $PRODUCT_BOOTSTRAPPER_DIR/bootstrapper.sh prep-install
+					# Save bootstrapper command to perform after package installation
+					echo "$PRODUCT_BOOTSTRAPPER_DIR/bootstrapper.sh post-install" >/tmp/pp-bootstrapper-ez-templates-post-install.sh
+					rm -f /tmp/pp-bootstrapper-ez-templates-prep-install.flag
+				fi
+			fi
+			# run bootstrapper script only if bootstrapper mode is disabled (no AI, no EZ)
+			if [ ! -f /tmp/pp-bootstrapper-mode.flag ]; then
+				"$2"
+			fi
+		fi
+
+		transaction_add_commit_action "package_script_end"
+		transaction_commit
+	)
+}
+
+# <fun> <package_function_name> <bootstrapper_function_name> NAME VERSION RELEASE [DEB_ACTION]
+package_script_safe_run_with_report()
+{
+	package_script_safe_run "$@"
+	local ret=$?
+	# package problem report was shown if necessary in log_stop()
+	if [ $ret -ne 0 ]; then
+		# fatal error
+		# show re-start recommendation only if bootstrapper mode is disabled (no AI, no EZ)
+		if [ ! -f /tmp/pp-bootstrapper-mode.flag ]; then
+			p_echo "To complete product installation one should run bootstrapper script:"
+			p_echo "      $PRODUCT_BOOTSTRAPPER_DIR/bootstrapper.sh post-install"
+			p_echo
+		fi
+	fi
+}
+
+set_upgrade_failure_flag()
+{
+	touch /var/lock/parallels-panel-upgrade-failure.flag
+}
+
+get_pid()
+{
+	local i
+
+	local ex_f="$1"
+	local opt="$2"
+	local owner="$3"
+
+	local min_num="1"
+
+#	Use pidof by default, bug 121868, except for FreeBSD - 140182
+	if type pidof >/dev/null 2>&1 && [ "$os" != "BSD" ]; then
+		for pid in `pidof -o $$ -o $PPID -o %PPID -x $ex_f`; do
+#	Check for owner
+			[ "$opt" = "true" -a "$owner" != "`ps -p $pid -o ruser=`" ] && continue
+			min_num=$pid
+			break
+		done
+		common_var=$min_num
+		return $min_num
+	fi
+
+	case "$opt" in
+		false)
+			for i in `$ps_long | grep $ex_f | grep -v grep | grep -v httpsdctl | grep -v apachectl | awk '{print $2}' -`; do
+				min_num=$i
+				break
+			done
+			;;
+		true)
+			for i in `$ps_long | grep $ex_f | grep -v grep | grep -v httpsdctl | grep -v apachectl | grep "$owner" | awk '{print $2}' -`; do
+				min_num=$i
+				break
+			done
+			;;
+		*)
+			p_echo "get_pid: wrong parameter"
+			die "get_pid $ex_f $opt $owner"
+			;;
+	esac
+
+	common_var=$min_num
+	return $min_num
+}
+
+kill_pids()
+{
+	ex_f="$1"
+	owner="$2"
+
+	for i in `$ps_long | grep $ex_f | grep -v grep | grep -v httpsdctl | grep -v apachectl | grep $owner | awk '{print $2}' -`; do
+		if [ $i -gt 1 ]; then
+			$K_TERM $i >> $product_log 2>&1
+		fi
+	done
+}
+
+delete_user()
+{
+	local rm_user
+
+	rm_user="$1"
+
+	# if it is mailman user, remove its crontab from system
+	if [ "X${rm_user}" = "X${mailman_user}" ]; then
+
+		inten="remove crontab of ${rm_user}"
+		echo "y" | $crontab -u "${mailman_user}" -r >> $product_log 2>&1 || die "$inten"
+
+	fi
+
+	inten="remove user $rm_user"
+	echo_try "$inten"
+
+	userdel  $rm_user>> $product_log 2>&1 && suc || die "$inten"
+}
+
+delete_group()
+{
+	local rm_group
+
+	rm_group="$1"
+
+	inten="remove group $rm_group"
+	echo_try "$inten"
+
+	mk_backup "/etc/group" cp f
+	if [ -f "/etc/group" ]; then
+		sed -e "/$rm_group/d" < /etc/group > /etc/group.tmp || die $inten
+		mv -f /etc/group.tmp /etc/group  >> $product_log 2>&1
+		if [ "$?" -ne 0 ]; then
+			rsr_backup "/etc/group" cp f
+			die $inten
+		fi
+	fi
+	suc
+}
+initial_conf()
+{
+	DEMO_VERSION="no"
+	PRODNAME="psa"
+	PRODUCT_NAME="psa"
+	product_full="Plesk"
+	product=${PRODNAME}
+	PRODUCT_FULL_NAME="Plesk"
+
+	product_etc="/etc/${PRODNAME}"
+	prod_conf_t="/etc/psa/psa.conf"
+	prodkey="$product_etc/$PRODNAME.key"
+
+	minimal_changes="0"
+
+	EXTERNAL_PACKAGES=""
+	EXTERNAL_PACKAGES_DIR=""
+
+	BUILDER_UID="10007"
+
+	PERL5LIB=/opt/psa/local/share/perl/5.14.2:/opt/psa/local/lib/perl/5.14.2
+	export PERL5LIB
+
+        support_contact="http://www.parallels.com/support"
+	sales_email="sales@parallels.com"
+
+	product_version="11.0.9"
+	product_db_version="011009"
+	conceived_os_vendor=Ubuntu
+	conceived_os_version="12.04"
+	osrels="ubuntu12.04"
+
+	# This variable contains all versions, which is supported by
+	# cumulative upgrade
+	known_product_versions="80 81 82 83 84 86 90 92 93 95 100 101 107 108 109 1010 1011 1012 1013 1100"
+
+	prev_product="plesk"
+	prev_clients_group="${prev_product}cln"
+
+        clients_group="${product}cln"
+        clients_GID=10001
+
+        services_group="psaserv"
+        services_GID=10003
+
+        product_suff="saved_by_${product}".`date "+%m.%d;%H:%M"`
+        product_suffo="saved_by_${product}"
+
+	PREV_PRODUCT_ROOT_D="/usr/local/${prev_product}"
+
+	# plesk default password
+	if [ "X$DEMO_VERSION" = "Xyes" ]; then
+		PRODUCT_DEFAULT_PASSWORD="plesk"
+	else
+		PRODUCT_DEFAULT_PASSWORD="setup"
+	fi
+}
+
+read_conf()
+{
+	[ -n "$prod_conf_t" ] || prod_conf_t=/etc/psa/psa.conf
+
+	if [ -s $prod_conf_t ]; then
+		tmp_var=`perl -e 'undef $/; $_=<>; s/#.*$//gm;
+				s/^\s*(\S+)\s*/$1=/mg;
+				print' $prod_conf_t`
+		eval $tmp_var
+	else
+		if [ "X$do_upgrade" = "X1" ]; then
+			[ 0$ignore_miss_conf -ne 1 ] && p_echo "Unable to find product configuration file: $prod_conf_t"
+			return 1
+		fi
+	fi
+	return 0
+}
+
+ #default values
+
+product_default_conf()
+{
+
+PRODUCT_ROOT_D=/opt/psa
+PRODUCT_RC_D=/etc/init.d
+PRODUCT_ETC_D=/opt/psa/etc
+PLESK_LIBEXEC_DIR=/usr/lib/plesk-9.0
+HTTPD_VHOSTS_D=/var/www/vhosts
+HTTPD_CONF_D=/etc/apache2
+HTTPD_INCLUDE_D=/etc/apache2/conf.d
+HTTPD_BIN=/usr/sbin/apache2
+HTTPD_LOG_D=/var/log/apache2
+HTTPD_SERVICE=apache2
+QMAIL_ROOT_D=/var/qmail
+PLESK_MAILNAMES_D=/var/qmail/mailnames
+RBLSMTPD=/usr/sbin/rblsmtpd
+COURIER_IMAP_ROOT_D=/
+FTPD_CONF=/etc/proftpd.conf
+FTPD_CONF_INC=/etc/proftpd.include
+FTPD_BIN_D=/usr/bin
+FTPD_VAR_D=/var/run/proftpd
+FTPD_SCOREBOARD=/var/run/proftpd_scoreboard
+NAMED_RUN_ROOT_D=/var/named/run-root
+NAMED_OPTIONS_CONF=
+NAMED_ZONES_CONF=
+WEB_STAT=/usr/bin/webalizer
+MYSQL_VAR_D=/var/lib/mysql
+MYSQL_BIN_D=/usr/bin
+PGSQL_DATA_D=/var/lib/postgresql//main
+PGSQL_CONF_D=/etc/postgresql//main
+PGSQL_BIN_D=/usr/lib/postgresql/9.1/bin
+DUMP_D=/var/lib/psa/dumps
+DUMP_TMP_D=/tmp
+MAILMAN_ROOT_D=/usr/lib/mailman
+MAILMAN_VAR_D=/var/lib/mailman
+PYTHON_BIN=/usr/bin/python2.7
+CATALINA_HOME=/var/lib/tomcat6
+DRWEB_ROOT_D=/opt/drweb
+DRWEB_ETC_D=/etc/drweb
+GPG_BIN=/usr/bin/gpg
+TAR_BIN=/bin/tar
+AWSTATS_ETC_D=/etc/awstats
+AWSTATS_BIN_D=/usr/lib/cgi-bin
+AWSTATS_TOOLS_D=/usr/share/awstats/tools
+AWSTATS_DOC_D=/usr/share/awstats
+OPENSSL_BIN=/usr/bin/openssl
+LIB_SSL_PATH=/lib/libssl.so
+LIB_CRYPTO_PATH=/lib/libcrypto.so
+CLIENT_PHP_BIN=/opt/psa/bin/php-cli
+SNI_SUPPORT=true
+APS_DB_DRIVER_LIBRARY=/usr/lib/libmysqlserver.so.2
+
+}
+
+#-*- vim:syntax=sh
+
+register_service(){
+
+	[ -n "$1" ] || die "register_service: service name not specified"
+	local inten="register service $1"
+	echo_try "$inten"
+
+
+# update-rc.d for Debian/Ubuntu (not SuSE)
+	/usr/sbin/update-rc.d "$1" defaults
+
+	suc
+}
+
+#Need for register/unregister services into /etc/rc.conf for BSD OSes.
+#Create or change strings such as service_option_variable="variable"
+rc_service()
+{
+   local service="$1"
+   local option="$2"
+   local variable="$3"
+   local comment="$4"
+ 
+   local config="/etc/rc.conf"
+
+   if [ "X$variable" = "Xdefault" ]; then
+      remove_option_string "${service}_${option}" "$config"
+      return 0
+   fi
+
+   if [ ! -f /etc/rc.conf ]; then
+      die 'File /etc/rc.conf not found!'
+   fi
+
+   if [ "X$service" = "X" -o "X$option" = "X" -o "X$variable" = "X" ]; then
+      die
+   fi
+
+   local flag="`grep "${service}_${option}" $config`"
+   
+   if [ "X$flag" = "X" ]; then
+        if [ "X$comment" = "Xyes" ]; then
+           echo "#Option for $service created by Plesk installer." >> $config
+	fi
+	echo "${service}_${option}=\"${variable}\"" >> $config || die 
+   else
+        sed -i "" -e 's|\('"${service}_${option}"'.*=\"\).*|\1'"${variable}"'\"|' $config  || die
+   fi
+
+   return 0
+}
+
+remove_option_string()
+{
+    #using: remove_option_string <option> <file>
+    substring="$1"
+    file="$2"
+
+    awk '{
+	if ($0 ~ "^'"$substring"'") {
+	    next;
+	}; 
+	print $0; 
+    }' < $file  > $file.tmp
+
+    mv $file.tmp $file
+}
+
+selinux_close()
+{
+	if [ -z "$SELINUX_ENFORCE" -o "$SELINUX_ENFORCE" = "Disabled" ]; then
+		return
+	fi
+
+	setenforce "$SELINUX_ENFORCE"
+}
+
+#set_params
+
+set_common_params()
+{
+	common_var=0
+
+	PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+	LANG=C
+	export PATH LANG
+	umask 022
+	ulimit -n 65535 2>/dev/null
+
+	K_HUP="/bin/kill -HUP"
+	K_KILL="/bin/kill -KILL"
+	K_TERM="/bin/kill -TERM"
+	K_USR2="/bin/kill -USR2"
+
+	users_created=""
+	groups_created=""
+
+	certificate_file="$PRODUCT_ETC_D/httpsd.pem"
+	services="/etc/services"
+	mtab="/etc/mtab"
+	get_hostname="hostname"
+	get_domainname="domainname"
+
+	#VZP used to determine that we're inside SVE
+	vza_file="/var/vzagent"
+
+	#default parameters
+	tar="tar"
+	crontab="/usr/bin/crontab"
+
+	cp_preserve="cp -p"
+	SYSTEM_RC_D=/etc/init.d
+	PLESK_LIBEXEC_DIR="/usr/lib/plesk-9.0"
+	PLESK_DB_DIR="/var/lib/plesk"
+	POSTFIX_LIBEXEC_DIR="/usr/lib/postfix"
+	PRODUCT_BOOTSTRAPPER_DIR="/opt/psa/bootstrapper/pp11.0.9-bootstrapper"
+	AUTOGENERATED_CONFIGS="#ATTENTION!\n#\n#DO NOT MODIFY THIS FILE BECAUSE IT WAS GENERATED AUTOMATICALLY,\n#SO ALL YOUR CHANGES WILL BE LOST THE NEXT TIME THE FILE IS GENERATED.\n"
+    AUTOGENERATED_CONFIGS_UPGRADE="#ATTENTION!\n#\n#DO NOT MODIFY THIS FILE BECAUSE IT WAS GENERATED AUTOMATICALLY,\n#SO ALL YOUR CHANGES WILL BE LOST AFTER YOU UPGRADE PARALLELS PLESK PANEL.\n"
+
+	set_common_params_linux 
+
+	detect_vz
+}
+
+set_common_params_linux()
+{
+	get_hostname="hostname -f"
+	fstab="/etc/fstab"
+	cp_preserve="cp --preserve=all --remove-destination"
+	machine="linux"
+	sendmail="/usr/sbin/sendmail"
+	ps="ps axw"
+	ps_long="ps axuw"
+	false_shell="/bin/false"
+	dummy_home="/"
+	compress="gzip -9 -c"
+	uncompress="gunzip -c"
+	uudecode="uudecode -o /dev/stdout"
+	ifconfig="/sbin/ifconfig -a"
+	inet_str="inet addr"
+
+	if [ -f /etc/slackware-version ]; then
+	    linux_distr="slackware"
+	    useradd_options=""
+	    sndml_ini="/etc/rc.d/init.d/sendmail"
+	    mail_local="/usr/libexec/mail.local"
+	    dummy_shell=""
+	    named_osrelease=0
+	else
+	    useradd_options="-M"
+	    if [ -f /etc/mandrake-release ]; then
+		linux_distr="mandrake"
+	    elif [ -f /etc/fedora-release ]; then
+		linux_distr="fedora"
+	    elif [ -f /etc/SuSE-release ]; then
+		linux_distr="suse"
+		useradd_options="-r"
+	    elif [ -f /etc/debian_version ]; then
+		linux_distr="debian"
+		get_domainname="dnsdomainname"
+		useradd_options=""
+	    else
+		linux_distr="redhat"
+	    fi
+
+	    sndml_ini="/etc/init.d/sendmail"
+	    mail_local="/usr/libexec/mail.local"
+	    if [ -x /sbin/nologin ]; then
+		dummy_shell="/sbin/nologin"
+	    else
+		dummy_shell="/bin/false"
+	    fi
+	    bash_shell="/bin/bash"
+	    rbash_shell="/bin/rbash"
+	    uudecode_full="/usr/bin/uudecode"
+	    named_osrelease=`cat /proc/sys/kernel/osrelease | perl -F"/[.-]/" -n -a  -e 'printf "%02u%02u%02u\n", $F[0],$F[1],$F[2]'`
+	fi
+
+	return 0
+}
+## @@constructor set_syslog_params
+
+true syslog_status_linux_debian
+syslog_status_linux_debian()
+{
+	get_pid "$syslog_binary" false
+	local pid=$common_var
+	if test "$pid" -ne 1; then
+		# running
+		return 0
+	fi
+	return 1
+}
+
+
+# -*- vim:syntax=sh
+
+packagemng_set_dirty_flag()
+{
+	if [ -f ${PRODUCT_ROOT_D}/admin/bin/packagemng ]; then
+		${PRODUCT_ROOT_D}/admin/bin/packagemng --set-dirty-flag 1>>$product_log 2>&1
+	fi
+}
+
+get_product_versions()
+{
+	local prod_root_d="/opt/psa"
+	
+	product_name="psa"
+	product_this_version="11.0.9"
+	product_this_version_tag=""
+	if [ -z "$product_prev_version" ]; then
+		if [ -r "$prod_root_d/version.upg" ]; then
+			product_prev_version=`cat "$prod_root_d/version.upg" | awk '{ print $1 }'`
+		elif [ -r "$prod_root_d/version" ]; then
+			product_prev_version=`cat "$prod_root_d/version" | awk '{ print $1 }'`
+		else
+			product_prev_version="$product_this_version"
+		fi
+	fi
+}
+
+remove_modules()
+{
+	p_echo
+	p_echo "===> Removing modules"
+
+	local moduledir
+	for moduledir in $PRODUCT_ROOT_D/var/modules/*; do
+		if [ -d "$moduledir" -a -x "$moduledir/uninstall" ]; then
+			local module=`basename $moduledist`
+			echo_try "uninstall $module module"
+			"$moduledir/uninstall" && suc || warn "uninstallation of $module module"
+		fi
+	done
+}
+
+#Invoke mysql
+mysql()
+{
+	mysql_anydb -D$mysql_db_name "$@"
+}
+
+mysql_anydb()
+{
+	$mysql_client $mysql_user $mysql_passwd $mysql_args "$@" 2>>"$product_log"
+
+	local status=$?
+	if [ $status -gt 0 ]; then
+		$mysql_client $mysql_user $mysql_passwd $mysql_args -D$mysql_db_name $mysql_args_raw -e "SHOW ENGINE innodb status" >>"$product_log" 2>&1
+	fi
+	return $status
+}
+
+mysql_start_linux_suse_ex()
+{
+	if [ -x "/sbin/service" ]; then
+		action_cmd="/sbin/service mysql"
+	else
+		action_cmd="$SYSTEM_RC_D/$mysql_service"
+	fi
+
+	$action_cmd start >> $product_log 2>&1
+}
+
+true mysql_start_linux_suse
+mysql_start_linux_suse()
+{
+	inten="start service mysql"
+	echo_try "$inten"
+
+	mysql_start_linux_suse_ex
+	local rc="$?"
+
+# bug 52690. MySQL init script reports failure if protected mysqld is running (true for SuSE >= 11.3)
+	if [ "$rc" -ne 0 ]; then
+		local mysqld_bin="/usr/sbin/mysqld"
+		killall -TERM mysqld >> $product_log 2>&1
+		if [ -x "$mysqld_bin" ]; then
+			for i in 2 4 8 16 32; do
+				get_pid "$mysqld_bin" false
+				local pid="$common_var"
+				if test "$pid" -eq 1; then
+					break
+				fi
+				killall -TERM mysqld >> $product_log 2>&1
+				sleep $i
+			done
+		fi
+		mysql_start_linux_suse_ex
+		rc="$?"
+	fi
+
+	[ "$rc" -eq 0 ] && suc || warn "$inten"
+	return $rc
+}
+
+###	FIXME: probably need var service_restart warn
+mysql_stop()
+{
+	local op_result i
+
+	inten="stop MySQL server"
+	echo_try $inten
+
+	$PRODUCT_RC_D/$mysql_service stop >> $product_log 2>&1
+
+	op_result=$?
+
+	if [ "X$linux_distr" = "Xdebian" ]; then
+# Debian has well designed mysql stopping code
+		[ "$op_result" -eq 0 ] || die $inten
+		suc
+		return 0
+	fi
+
+	for i in 2 4 6 8 16; do
+		if ! mysql_status ; then
+			suc
+			return 0
+		fi
+
+		case $machine in
+			BSD*|Darwin*)
+				#In BSD systems mysqld must to be killed without -9 flag
+				killall mysqld mysqld_safe >> $product_log 2>&1
+			;;
+			*)
+				# I just want to be sure that mysql really stopped
+				killall -TERM mysqld mysql safe_mysqld mysqld_safe >> $product_log 2>&1
+			;;
+		esac
+		sleep $i
+	done
+
+	die "$inten"
+}
+
+mysql_status()
+{
+	local file
+
+    #Check with native script first
+	#debian script always return 0. bug #111825
+	[ "X$linux_distr" = "Xdebian" ] && msqld_status_supported="no"
+	
+	if [ -z "$msqld_status_supported" ]; then
+# MySQL AB packages doesn't know about status command
+		if LC_MESSAGES=C $PRODUCT_RC_D/$mysql_service 2>&1 | grep -q "status"; then
+			msqld_status_supported="yes"
+		else
+			msqld_status_supported="no"
+		fi
+	fi
+
+	if [ "$msqld_status_supported" = "yes" ]; then
+# Common RPM mysql's and FreeBSD
+	$PRODUCT_RC_D/$mysql_service status >> $product_log 2>&1 		&& return 0
+	fi
+
+	if [  "$msqld_status_supported" = "no" ]; then
+# MySQL AB packages
+		file="/usr/sbin/mysqld"
+	fi
+
+    if [ -x "$file" ]; then
+		#standard build and debian
+		get_pid "$file" false
+		pid=$common_var
+		if test "$pid" -ne 1; then
+			echo "$file (pid $pid) is running..." >>$product_log 2>&1
+			return 0
+		else
+			echo "$file is stopped" >>$product_log 2>&1
+			return 1
+		fi
+	fi
+
+	return 1
+}
+
+true named_status_linux_debian
+named_status_linux_debian()
+{
+    get_pid "/usr/sbin/named" false
+    local pid=$common_var
+    if test "$pid" -ne 1; then
+# running
+		return 0
+    fi
+    return 1
+}
+
+poppassd_super_server_config()
+{
+	local action="$1"
+
+	if [ -f /proc/net/if_inet6 ]; then 
+		FLAGS="flags                   = KEEPALIVE IPv6"
+	else
+		FLAGS="flags                   = KEEPALIVE"
+	fi
+
+	case "$superserver" in
+	    inetd)
+		poppassd_rec="poppassd stream tcp nowait/1000 root /usr/sbin/tcpd $PRODUCT_ROOT_D/admin/sbin/poppassd"
+		;;	
+	    xinetd)
+		poppassd_rec="service poppassd
+{
+socket_type             = stream
+protocol                = tcp
+port                    = 106
+wait                    = no
+disable                 = no
+user                    = root
+instances               = 1000
+$FLAGS
+server                  = $PRODUCT_ROOT_D/admin/sbin/poppassd
+}"
+		;;
+	    *)
+		    die "Super server name unknown"
+		;;
+	esac
+
+	super_server_action "$action" poppassd "$poppassd_rec"
+}
+
+true exim_status_linux_debian
+exim_status_linux_debian()
+{
+	get_pid /usr/lib/exim/exim3 false
+	local pid=$common_var
+
+	if test "$pid" -ne 1; then
+		#running
+		return 0;
+	fi
+	return 1
+}
+
+## @@constructor set_qmail_params
+qmail_super_server_config()
+{
+    local action="$1"
+    local service="$2"
+    qmail_xinetd_templates
+
+    eval "template=\$${service}_rec"
+    super_server_action "$action" "$service" "$template"
+}
+
+qmail_xinetd_templates()
+{
+    local TRUE_BIN
+    TRUE_BIN=$QMAIL_DIR/bin/true
+
+    if [ -f /proc/net/if_inet6 ]; then
+	    V6_FLAGS="flags		= IPv6"
+    else
+	    V6_FLAGS=""
+    fi
+
+smtp_rec="service smtp
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	disable		= no
+	user            = root
+	$V6_FLAGS
+	instances       = UNLIMITED
+	env             = SMTPAUTH=1
+	server          = $QMAIL_DIR/bin/tcp-env
+	server_args     = -Rt0 $QMAIL_DIR/bin/relaylock $QMAIL_DIR/bin/qmail-smtpd $QMAIL_DIR/bin/smtp_auth $TRUE_BIN $QMAIL_DIR/bin/cmd5checkpw $TRUE_BIN
+}" 
+
+smtps_rec="service smtps
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	disable		= no
+	user            = root
+	$V6_FLAGS
+	instances       = UNLIMITED
+	env             = SMTPAUTH=1
+	server          = $QMAIL_DIR/bin/tcp-env
+	server_args     = -Rt0 $QMAIL_DIR/bin/relaylock $QMAIL_DIR/bin/qmail-smtpd $QMAIL_DIR/bin/smtp_auth $TRUE_BIN $QMAIL_DIR/bin/cmd5checkpw $TRUE_BIN
+}" 
+
+submission_rec="service submission
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	disable		= no
+	user            = qmaild
+	$V6_FLAGS
+	instances       = UNLIMITED
+	env             = SUBMISSION=1 SMTPAUTH=1
+	server          = $QMAIL_DIR/bin/tcp-env
+	server_args     = -Rt0 $QMAIL_DIR/bin/qmail-smtpd $QMAIL_DIR/bin/smtp_auth $TRUE_BIN $QMAIL_DIR/bin/cmd5checkpw $TRUE_BIN
+}" 
+
+}
+
+
+rsr_backup()
+{
+	target="$1"
+	dup="$2"
+	opts="$3"
+	common_var=0
+
+#	if [ -$opts "$target" ]; then
+		if [ -$opts "$target.$product_suff" ]; then
+			case "$dup" in
+				mv)
+					mv -f  $target.$product_suff $target>> $product_log 2>&1
+					common_var=1
+					return 1
+					;;
+				cp)
+					cp -fp  $target.$product_suff $target>> $product_log 2>&1
+					common_var=1
+					return 1
+					;;
+				*)
+					p_echo " rsr_backup: wrong option -- must be 'cp' or 'mv'"
+					;;
+			esac
+		else
+			if [ -$opts "$target.$product_suffo" ]; then
+			    case "$dup" in
+				mv)
+					mv -f  $target.$product_suffo $target>> $product_log 2>&1
+					common_var=1
+					return 1
+					;;
+				cp)
+					cp -fp  $target.$product_suffo $target>> $product_log 2>&1
+					common_var=1
+					return 1
+					;;
+				*)
+					p_echo " rsr_backup: wrong option -- must be 'cp' or 'mv'"
+					;;
+			    esac
+			fi
+		fi
+#	else
+#		case "$opts" in
+#			f|d)
+#				;;
+#			*)
+#				p_echo " rsr_backup: wrong option -- must be 'f' or 'd'"
+#				;;
+#		esac
+#	fi
+}
+
+restore_named()
+{
+	cd "$PRODUCT_ROOT_D" >> $product_log 2>&1
+	[ -f /etc/sysconfig/named ] && mv -f "/etc/sysconfig/named" "/etc/sysconfig/named.bak"
+	rsr_backup "/etc/sysconfig/named" mv f
+
+	[ -L $named_conf ] && rm -f "$named_conf"
+	rsr_backup "$named_conf" mv f
+
+	[ -L $rndc_conf ] && rm -f "$rndc_conf"
+	rsr_backup "$rndc_conf" mv f
+
+	case "$machine" in
+		BSD*)
+			rsr_backup /etc/named.boot mv f
+			;;
+		linux)
+		    case "$linux_distr" in
+			redhat)
+			    chkconfig --add named >> $product_log 2>&1
+#			    std_named_sh="/etc/rc.d/init.d/named"
+#			    rsr_backup $std_named_sh mv f
+#				if [ -f "$std_named_sh" ]; then
+#					mv -f "$std_named_sh.${product}" "$std_named_sh"
+#				fi
+				;;
+			slackware)
+			    rsr_backup /etc/rc.d/rc.inet2 cp f
+				;;
+		    esac
+			rsr_backup /etc/named.boot mv f
+			;;
+		solaris)
+			rsr_backup /etc/named.boot mv f
+			;;
+	esac
+}
+
+
+restore_sendmail()
+{
+	[ -L $sendmail ] && rm -f "$sendmail"
+	[ -L /usr/lib/sendmail ] && rm -f "/usr/lib/sendmail"
+
+	rsr_backup "$sendmail" mv f
+
+	case "$machine" in
+		BSDI)
+			rsr_backup /etc/sendmail.cf mv f
+			;;
+		*)
+			;;
+	esac
+
+	if [ -f "$mail_local" ]; then
+#		case "$machine" in
+#			BSD)
+#				chflags schg "$mail_local" >> $product_log 2>&1
+#				;;
+#			*)
+#				;;
+#		esac
+
+		rsr_backup "$mail_local" mv f
+
+		chmod 4555 "$mail_local" >> $product_log 2>&1
+	fi
+	case "$machine" in
+		linux )
+		    case "$linux_distr" in
+			redhat)
+			    chkconfig --add sendmail >> $product_log 2>&1
+#			    rsr_backup "$sndml_ini" mv f
+				;;
+			slackware)
+			     rsr_backup /etc/rc.d/rc.M mv f
+				;;
+		    esac
+			;;
+		solaris)
+			rsr_backup "$sndml_ini" mv f
+			;;
+		*)
+			;;
+	esac
+
+}
+
+delete_startup_scripts()
+{
+	cd "$PRODUCT_ROOT_D" >> $product_log 2>&1
+
+	case "$machine" in
+		BSD)
+			rm -f /usr/local/etc/rc.d/${product}.sh >> $product_log 2>&1
+	#		rsr_backup /etc/rc.conf cp f
+
+			rc_service "sendmail" "enable" "YES"
+			rc_service "named" "enable" "YES"
+			rc_service "mysqld" "enable" "NO"
+			;;
+		BSDI)
+			if [ -f /etc/rc.local.${product} ]; then
+				cp -p  /etc/rc.local.${product} /etc/rc.local >> $product_log 2>&1
+			fi
+			;;
+		linux)
+		    case "$linux_distr" in
+			redhat)
+			    chkconfig --del ${product}
+			    rm -f /etc/rc.d/init.d/${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc0.d/K15${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc1.d/K15${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc2.d/K15${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc3.d/S77${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc4.d/S77${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc5.d/S77${product} >> $product_log 2>&1
+#			    rm -f /etc/rc.d/rc6.d/K15${product} >> $product_log 2>&1
+				;;
+			slackware)
+			    if [ -f /etc/rc.d/rc.local.${product} ]; then
+				cp -p  /etc/rc.d/rc.local.${product} /etc/rc.d/rc.local >> $product_log 2>&1
+			    fi
+				;;
+		    esac
+		    ;;
+		solaris)
+			rm -f  /etc/init.d/${product} >> $product_log 2>&1
+			if [ -f /etc/rc0.d/K01${product} ]; then
+				rm -f /etc/rc0.d/K01${product} >> $product_log 2>&1
+			fi
+
+			if [ -f /etc/rc1.d/K01${product} ]; then
+				rm -f /etc/rc1.d/K01${product} >> $product_log 2>&1
+			fi
+
+			if [ -f /etc/rc2.d/S77${product} ]; then
+				rm -f /etc/rc2.d/S77${product} >> $product_log 2>&1
+			fi
+			;;
+	esac
+}
+
+delete_crontab()
+{
+
+	$crontab -l 2>/dev/null > /tmp/crontab.${product}
+
+	sed -e "s/^.*\/${product}\/admin\/sbin\/statistics.*//g" 		-e "s/^.*\/${product}\/bin\/mysqldump.*//g" 		-e "s/^.*\/usr\/sbin\/ntpdate.*//g" 		< /tmp/crontab.${product} > /tmp/crontab.${product}_tmp
+
+	mv -f /tmp/crontab.${product}_tmp /tmp/crontab.${product} >> $product_log 2>&1
+
+	$crontab /tmp/crontab.${product}  >> $product_log 2>&1
+
+	rm -f /tmp/crontab.${product} >> $product_log 2>&1
+
+}
+
+remove_ftpuser()
+{
+	user=$1
+	ftpusers_file="/etc/ftpusers"
+
+	egrep "^$user" $ftpusers_file >> /dev/null 2>&1
+
+	case "$?" in
+			0)
+				sed -e "/$user/d" < $ftpusers_file > $ftpusers_file.tmp
+				mv -f $ftpusers_file.tmp $ftpusers_file
+				;;
+			1)
+				;;
+			*)
+				;;
+	esac
+
+}
+
+remove_product_users_groups()
+{
+
+#	delete users of this(unsuccessful) installation
+	for i in $users_created; do
+		delete_user "$i"
+	done
+#	delete users with group=psacln (ftpusers and webusers)
+	for i in `perl -e '$gid=getgrnam("'$clients_group'"); exit if (($gid eq "") || ($gid == 0)); while(($n,$u,$g) = (getpwent)[0,2,3]) {print "$n\n" if (($gid == $g) && ($u >= 500))}'`
+	do
+		delete_user "$i"
+		remove_ftpuser "$i"
+	done
+#	delete users psaadm, psaftp
+#	delete_user "$admin_user"  >> "$product_log" 2>&1
+#	delete_user "$anonftp_user"  >> "$product_log" 2>&1
+
+#	delete groups of this(unsuccessful) installation
+	for i in $groups_created; do
+		delete_group "$i"
+	done
+#	delete groups psaadm, psaftp, psacln
+	delete_group "$admin_group"  >> "$product_log" 2>&1
+	delete_group "$anonftp_group"  >> "$product_log" 2>&1
+	delete_group "$clients_group"  >> "$product_log" 2>&1
+
+}
+
+
+undo_install()
+{
+	p_echo
+
+	if pleskrc mysql status; then
+		p_echo "===>Removing installed $PRODUCT_NAME components ... "
+		remove_modules
+		pleskrc mysql stop
+
+		mysql_pid_file=$mysql_bddir/*.pid
+		if [ -f "$mysql_pid_file" ]; then
+			rm -f "$mysql_pid_file"
+		fi
+	fi
+
+	$START_SH stop >> "$product_log" 2>&1
+
+	proftpd_super_server_config remove
+
+	super_server_action remove pop3
+	super_server_action remove pop-3
+	super_server_action remove imap4
+	super_server_action remove imap2
+	super_server_action remove imap
+	qmail_super_server_config remove smtp
+	qmail_super_server_config remove smtps
+	qmail_super_server_config remove submission
+	poppassd_super_server_config remove
+
+	remove_product_users_groups
+
+	if [ -f "/etc/ftpchroot" ]; then
+	    sed -e "s/^@$clients_group//g" < /etc/ftpchroot > /etc/ftpchroot.tmp
+	    mv -f /etc/ftpchroot.tmp /etc/ftpchroot  >> $product_log 2>&1
+	fi
+
+	if [ -f /etc/shells ]; then
+	    case "$machine" in
+		BSD|BSDI)
+		    sed -e "s/[/]*sbin[/]*nologin//" < /etc/shells > /etc/shells.tmp
+		;;
+		linux|solaris)
+		    sed -e "s/[/]*bin[/]*false//" < /etc/shells > /etc/shells.tmp
+		;;
+	    esac
+	    mv -f /etc/shells.tmp /etc/shells  >> $product_log 2>&1
+	fi
+
+	remove_tmp_state
+
+	restore_named
+	restore_sendmail
+	delete_startup_scripts
+	delete_crontab
+
+	cd /usr/local  >> $product_log 2>&1
+
+	suc
+}
+
+smart_undo_install()
+{
+	[ "X$trigger_uninstall" = "X1" -o "X$do_patch" = "X1" -o "X$do_reconfigure" = "X1" ] && return
+	[ "X$PLESK_INSTALLER_NOUNDO" != "X" ] && return
+	# trigger_uninstall - trigger what smart_undo_install is already working now(recurrence)
+	trigger_uninstall=1
+
+	if [ "X$can_uninstall" = "X1" ]; then
+		if [ "X$do_upgrade" = "X1" ]; then
+			undo_upgrade
+		else
+		    if [ "X$machine" != "XBSD" ]; then
+			undo_install
+		    fi
+		fi
+	fi
+
+	# put suggestions for user what to do
+	call_optional_function failure_note
+}
+
+transaction_begin()
+{
+	[ -n "$TRANSACTION_STARTED" ] && die "Another transaction in progress!"
+	TRANSACTION_STARTED="true"
+	TRANSACTION_ROLLBACK_FUNCS=
+	TRANSACTION_COMMIT_FUNCS=
+	trap "transaction_rollback" HUP PIPE INT QUIT TERM EXIT
+}
+
+transaction_rollback()
+{
+	[ -z "$TRANSACTION_STARTED" ] && die "Transaction is not started!"
+	# perform rollback actions
+	local f
+	for f in ${TRANSACTION_ROLLBACK_FUNCS}; do
+		"$f"
+	done
+	TRANSACTION_STARTED=
+	TRANSACTION_ROLLBACK_FUNCS=
+	TRANSACTION_COMMIT_FUNCS=
+	trap - HUP PIPE INT QUIT TERM EXIT
+	exit 1
+}
+
+transaction_commit()
+{
+	[ -z "$TRANSACTION_STARTED" ] && die "Transaction is not started!"
+	# perform commit actions
+	local f
+	for f in ${TRANSACTION_COMMIT_FUNCS}; do
+		"$f"
+	done
+	TRANSACTION_STARTED=
+	TRANSACTION_ROLLBACK_FUNCS=
+	TRANSACTION_COMMIT_FUNCS=
+	trap - HUP PIPE INT QUIT TERM EXIT
+}
+
+transaction_add_rollback_action()
+{
+	[ -z "$TRANSACTION_STARTED" ] && die "Transaction is not started!"
+	# LIFO rollback order
+	[ -z "$TRANSACTION_ROLLBACK_FUNCS" ] 		&& TRANSACTION_ROLLBACK_FUNCS="$1" 		|| TRANSACTION_ROLLBACK_FUNCS="$1 $TRANSACTION_ROLLBACK_FUNCS"
+}
+
+transaction_add_commit_action()
+{
+	[ -z "$TRANSACTION_STARTED" ] && die "Transaction is not started!"
+	# FIFO commit order
+	[ -z "$TRANSACTION_COMMIT_FUNCS" ] 		&& TRANSACTION_COMMIT_FUNCS="$1" 		|| TRANSACTION_COMMIT_FUNCS="$TRANSACTION_COMMIT_FUNCS $1"
+}
+undo_upgrade()
+{
+	p_echo   "    The attempt to upgrade $prev_product_full"
+	p_echo   "    from version $prev_version to $product_full $product_version has failed."
+
+	if [ -f "$product_sav_tar" ]; then
+	
+		p_echo 
+
+		p_echo "    Now restore contents of $PRODUCT_NAME from $product_sav_tar"
+		p_echo 
+		get_pid $PRODUCT_ROOT_D/mysql/bin/safe_mysqld true root
+		req_pid=$common_var
+		if [ $req_pid -gt 1 ]; then
+			$K_KILL $req_pid >> $product_log 2>&1 
+			sleep 2
+			mysql_pid_file=$mysql_bddir/*.pid
+			kill_pids $PRODUCT_ROOT_D/mysql/libexec/mysqld mysql
+			sleep 2
+			if [ -f "$mysql_pid_file" ]; then
+				rm -f $mysql_pid_file
+			fi
+		fi
+
+		$START_SH stop >> $product_log 2>&1
+		sleep 2
+
+		rm -Rf $PRODUCT_ROOT_D
+		qmail_super_server_config remove "smtp"
+		qmail_super_server_config remove "smtps"
+		proftpd_super_server_config remove
+		poppassd_super_server_config remove
+		
+
+		cd /
+        	tar xvf $product_sav_tar > /dev/null 2>&1
+		case "$?" in
+			0)
+#				rm -f $product_sav_tar 		
+			;;
+			*)
+				p_echo 
+				p_echo 
+				p_echo "ERROR: restoration of files from $product_sav_tar has failed."
+				p_echo "       Please restore them manually."
+				p_echo 
+				p_echo "Exiting..."
+				p_echo 
+				exit 0
+			;;
+		esac
+	fi
+	
+}
+
+true postfix_status
+postfix_status()
+{
+	# here be dragons.
+	# the practical experience shows that simple checking of status of
+	# Postfix "master" process is not enough. So we read Postfix master
+	# process pid file if any, then try to look for a process with
+	# name ``qmgr'' and parent pid being equal to
+	# the pid read from the pidfile. If pgrep finds such a process
+	# it returns 0, if not its exit status is non-zero.
+	# pgrep is portable enough to prefer it to "hand-made" alternatives
+	# such as famous ``ps | grep $name | grep -v grep...'' pipes
+	# bug 147822. do not interrupt installation for FreeBSD
+
+	[ -f "/var/spool/postfix/pid/master.pid" ] || return 1
+
+	local ppid
+
+	read ppid </var/spool/postfix/pid/master.pid 2>/dev/null
+	if [ $? -ne 0 -o -z "$ppid" ]; then
+		# not found or other error
+		return 1;
+	fi
+	pgrep -P $ppid qmgr >/dev/null 2>/dev/null
+}
+
+bootstrapper_bootstrapper_post_install()
+{
+	:
+	# existent function will trigger performing of prep-install actions
+	# during package installation in case of EZ template installing/updating.
+}
+
+if [ "X${PLESK_INSTALLER_DEBUG}" != "X" ]; then
+    set -x
+fi
+
+if [ "X${PLESK_INSTALLER_STRICT_MODE}" != "X" ]; then
+	set -e
+fi
+
+do_upgrade=0
+product_build="ubuntu12.04.build110120608.16"
+
+case "$1" in
+	configure)
+		if [ "X$2" != "X" ]; then
+			# We are the new upgrading package
+			do_upgrade=1
+			prev_version="${2%%-*}"
+			package_script_safe_run_with_report bootstrapper_upgrade_new_post bootstrapper_bootstrapper_post_install pp11.0.9-bootstrapper 11.0.9 ubuntu12.04.build110120608.16 "$1"
+		else
+			package_script_safe_run_with_report bootstrapper_install_post bootstrapper_bootstrapper_post_install pp11.0.9-bootstrapper 11.0.9 ubuntu12.04.build110120608.16 "$1"
+		fi
+		;;
+	abort-upgrade)
+		;;
+	abort-remove)
+		;;
+	abort-deconfigure)
+		;;
+	*)
+		echo "Unknown operation: postinst $*"
+		exit 1
+		;;
+esac

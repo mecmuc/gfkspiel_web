@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# Ensure this is deleted. May be left behind by mistake from old
+# upgrade.
+
+rm -rf /usr/share/doc/console-tools-libs
+
+# Install configuration file if it is not already present
+if [ ! -e /etc/console-tools/config ]; then
+    install -D -m 644 /usr/share/console-tools/config /etc/console-tools/config
+fi
+
+# Move the init script symlink
+if [ -L /etc/rcS.d/S48console-screen.sh ]; then
+	update-rc.d -f console-screen.sh remove
+fi
+
+if type update-initramfs >/dev/null 2>&1; then
+	update-initramfs -u
+fi
+
+# Automatically added by dh_installinit
+if [ -x "/etc/init.d/console-screen.sh" ]; then
+	update-rc.d console-screen.sh start 90 S . >/dev/null
+	if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+		invoke-rc.d console-screen.sh start || exit $?
+	else
+		/etc/init.d/console-screen.sh start || exit $?
+	fi
+fi
+# End automatically added section
+

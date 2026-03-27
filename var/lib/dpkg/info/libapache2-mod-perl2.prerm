@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+
+
+if [ "$1" = "remove" ]; then
+	a2dismod perl || true
+fi
+
+exit 0

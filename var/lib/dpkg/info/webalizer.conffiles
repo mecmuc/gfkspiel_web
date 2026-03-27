@@ -1,0 +1,2 @@
+/etc/webalizer/webalizer.conf.sample
+/etc/cron.daily/webalizer

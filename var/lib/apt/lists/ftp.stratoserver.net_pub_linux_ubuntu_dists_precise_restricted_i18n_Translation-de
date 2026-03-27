@@ -1,0 +1,237 @@
+Package: bcmwl-kernel-source
+Description-md5: e53061833d64d2b7240729c6abfe8649
+Description-de: Quelltext für Broadcom-802.11-Linux-STA-Wireless-Treiber
+ Dieses Paket enthält den Broadcom-802.11-Linux-STA-Wireless-Treiber für
+ BCM4311-, BCM4312-, BCM4321- und BCM4322-basierte Hardware der Firma
+ Broadcom.
+
+Package: fglrx
+Description-md5: e243632a89ae95ca54c71a1fc26a3580
+Description-de: Videotreiber für die ATI-Grafikbeschleuniger
+ Video-Treiber für Radeon- und FireGL-Grafikbeschleuniger von ATI.
+ .
+ Dieses Paket bietet 2D-Bildschirmtreiber und Hardware-beschleunigtes
+ OpenGL.
+
+Package: fglrx-amdcccle
+Description-md5: fb81608d85c28edf777458fe31404775
+Description-de: Catalyst-Kontrollzentrum für ATI-Grafikbeschleuniger
+ Catalyst-Kontrollzentrum für ATI-Radeon- und FireGL-Grafikbeschleuniger
+ .
+ Diese Paket enthält das Catalyst-Kontrollzentrum, Linux-Ausgabe
+
+Package: fglrx-dev
+Description-md5: 8816722026d1192710c119f369b08d08
+Description-de: Videotreiber für die ATI-Grafikbeschleuniger (Entwicklungsdateien)
+ Video-Treiber für Radeon- und FireGL-Grafikbeschleuniger von ATI.
+ .
+ Dieses Paket stellt Definitionen für die GL- und GLX-Erweiterungen sowie
+ die Schnittstellen-Bibliothek für FGLRXGAMMA-Erweiterungen zur Verfügung.
+
+Package: fglrx-kernel-source
+Description-md5: ba114177a39d6693f8e1b60eb5e69e98
+Description-de: Übergangspaket für fglrx-kernel-source
+ Dies ist ein Übergangspaket für fglrx-kernel-source und kann nach
+ Abschluss der Installation gefahrlos entfernt werden.
+
+Package: nvidia-173
+Description-md5: 5278af6f2bbd13140057d0124dd60fc4
+Description-de: Binärer Xorg-Treiber, Kernelmodul und VDPAU-Bibliothek von NVIDIA
+ Der Binärtreiber bietet eine optimierte Hardwarebeschleunigung für OpenGL-
+ Anwendungen mit Hilfe eines Direct-rendering-X-Servers. AGP-, PCIe-, SLI-,
+ TV-out- und Flachbildschirme werden ebenfalls unterstützt.
+ .
+ Dieses Paket enthält außerdem den Quellcode, um das vom Xorg-Treiber
+ benötigte Kernel-Modul zu erstellen.
+ .
+ Es werden GPUs der Serien GeForce 5 bis GeForce 9 unterstützt.
+ .
+ Eine vollständige Liste der unterstützten GPUs und PCIIDs finden sie unter
+ /usr/share/doc/nvidia-173/README.txt.gz
+
+Package: nvidia-173-dev
+Description-md5: ef3b76d980ecacaf3116114549ba70ca
+Description-de: Entwicklungsdateien für den binären NVIDIA-Xorg-Treiber
+ Dieses Paket enthält Entwicklungsdateien für den binären NVIDIA-Xorg-
+ Treiber.
+ .
+ Weitere Informationen zu diesem Paket finden Sie auf der NVIDIA-Website
+ unter http://www.nvidia.com/ .
+
+Package: nvidia-173-kernel-source
+Description-md5: a7bb394f1a1c4d72d59206094c69597f
+Description-de: Übergangspaket für nvidia-glx-173-kernel-source
+ Dies ist ein Übergangspaket für »nvidia-glx-173-kernel-source« und kann
+ nach erfolgreicher Installation gefahrlos entfernt werden.
+
+Package: nvidia-180-kernel-source
+Description-md5: d6f02245cf23ed0beb4401cd392d2a2d
+Description-de: Übergangspaket für nvidia-glx-185-kernel-source
+ Dies ist ein Übergangspaket für »nvidia-glx-185-kernel-source« und kann
+ nach erfolgreicher Installation gefahrlos entfernt werden.
+
+Package: nvidia-180-libvdpau
+Description-md5: 3ac5f233204786600d8945f54e69f2de
+Description-de: Übergangspaket für nvidia-185-libvdpau
+ Dies ist ein Übergangspaket für nvidia-185-libvdpau und kann nach Beenden
+ der Installation gefahrlos entfernt werden.
+
+Package: nvidia-180-libvdpau-dev
+Description-md5: 9898e591bebf57d89404cf17b26df8cb
+Description-de: Übergangspaket für nvidia-185-libvdpau-dev
+ Dies ist ein Übergangspaket für »nvidia-185-libvdpau-dev« und kann nach
+ Beenden der Installation gefahrlos entfernt werden.
+
+Package: nvidia-185-kernel-source
+Description-md5: d6f02245cf23ed0beb4401cd392d2a2d
+Description-de: Übergangspaket für nvidia-glx-185-kernel-source
+ Dies ist ein Übergangspaket für »nvidia-glx-185-kernel-source« und kann
+ nach erfolgreicher Installation gefahrlos entfernt werden.
+
+Package: nvidia-185-libvdpau
+Description-md5: 3ac5f233204786600d8945f54e69f2de
+Description-de: Übergangspaket für nvidia-185-libvdpau
+ Dies ist ein Übergangspaket für nvidia-185-libvdpau und kann nach Beenden
+ der Installation gefahrlos entfernt werden.
+
+Package: nvidia-185-libvdpau-dev
+Description-md5: 1fd30903adb8a4de698ea87339834b45
+Description-de: Übergangspaket für nvidia-185-libvdpau-dev
+ Dies ist ein Übergangspaket für »nvidia-185-libvdpau-dev« und kann nach
+ Beenden der Installation gefahrlos entfernt werden.
+
+Package: nvidia-96
+Description-md5: 88e4a8bbbe98ee1cc7ab83bf9862b22d
+Description-de: Binärer Xorg-Treiber, Kernelmodul und VDPAU-Bibliothek von NVIDIA
+ Der Binärtreiber bietet eine optimierte Hardwarebeschleunigung für OpenGL-
+ Anwendungen mit Hilfe eines Direct-rendering-X-Servers. AGP-, PCIe-, SLI-,
+ TV-out- und Flachbildschirme werden ebenfalls unterstützt.
+ .
+ Dieses Paket enthält außerdem den Quellcode, um das vom Xorg-Treiber
+ benötigte Kernel-Modul zu erstellen.
+ .
+ Es werden GPUs der Serien GeForce 2 (ausgenommen GeForce2 GTS/GeForce2
+ Pro, GeForce2 Ti sowie GeForce2 Ultra) bis Geforce 7 unterstützt.
+ .
+ Eine vollständige Liste aller unterstützten GPUs und PCIIDs finden Sie
+ unter /usr/share/doc/nvidia-96/README.txt.gz
+
+Package: nvidia-96-dev
+Description-md5: ef3b76d980ecacaf3116114549ba70ca
+Description-de: Entwicklungsdateien für den binären NVIDIA-Xorg-Treiber
+ Dieses Paket enthält Entwicklungsdateien für den binären NVIDIA-Xorg-
+ Treiber.
+ .
+ Weitere Informationen zu diesem Paket finden Sie auf der NVIDIA-Website
+ unter http://www.nvidia.com/ .
+
+Package: nvidia-96-kernel-source
+Description-md5: 8488f3b0b992a008279c113c2ddbb787
+Description-de: Übergangspaket für nvidia-glx-96-kernel-source
+ Dies ist ein Übergangspaket für »nvidia-glx-96-kernel-source« und kann
+ nach erfolgreicher Installation gefahrlos entfernt werden.
+
+Package: nvidia-current
+Description-md5: 12d78ea815ab554242be5b547ddd81cf
+Description-de: Binärer Xorg-Treiber, Kernelmodul und VDPAU-Bibliothek von NVIDIA
+ Der Binärtreiber bietet eine optimierte Hardwarebeschleunigung für OpenGL-
+ Anwendungen mit Hilfe eines Direct-rendering-X-Servers. AGP-, PCIe-, SLI-,
+ TV-out- und Flachbildschirme werden ebenfalls unterstützt.
+ .
+ Dieses Paket enthält außerdem den Quellcode, um das vom Xorg-Treiber
+ benötigte Kernel-Modul zu erstellen und liefert NVIDIAs Umsetzung der
+ Videodekodierungs- und Präsentations-API. Die letztere ermöglicht
+ Beschleunigung von h264-Videos für Karten der Serie NVIDIA 8 und neuer.
+ .
+ GPUs der Serie GeForce 6 oder neuer werden unterstützt.
+ .
+ Eine vollständige Liste aller unterstützten GPUs und PCIIDs finden Sie
+ unter /usr/share/doc/nvidia-current/README.txt.gz
+
+Package: nvidia-current-dev
+Description-md5: ef3b76d980ecacaf3116114549ba70ca
+Description-de: Entwicklungsdateien für den binären NVIDIA-Xorg-Treiber
+ Dieses Paket enthält Entwicklungsdateien für den binären NVIDIA-Xorg-
+ Treiber.
+ .
+ Weitere Informationen zu diesem Paket finden Sie auf der NVIDIA-Website
+ unter http://www.nvidia.com/ .
+
+Package: nvidia-glx-173
+Description-md5: ca9e1a6ca63ac0fe43086bc2a23fab83
+Description-de: Übergangspaket für nvidia-glx-173
+ Dies ist ein Übergangspaket für »nvidia-glx-173« und kann nach
+ erfolgreicher Installation sicher entfernt werden.
+
+Package: nvidia-glx-173-dev
+Description-md5: 59385093c9c41e6b4c5b07b693fe962b
+Description-de: Übergangspaket für  nvidia-glx-173-dev
+ Dies ist ein Übergangspaket für »nvidia-glx-173-dev« und kann nach
+ erfolgreicher Installation sicher entfernt werden.
+
+Package: nvidia-glx-180
+Description-md5: 443ad67bd5dfe3eb5bd2584e7b12836d
+Description-de: Übergangspaket für nvidia-glx-185
+ Dies ist ein Übergangspaket für »nvidia-glx-185« und kann nach Beenden der
+ Installation gefahrlos entfernt werden.
+
+Package: nvidia-glx-180-dev
+Description-md5: d976238df84a1c083170598086531f09
+Description-de: Übergangspaket für nvidia-glx-185-dev
+ Dies ist ein Übergangspaket für »nvidia-glx-185-dev« und kann nach Beenden
+ der Installation gefahrlos entfernt werden.
+
+Package: nvidia-glx-185
+Description-md5: 248a57e5e5a4325ace60f7f29a14db11
+Description-de: Übergangspaket für nvidia-glx-185
+ Dies ist ein Übergangspaket für »nvidia-glx-185« und kann nach
+ erfolgreicher Installation sicher entfernt werden.
+
+Package: nvidia-glx-185-dev
+Description-md5: d976238df84a1c083170598086531f09
+Description-de: Übergangspaket für nvidia-glx-185-dev
+ Dies ist ein Übergangspaket für »nvidia-glx-185-dev« und kann nach Beenden
+ der Installation gefahrlos entfernt werden.
+
+Package: nvidia-glx-96
+Description-md5: 0bae39a019d90956f617de9dabd450d5
+Description-de: Übergangspaket für nvidia-glx-96
+ Dies ist ein Übergangspaket für »nvidia-glx-96« und kann nach
+ erfolgreicher Installation sicher entfernt werden.
+
+Package: nvidia-glx-96-dev
+Description-md5: f597ddbc24c8e7e09803efed41c68269
+Description-de: Übergangspaket für nvidia-glx-96-dev
+ Dies ist ein Übergangspaket für »nvidia-glx-96-dev« und kann nach
+ erfolgreicher Installation sicher entfernt werden.
+
+Package: nvidia-kernel-common
+Description-md5: a8904f83f458e3de3ea6409811c10eb4
+Description-de: Grundlegende, gemeinsame Binärprogramme für NVIDIA-Module
+ Dieses Paket enthält Dateien, die von allen Paketen mit NVIDIA-Modulen
+ verwendet werden.
+
+Package: sl-modem-daemon
+Description-md5: 14cce64d11abe5fc18733b6d372fa982
+Description-de: SmartLink-Softwaremodem-Dienst
+ Der SmartLink-Modem-Dienst ist der Anwendungsteil des Treibers für die
+ aktuellen Modems von Smart Link Ltd.
+ .
+ Dieses Paket ersetzt (zusammen mit den Treibern für den Hardwarezugriff)
+ die ältere Treibergeneration (2.7.x), welche nur aus Kernelmodulen
+ bestand.
+ .
+ Es wird ein Kerneltreiber benötigt, um die Hardware anzusprechen. Dies
+ kann entweder ein aktueller ALSA-Treiber sein (wird mit einem neuen Kernel
+ (>=2.6.4) mit ALSA-Unterstützung und snd-intel8x0m-Modul ausgeliefert),
+ welcher für die Grundfunktionen und eine Daten-/Internetverbindung
+ ausreicht, oder der SmartLink-Kerneltreiber, welcher von einem
+ eigenständigen Paket zur Verfügung gestellt wird und aus dem im sl-modem-
+ source-Paket enthaltenen Quellcode selbst erstellt werden kann.
+
+Package: xorg-driver-fglrx
+Description-md5: 2740a65e092adf10df36f9edca07aa22
+Description-de: Übergangspaket für xorg-driver-fglrx
+ Die ist ein Übergangspaket für »xorg-driver-fglrx« und kann nach Abschluss
+ der Installation gefahrlos entfernt werden.
+

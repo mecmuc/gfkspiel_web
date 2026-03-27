@@ -1,0 +1,86 @@
+@media only screen and (min-width: 600px)
+{
+    .content
+    {
+        width: 600px !important;
+        margin: 0 auto !important;
+        position: relative !important;
+    }
+}
+
+body {
+    background-image: url("../img/irongrip.png");
+    background-color:#111;
+    padding:0;
+    margin:0;
+    height:100%;
+}
+
+a {
+    color:yellow;
+    text-decoration:none;
+}
+
+h1 a, h2 a {
+    color:white;
+    text-decoration:none;
+}
+
+a:hover {
+    color:orange;
+}
+
+.content {
+    background-image: -webkit-linear-gradient(#105694 0%, #4a74da 100%); 
+    background-image: -moz-linear-gradient(#105694 0%, #4a74da 100%); 
+    background-image: -o-linear-gradient(#105694 0%, #4a74da 100%); 
+    background-image: linear-gradient(#105694 0%, #4a74da 100%);
+/*    background-color:#105694; */
+    color:white;
+    height:98%;
+    width:96%;
+    padding:1% 2%;
+    margin:0;
+    min-height:800px;
+    font-family:sans-serif,arial,helvetica;
+    line-height:1.6em;
+}
+
+.menu {
+    margin-bottom:80px;
+}
+
+.strongorange {
+    font-weight:strong;
+    color:orange;
+}
+
+.menu ul {
+float:left;
+width:100%;
+padding:0;
+margin:0;
+list-style-type:none;
+}
+
+#menu li, .menu li {
+display:inline;
+position:relative;
+}
+
+.menu a {
+float:none;
+width:6em;
+text-decoration:none;
+color:#105694;
+background-color:white;
+padding:0.2em 0.6em;
+}
+
+.menu .current_page_item a {
+    background-color:yellow;
+}
+
+.menu a:hover {
+    background-color:orange;
+}

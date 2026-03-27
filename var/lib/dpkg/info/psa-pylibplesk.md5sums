@@ -1,0 +1,7 @@
+49bf5e892ccb536145e1d0bd197f1cdd  opt/psa/admin/lib/python/compat/__init__.py
+3cb6d6c4842d76022bedd9b4bb9365f5  opt/psa/admin/lib/python/compat/dummy_itertools.py
+c536538b728043b07d39930c23e4c401  opt/psa/admin/lib/python/compat/dummy_logging.py
+8ff524c847c906598acef9018267a3c8  opt/psa/admin/lib/python/compat/dummy_os.py
+563786fc6c2fcb24bbb2894a26072327  opt/psa/admin/lib/python/compat/optparse.py
+9bde8b91a01f7ae4518f18790a198c45  opt/psa/admin/lib/python/compat/textwrap.py
+a1c3e9e851f095040b26d57cfa50df15  opt/psa/admin/lib/python/plesk_config.py

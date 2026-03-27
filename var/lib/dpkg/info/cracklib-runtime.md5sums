@@ -1,0 +1,13 @@
+bb263bed3f8895a48f966ae6988d8010  usr/sbin/cracklib-check
+cd4f2da2c9314cf9c3a31a75bbcdeba5  usr/sbin/cracklib-format
+d3569bc3b72c5d3bab13ee787b81a093  usr/sbin/cracklib-packer
+39525b58a23af586c252cf0ab5f7ac48  usr/sbin/cracklib-unpacker
+792935f723195b9b3756ab76a59c0f86  usr/sbin/create-cracklib-dict
+17e8cdd6a6353faf7ef7515fdfcdf58e  usr/sbin/update-cracklib
+7e5d0baa253366a1e876105a79ef731a  usr/share/doc-base/cracklib-runtime
+eeab68831d2d2260e01843a937910f4d  usr/share/doc/cracklib-runtime/copyright
+bd0c647c02243ba65bfbd7f177a1440a  usr/share/doc/cracklib-runtime/cracklib-runtime.html
+a67a2e44e2862016c5cc91aa4c14f8f2  usr/share/man/man8/cracklib-check.8.gz
+6f7e536b566b021b8e8ae41cc6a3a98e  usr/share/man/man8/cracklib-format.8.gz
+46b960273501c60495882da5872f1c88  usr/share/man/man8/create-cracklib-dict.8.gz
+79475ae47a61ab8c75edff2c804b1f6b  usr/share/man/man8/update-cracklib.8.gz

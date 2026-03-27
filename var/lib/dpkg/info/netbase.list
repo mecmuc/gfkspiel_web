@@ -1,0 +1,15 @@
+/.
+/etc
+/etc/network
+/etc/init.d
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/netbase
+/etc/protocols
+/etc/rpc
+/etc/services
+/etc/init.d/networking
+/usr/share/doc/netbase/README.Debian
+/usr/share/doc/netbase/copyright
+/usr/share/doc/netbase/changelog.gz

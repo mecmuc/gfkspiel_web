@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Postrm script for fetchmail
+# $Id: fetchmail.postrm 460 2008-02-04 15:20:16Z nion $
+#
+
+set -e
+
+
+
+if [ "$1" = "purge" ]; then
+	if [ -e /usr/share/debconf/confmodule ]; then
+		. /usr/share/debconf/confmodule
+		db_purge
+	fi
+
+	# Remove SysV initscript
+	update-rc.d fetchmail remove >/dev/null || true
+
+	# Remove other cruft
+	rm -f /var/mail/.fetchmail-UIDL-cache >/dev/null 2>&1 || true
+	rm -rf /var/run/fetchmail >/dev/null 2>&1 || true
+
+	# Remove user fetchmail
+	fetchmailhome=`getent passwd fetchmail | cut -d : -f 6`
+	rm -f "$fetchmailhome/.fetchids" >/dev/null 2>&1 || true
+	rm -f "$fetchmailhome/.fetchmail-UIDL-cache" >/dev/null 2>&1 || true
+	rm -f "$fetchmailhome/.fetchmail.pid" >/dev/null 2>&1 || true
+	userdel fetchmail || true
+	rmdir "$fetchmailhome" >/dev/null 2>&1 || true
+fi
+
+exit 0
+
+# vim:ts=4:sw=4:

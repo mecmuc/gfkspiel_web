@@ -1,0 +1,13 @@
+/.
+/usr
+/usr/lib
+/usr/lib/php
+/usr/lib/php/modules
+/usr/lib/php/modules/sw-engine
+/usr/lib/php/modules/sw-engine/ioncube_loader_lin_5.3.so
+/usr/bin
+/usr/bin/sw-engine
+/usr/bin/sw-engine-cgi
+/usr/share
+/usr/share/aps_php
+/usr/share/aps_php/aps_php.php

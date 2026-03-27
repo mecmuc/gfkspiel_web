@@ -1,0 +1,10 @@
+/.
+/var
+/var/www
+/var/www/cgi-bin
+/var/www/cgi-bin/cgi_wrapper
+/etc
+/etc/apache2
+/etc/apache2/conf.d
+/var/www/cgi-bin/cgi_wrapper/cgi_wrapper
+/etc/apache2/conf.d/php_cgi.conf
