@@ -23,6 +23,10 @@ var/lib/                         ← server infrastructure snapshot, not app cod
 - German-language content
 - Hosted on Ubuntu/Plesk
 
+## Off-limits
+
+- Do not read `*.db` files (SQLite databases contain user data)
+
 ## Notes
 
 - The live site currently shows a placeholder ("Server läuft leider gerade nicht")

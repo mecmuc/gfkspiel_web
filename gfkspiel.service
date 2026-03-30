@@ -1,0 +1,15 @@
+[Unit]
+Description=GfkSpiel Node.js Server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/local/gfk-spiel.de/gfkspiel2/web
+ExecStart=/var/local/gfk-spiel.de/nvm/versions/node/v12.22.12/bin/node server.js --mode=prod
+Restart=on-failure
+StandardOutput=append:/var/log/gfkspiel.de/server.log
+StandardError=append:/var/log/gfkspiel.de/server.log
+
+[Install]
+WantedBy=multi-user.target
