@@ -57,9 +57,16 @@ www/
 
 **Additional assets into `static_prod/`:**
 ```
-www/lib/  → static_prod/lib/   (jQuery Mobile, Font Awesome, etc.)
+www/lib/  → static_prod/lib/   (jQuery Mobile, Font Awesome CSS, etc.)
+www/font/ → static_prod/font/  (Font Awesome webfont files — required for icons/checkboxes!)
 www/img/  → static_prod/img/   (game images, favicon)
 ```
+
+**Audio files** (voice and ending music):
+```
+audio/    → /var/local/gfk-spiel.de/gfkspiel2/audio/
+```
+The server serves these via the `/audio` route in `server.js`.
 
 ---
 
@@ -153,7 +160,8 @@ systemctl start gfkspiel
 
 - [ ] `apt-get install build-essential python2 git curl sqlite3`
 - [ ] Install NVM and Node.js 12
-- [ ] Copy `web/`, `www/js/`, `www/html/`, `www/lib/` → `static_prod/lib/`, `www/img/` → `static_prod/img/`
+- [ ] Copy `web/`, `www/js/`, `www/html/`, `www/lib/` → `static_prod/lib/`, `www/font/` → `static_prod/font/`, `www/img/` → `static_prod/img/`
+- [ ] Copy `audio/` → `/var/local/gfk-spiel.de/gfkspiel2/audio/`
 - [ ] `npm install sqlite3@5 --save --production` then `npm install --production` from `web/`
 - [ ] Transfer `database/gfkspiel.db` from old server
 - [ ] Create `/var/log/gfkspiel.de/` with correct ownership
