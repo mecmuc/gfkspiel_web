@@ -114,7 +114,8 @@ cd /var/local/gfkspiel.de/gfkspiel2/web
 
 Use `forever@3` — newer versions pull in dependencies that require Node 15+ and fail with a syntax error on Node 12.
 
-The server starts in production mode on port 80 and serves `static_prod/` with `index_prod.html`.
+The server starts in production mode on port 3000 and serves `static_prod/` with `index_prod.html`.
+nginx acts as reverse proxy in front of Node.js — see `plan_https_nginx.md`.
 
 ---
 
@@ -158,7 +159,7 @@ systemctl start gfkspiel
 
 ## Summary Checklist
 
-- [ ] `apt-get install build-essential python2 git curl sqlite3`
+- [ ] `apt-get install build-essential python3 git curl sqlite3`
 - [ ] Install NVM and Node.js 12
 - [ ] Copy `web/`, `www/js/`, `www/html/`, `www/lib/` → `static_prod/lib/`, `www/font/` → `static_prod/font/`, `www/img/` → `static_prod/img/`
 - [ ] Copy `audio/` → `/var/local/gfk-spiel.de/gfkspiel2/audio/`
@@ -166,4 +167,4 @@ systemctl start gfkspiel
 - [ ] Transfer `database/gfkspiel.db` from old server
 - [ ] Create `/var/log/gfkspiel.de/` with correct ownership
 - [ ] Upload `gfkspiel.service` to `/etc/systemd/system/` and enable it
-- [ ] Open port 80 in firewall (if needed)
+- [ ] Install nginx and configure HTTPS + HTTP→HTTPS redirect (see `plan_https_nginx.md`)
