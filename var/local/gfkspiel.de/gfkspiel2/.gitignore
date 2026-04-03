@@ -1,0 +1,8 @@
+bin
+gen
+.classpath
+.project
+.settings
+node_modules
+*.log
+tmp

@@ -13,3 +13,9 @@
 
 - Removed the Bedanken button from the main menu in `var/local/gfkspiel.de/gfkspiel2/www/html/index_body.html`
 - Also removed the entire `#page-thanks` (bedanken) page section
+
+### Step 3 ✓ Done
+
+- Removed nested `.git` from `var/local/gfkspiel.de/gfkspiel2/` (was pointing to Bitbucket)
+- All `gfkspiel2` files are now tracked directly in the `gfkspiel_web` GitHub repo
+- Unpushed changes (Bedanken removal, audio/checkbox fixes) are preserved in the files
