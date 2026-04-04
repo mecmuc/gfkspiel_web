@@ -1,0 +1,36 @@
+  # gfkspiel.de → gfk-spiel.de redirect
+  server {
+      listen 80;
+      server_name gfkspiel.de www.gfkspiel.de;
+      return 301 https://gfk-spiel.de$request_uri;
+  }
+
+  server {
+      listen 443 ssl;
+      server_name gfkspiel.de www.gfkspiel.de;
+
+      ssl_certificate     /etc/letsencrypt/live/gfkspiel.de/fullchain.pem;
+      ssl_certificate_key /etc/letsencrypt/live/gfkspiel.de/privkey.pem;
+
+      return 301 https://gfk-spiel.de$request_uri;
+  }
+
+  server {                                                                                                                            
+      listen 80;  
+      server_name gfk-spiel.de www.gfk-spiel.de;                                                                                      
+      return 301 https://$host$request_uri;                                                                                           
+  }     
+
+  server {                                                                                                                            
+      listen 443 ssl;                                                                                                                 
+      server_name gfk-spiel.de www.gfk-spiel.de;
+                                                                                                                                      
+      ssl_certificate     /etc/ssl/gfk-spiel.de/certificate.crt;                                                                      
+      ssl_certificate_key /etc/ssl/gfk-spiel.de/private.key;                                                                          
+                                                                                                                                      
+      location / {                                                                                                                    
+          proxy_pass http://127.0.0.1:3000;                                                                                             
+          proxy_set_header Host $host;                                                                                                
+          proxy_set_header X-Real-IP $remote_addr;                                                                                    
+      }                                                                                                                               
+  }   

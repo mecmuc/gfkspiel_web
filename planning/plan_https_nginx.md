@@ -44,15 +44,36 @@ Das Zertifikat wird bei Strato beantragt über:
 
 Datei: `/etc/nginx/sites-available/gfk-spiel.de`
 
+Die aktuelle Konfiguration liegt auch im Repo unter `etc/nginx/sites-available/gfk-spiel.de`.
+
 ```nginx
-# HTTP → HTTPS Redirect
+# gfkspiel.de → gfk-spiel.de redirect (HTTP)
+server {
+    listen 80;
+    server_name gfkspiel.de www.gfkspiel.de;
+    return 301 https://gfk-spiel.de$request_uri;
+}
+
+# gfkspiel.de → gfk-spiel.de redirect (HTTPS)
+# Zertifikat via Let's Encrypt (certbot), auto-renewal per certbot.timer
+server {
+    listen 443 ssl;
+    server_name gfkspiel.de www.gfkspiel.de;
+
+    ssl_certificate     /etc/letsencrypt/live/gfkspiel.de/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/gfkspiel.de/privkey.pem;
+
+    return 301 https://gfk-spiel.de$request_uri;
+}
+
+# gfk-spiel.de: HTTP → HTTPS Redirect
 server {
     listen 80;
     server_name gfk-spiel.de www.gfk-spiel.de;
     return 301 https://$host$request_uri;
 }
 
-# HTTPS → Node.js
+# gfk-spiel.de: HTTPS → Node.js
 server {
     listen 443 ssl;
     server_name gfk-spiel.de www.gfk-spiel.de;
