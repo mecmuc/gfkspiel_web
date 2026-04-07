@@ -1,5 +1,5 @@
-/*! gfkspiel router — replaces jQuery Mobile page system */
-(function ($) {
+/*! gfkspiel router — vanilla JS, no jQuery */
+(function () {
     'use strict';
 
     var created = {};
@@ -9,41 +9,55 @@
         return id || 'page-main_menu';
     }
 
-    function showPage(id) {
-        var $target = $('#' + id);
-        if (!$target.length) { return; }
+    function fire(el, eventName) {
+        el.dispatchEvent(new CustomEvent(eventName, { bubbles: false }));
+    }
 
-        var $current = $('.page:visible').not($target);
-        if ($current.length) {
-            $current.trigger('pagebeforehide');
-            $current.hide();
-            $current.trigger('pagehide');
+    function showPage(id) {
+        var target = document.getElementById(id);
+        if (!target) { return; }
+
+        var current = document.querySelector('.page[style*="block"]') ||
+                      document.querySelector('.page:not([style])');
+        // find the currently visible page more reliably
+        var pages = document.querySelectorAll('.page');
+        var currentPage = null;
+        pages.forEach(function (p) {
+            if (p !== target && p.style.display === 'block') {
+                currentPage = p;
+            }
+        });
+
+        if (currentPage) {
+            fire(currentPage, 'pagebeforehide');
+            currentPage.style.display = 'none';
+            fire(currentPage, 'pagehide');
         }
 
         if (!created[id]) {
             created[id] = true;
-            $target.trigger('pagecreate');
+            fire(target, 'pagecreate');
         }
 
-        $target.show();
-        $target.trigger('pageshow');
+        target.style.display = 'block';
+        fire(target, 'pageshow');
         window.scrollTo(0, 0);
     }
 
-    $(document).on('click', 'a[href^="#"]', function (e) {
-        var $a = $(this);
-        var href = $a.attr('href');
+    document.addEventListener('click', function (e) {
+        var a = e.target.closest('a[href^="#"]');
+        if (!a) { return; }
+        var href = a.getAttribute('href');
         if (!href || href === '#') { return; }
 
-        if ($a.attr('data-rel') === 'back') {
+        if (a.getAttribute('data-rel') === 'back') {
             e.preventDefault();
             history.back();
             return;
         }
 
-        // Only intercept links that target a .page element
-        var $target = $(href);
-        if (!$target.hasClass('page')) { return; }
+        var targetEl = document.querySelector(href);
+        if (!targetEl || !targetEl.classList.contains('page')) { return; }
 
         e.preventDefault();
         var id = pageId(href);
@@ -55,14 +69,14 @@
         showPage(pageId(window.location.hash));
     });
 
-    // Compatibility stub so app.js $.mobile.changePage calls still work
-    if (!$.mobile) { $.mobile = {}; }
-    $.mobile.changePage = function (url) { window.location.replace(url); };
+    // Stub for app.js compatibility
+    window.mobileChangePage = function (url) { window.location.replace(url); };
 
-    // Boot: hide all pages, show initial
-    $(function () {
-        $('.page').hide();
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.page').forEach(function (p) {
+            p.style.display = 'none';
+        });
         showPage(pageId(window.location.hash));
     });
 
-}(jQuery));
+}());

@@ -93,7 +93,7 @@ Replace only the jQuery Mobile dependency with plain HTML/CSS/vanilla JS.
 | `web/index_prod.html` | Removed `jquery.mobile-1.3.2.min.css`, `jquery.mobile-1.3.2.min.js`, `overthrow.js`; added `router.js` |
 | `www/css/gfkspiel.css` + `static_prod/css/gfkspiel2.min.css` | Complete rewrite — clean CSS without `!important` fighting, using `.page`, `.page-header`, `.page-content` |
 
-jQuery core (1.10.2) is still used for DOM manipulation in `app.js`. Removing jQuery would be the next step if desired.
+**jQuery core also removed (2026-04-07):** `app.js` and `adapterWeb.js` fully rewritten in vanilla JS (`fetch`, `querySelector`, `addEventListener`, `CustomEvent`, `classList`, `dataset`). jQuery script tag removed from `index_prod.html`. `$(initApp)` → `document.addEventListener('DOMContentLoaded', initApp)`.
 
 **Deployment note**: `www/html/index_body.html` must also be uploaded to the server — it is read by Node.js at runtime (not served as a static file), so it's easy to miss when deploying.
 
@@ -104,7 +104,7 @@ jQuery core (1.10.2) is still used for DOM manipulation in `app.js`. Removing jQ
 ## Recommended path
 
 1. **Done**: CSS modernization + Option D (jQM removed) ✓
-2. **Optional next step**: Remove jQuery itself — replace `$.ajax`, `$.each`, `$(...)` DOM calls with `fetch` + vanilla JS. Moderate effort.
+2. **Done**: jQuery core removed — pure vanilla JS throughout ✓
 3. **Later**: If new features are needed (user accounts, leaderboard, PWA), migrate to React/Vite at that point when the effort is justified.
 
 ---
