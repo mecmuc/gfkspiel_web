@@ -197,19 +197,19 @@ a.menu-btn:active, a.nav-btn:active { transform: scale(0.97); }
 
 ## Priority order for implementation
 
-| Priority | Screen | Effort | Impact |
-|---|---|---|---|
-| 1 | Global: transitions + tap feedback | Small | High |
-| 2 | Task page: hierarchy + button reveal | Medium | High |
-| 3 | Game over: score cards + quote text | Medium | High |
-| 4 | Settings: toggle switches | Medium | Medium |
-| 5 | Main menu: Spielen prominence + badge cleanup | Small | Medium |
-| 6 | New game: CTA button + player row layout | Small | Medium |
-| 7 | Score dialog: player cards | Small | Medium |
-| 8 | Explanation/Help: info card | Small | Low |
-| 9 | Field list: left border indicator | Small | Low |
-| 10 | Video pages: flex layout | Small | Low |
-| 11 | Ask if new game: welcome text | Tiny | Low |
+| Priority | Screen | Effort | Impact | Done |
+|---|---|---|---|---|
+| 1 | Global: transitions + tap feedback | Small | High | ✓ |
+| 2 | Task page: hierarchy + button reveal | Medium | High | ✓ |
+| 3 | Game over: score cards + quote text | Medium | High | ✓ |
+| 4 | Settings: toggle switches | Medium | Medium | ✓ |
+| 5 | Main menu: Spielen prominence + badge cleanup | Small | Medium | ✓ |
+| 6 | New game: CTA button + player row layout | Small | Medium | ✓ |
+| 7 | Score dialog: player cards | Small | Medium | ✓ |
+| 8 | Explanation/Help: info card | Small | Low | ✓ |
+| 9 | Field list: left border indicator | Small | Low | — |
+| 10 | Video pages: flex layout | Small | Low | ✓ |
+| 11 | Ask if new game: welcome text | Tiny | Low | ✓ |
 
 ---
 

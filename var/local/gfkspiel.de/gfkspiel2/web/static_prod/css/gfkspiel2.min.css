@@ -24,9 +24,16 @@ html, body {
 /* ── Page ───────────────────────────────────────── */
 
 .page {
+    display: none; /* router shows the active page */
     min-height: 100vh;
     background: linear-gradient(160deg, #1a5fa8 0%, #4d8fd4 100%);
     color: #fff;
+    animation: pageFadeIn 0.15s ease;
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 
@@ -46,7 +53,7 @@ html, body {
     flex: 1;
     margin: 0;
     font-size: 1.05em;
-    font-weight: normal;
+    font-weight: 500;
     color: #fff;
     text-align: center;
 }
@@ -81,18 +88,18 @@ html, body {
 .page-content h2,
 .page-content h3 {
     color: #fff;
-    margin-left: 6%;
+    margin-left: 4%;
 }
 
 .page-content ul {
     color: #fff;
-    margin-left: 6%;
-    margin-right: 6%;
+    margin-left: 4%;
+    margin-right: 4%;
 }
 
 .centered-content {
     text-align: center;
-    padding-top: 20px;
+    padding-top: 30px;
 }
 
 /* Links inside content */
@@ -132,6 +139,7 @@ a.menu-btn {
     text-align: center;
     font-size: 1em;
     cursor: pointer;
+    transition: opacity 0.12s, transform 0.1s;
 }
 
 a.menu-btn:hover {
@@ -140,8 +148,20 @@ a.menu-btn:hover {
     text-decoration: none;
 }
 
+a.menu-btn:active {
+    transform: scale(0.97);
+    opacity: 0.8;
+}
+
 a.menu-btn i {
     margin-right: 6px;
+}
+
+/* Primary menu button (Spielen) */
+a.menu-btn-primary {
+    font-size: 1.15em;
+    padding: 16px;
+    margin-top: 6%;
 }
 
 
@@ -157,12 +177,18 @@ a.nav-btn {
     font-size: 0.9em;
     cursor: pointer;
     white-space: nowrap;
+    transition: opacity 0.12s, transform 0.1s;
 }
 
 a.nav-btn:hover {
     opacity: 0.88;
     color: #fff;
     text-decoration: none;
+}
+
+a.nav-btn:active {
+    transform: scale(0.97);
+    opacity: 0.8;
 }
 
 a.nav-btn i {
@@ -190,18 +216,19 @@ ul#fieldlist {
 
 ul#choicelist li,
 ul#fieldlist li {
-    margin-bottom: 1px;
+    margin-bottom: 4px;
 }
 
 ul#choicelist li a,
 ul#fieldlist li a {
     display: block;
-    padding: 11px 14px;
+    padding: 13px 16px;
     text-decoration: none;
     color: #fff;
     border-radius: 12px;
     cursor: pointer;
     line-height: 1.5;
+    transition: opacity 0.12s;
 }
 
 ul#choicelist li a:hover,
@@ -218,12 +245,95 @@ ul#fieldlist li a:hover {
 
 /* ── Task content boxes ─────────────────────────── */
 
-#field-text,
-#task-content {
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin: 6px 0;
+#field-text {
+    border-radius: 8px 8px 0 0;
+    padding: 8px 12px;
+    margin-bottom: 0;
     line-height: 1.7;
+    font-size: 0.88em;
+    opacity: 0.9;
+}
+
+#task-content {
+    border-radius: 0 0 8px 8px;
+    padding: 14px 16px;
+    margin-top: 0;
+    margin-bottom: 10px;
+    line-height: 1.7;
+    font-size: 1.05em;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.choice-divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin: 10px 0;
+}
+
+
+/* ── Score cards ────────────────────────────────── */
+
+.score-card {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 6px 0;
+    gap: 10px;
+}
+
+.score-name {
+    flex: 1;
+    font-size: 1.05em;
+}
+
+.score-points {
+    font-weight: 500;
+}
+
+.score-pct {
+    font-size: 0.85em;
+    opacity: 0.7;
+    min-width: 42px;
+    text-align: right;
+}
+
+
+/* ── Game over ──────────────────────────────────── */
+
+.gameover-title {
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 500;
+    margin: 8px 0 16px;
+}
+
+.gameover-image {
+    text-align: center;
+    margin: 20px 0 8px;
+}
+
+.gameover-image img {
+    max-width: 80%;
+    border-radius: 12px;
+    height: auto;
+}
+
+.gameover-quote {
+    margin: 12px auto 0;
+    max-width: 90%;
+    font-style: italic;
+    font-size: 0.92em;
+    opacity: 0.85;
+    line-height: 1.7;
+    border-left: 3px solid rgba(255, 255, 255, 0.35);
+    padding-left: 14px;
+    text-align: left;
+}
+
+.gameover-buttons {
+    margin-top: 16px;
 }
 
 
@@ -261,14 +371,6 @@ input[type="text"]::placeholder,
     color: rgba(255, 255, 255, 0.45);
 }
 
-input[type="checkbox"] {
-    width: 22px;
-    height: 22px;
-    accent-color: #5cb81c;
-    flex-shrink: 0;
-    cursor: pointer;
-}
-
 select {
     background: rgba(255, 255, 255, 0.12);
     border: 1.5px solid rgba(255, 255, 255, 0.5);
@@ -298,15 +400,154 @@ select option {
 }
 
 
-/* ── Misc ───────────────────────────────────────── */
+/* ── Settings toggle switches ───────────────────── */
 
-#badgestable img {
-    border: 0;
-    height: 32px;
+.settings-section {
+    font-size: 0.75em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin: 18px 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-#fbbadge {
-    margin-left: 5%;
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 0;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.toggle-row:last-of-type {
+    border-bottom: none;
+}
+
+.toggle-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-track {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 13px;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.toggle-input:checked ~ .toggle-track {
+    background: #5cb81c;
+}
+
+.toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-input:checked ~ .toggle-track .toggle-thumb {
+    left: 23px;
+}
+
+.toggle-label {
+    color: #fff;
+    font-size: 0.95em;
+    flex: 1;
+    line-height: 1.4;
+}
+
+
+/* ── Welcome text (ask if new game) ─────────────── */
+
+.welcome-text {
+    font-size: 1.2em;
+    opacity: 0.85;
+    margin: 0 0 32px;
+}
+
+
+/* ── Info card (explanation / help) ─────────────── */
+
+.info-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 14px 16px;
+    line-height: 1.8;
+    margin: 4px 0;
+}
+
+
+/* ── Video list ─────────────────────────────────── */
+
+.video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.video-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #f5c842;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px 12px;
+    transition: opacity 0.12s;
+}
+
+.video-item:hover {
+    opacity: 0.88;
+    text-decoration: none;
+    color: #ffd700;
+}
+
+.video-item img {
+    width: 80px;
+    height: auto;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.video-item span {
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+
+/* ── App store badges (main menu) ───────────────── */
+
+.app-links {
+    text-align: center;
+    padding: 16px 0 8px;
+    opacity: 0.65;
+}
+
+.app-links img {
+    height: 34px;
+    margin: 0 4px;
+}
+
+
+/* ── Misc ───────────────────────────────────────── */
+
+#badgestable {
+    display: none; /* replaced by .app-links */
 }
 
 #score {
@@ -316,23 +557,4 @@ select option {
 #page-nvc_info ul {
     margin-left: 4%;
     margin-right: 4%;
-}
-
-#videos table,
-#help_video table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#videos td,
-#help_video td {
-    padding: 4px 8px;
-    vertical-align: middle;
-}
-
-#videos img,
-#help_video img {
-    width: 70px;
-    height: auto;
-    border: 0;
 }
