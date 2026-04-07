@@ -35,8 +35,8 @@ After editing source files, rebuild and upload:
 | Source (edit here) | Build command | Upload to server |
 |---|---|---|
 | `www/css/gfkspiel.css` | `npx clean-css-cli www/css/gfkspiel.css -o web/static_prod/css/gfkspiel2.min.css` | `web/static_prod/css/gfkspiel2.min.css` |
-| `www/js/app.js` | `npx terser www/js/app.js www/js/adapterWeb.js --compress --mangle -o web/static_prod/js/gfkspiel2.min.js` | `web/static_prod/js/gfkspiel2.min.js` |
-| `www/js/router.js` | `npx terser www/js/router.js --compress --mangle -o web/static_prod/js/router.js` | `web/static_prod/js/router.js` |
+| `www/js/app.js` | `npx terser www/js/app.js www/js/adapterWeb.js --compress --mangle toplevel --mangle 'reserved=["initApp"]' -o web/static_prod/js/gfkspiel2.min.js` | `web/static_prod/js/gfkspiel2.min.js` |
+| `www/js/router.js` | `npx terser www/js/router.js --compress --mangle toplevel -o web/static_prod/js/router.js` | `web/static_prod/js/router.js` |
 | `www/html/index_body.html` | (no build step) | `www/html/index_body.html` ← injected by Node.js server at runtime |
 | `web/index_prod.html` | (no build step) | `web/index_prod.html` |
 
