@@ -79,22 +79,30 @@ Functionally equivalent to React for this project. Slightly gentler learning cur
 
 ---
 
-## Option D: Incremental — no framework
+## Option D: Incremental — no framework ✓ DONE
 
-Replace only the jQuery Mobile dependency with plain HTML/CSS/vanilla JS:
-- Remove jQM, replace page transitions with CSS classes + vanilla JS
-- Keep the existing app.js structure, just remove jQM API calls
-- Much less effort than a full framework migration
-- Result: maintainable, no dead dependencies, still not a "modern framework"
+Replace only the jQuery Mobile dependency with plain HTML/CSS/vanilla JS.
 
-**Good middle-ground if a full rewrite feels too risky.**
+**Implemented in commit after 2026-04-07:**
+
+| File | Change |
+|---|---|
+| `www/js/router.js` + `static_prod/js/router.js` | New ~60-line hash router firing `pagecreate`/`pageshow`/`pagehide`/`pagebeforehide` jQuery events, `$.mobile.changePage` stub |
+| `www/js/app.js` + `static_prod/js/gfkspiel2.min.js` | Removed: `listview('refresh')`, `.checkboxradio("refresh")`, `.button()`, `trigger('create')`, `data-role` in dynamic HTML |
+| `www/html/index_body.html` | Replaced all `data-role="page/header/content/listview/button/fieldcontain"` with semantic CSS classes; added Font Awesome `<i>` icons |
+| `web/index_prod.html` | Removed `jquery.mobile-1.3.2.min.css`, `jquery.mobile-1.3.2.min.js`, `overthrow.js`; added `router.js` |
+| `www/css/gfkspiel.css` + `static_prod/css/gfkspiel2.min.css` | Complete rewrite — clean CSS without `!important` fighting, using `.page`, `.page-header`, `.page-content` |
+
+jQuery core (1.10.2) is still used for DOM manipulation in `app.js`. Removing jQuery would be the next step if desired.
+
+**Result**: No dead jQM dependency. CSS is clean and maintainable. Same visual appearance and game logic.
 
 ---
 
 ## Recommended path
 
-1. **Now**: Ship the CSS modernization (done). The game looks good.
-2. **Next**: Incremental cleanup — remove jQM dependency by replacing it with vanilla JS page transitions and plain CSS (Option D). This gets rid of the dead dependency with moderate effort.
+1. **Done**: CSS modernization + Option D (jQM removed) ✓
+2. **Optional next step**: Remove jQuery itself — replace `$.ajax`, `$.each`, `$(...)` DOM calls with `fetch` + vanilla JS. Moderate effort.
 3. **Later**: If new features are needed (user accounts, leaderboard, PWA), migrate to React/Vite at that point when the effort is justified.
 
 ---

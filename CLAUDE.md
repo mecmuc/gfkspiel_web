@@ -38,16 +38,18 @@ planning/                           ← planning documents
 ## Stack
 
 - **Server**: Node.js (port 3000) behind nginx, hosted on Ubuntu
-- **Frontend**: jQuery Mobile 1.3.2 + Font Awesome 3.2.1 — no build system
-- **CSS**: custom overrides in `gfkspiel.css` loaded after jQM stylesheet
+- **Frontend**: jQuery 1.10.2 + Font Awesome 3.2.1 — no build system, no framework
+- **Router**: custom `router.js` (~60 lines) handles hash-based page navigation
+- **CSS**: `gfkspiel.css` — clean CSS using `.page`, `.page-header`, `.page-content`
 - **German-language content**
+- jQuery Mobile was removed (EOL 2021). See `planning/framework-migration.md`.
 
-## Key CSS facts
+## Key CSS / HTML facts
 
-- `.bg-*` color classes (bg-green, bg-gray, etc.) are set by JS on the `<a>` tag inside listview `<li>` items
-- jQM wraps list items: `<li class="ui-btn ui-li">` → `<a class="bg-gray ui-link-inherit">` → `<span class="ui-btn-inner">`
-- To color list items: make `<li>` transparent + overflow:hidden, let `<a>`'s bg-* show through, make `<span>` transparent
-- Use `.ui-shadow { box-shadow: none !important }` to kill jQM's drop shadows
+- Pages are `<div class="page" id="page-...">` — router shows/hides them
+- `.bg-*` color classes (bg-green, bg-gray, etc.) are set by JS on the `<a>` tag inside list `<li>` items
+- List items: `<ul id="choicelist"><li><a class="bg-gray ...">` — `<a>` carries the color, `<li>` is unstyled
+- Font Awesome 3.x: icon classes are `icon-play-circle`, `icon-info-sign`, etc. (not `fa fa-*`)
 
 ## Off-limits
 
