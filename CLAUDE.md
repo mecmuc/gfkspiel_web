@@ -34,9 +34,9 @@ After editing source files, rebuild and upload:
 
 | Source (edit here) | Build command | Upload to server |
 |---|---|---|
-| `www/css/gfkspiel.css` | `echo "/*! gfkspiel2 */" > web/static_prod/css/gfkspiel2.min.css && cat www/css/gfkspiel.css >> web/static_prod/css/gfkspiel2.min.css` | `web/static_prod/css/gfkspiel2.min.css` |
-| `www/js/app.js` | `echo "/*! gfkspiel2 */" > web/static_prod/js/gfkspiel2.min.js && cat www/js/app.js www/js/adapterWeb.js >> web/static_prod/js/gfkspiel2.min.js` | `web/static_prod/js/gfkspiel2.min.js` |
-| `www/js/router.js` | `cp www/js/router.js web/static_prod/js/router.js` | `web/static_prod/js/router.js` |
+| `www/css/gfkspiel.css` | `npx clean-css-cli www/css/gfkspiel.css -o web/static_prod/css/gfkspiel2.min.css` | `web/static_prod/css/gfkspiel2.min.css` |
+| `www/js/app.js` | `npx terser www/js/app.js www/js/adapterWeb.js --compress --mangle -o web/static_prod/js/gfkspiel2.min.js` | `web/static_prod/js/gfkspiel2.min.js` |
+| `www/js/router.js` | `npx terser www/js/router.js --compress --mangle -o web/static_prod/js/router.js` | `web/static_prod/js/router.js` |
 | `www/html/index_body.html` | (no build step) | `www/html/index_body.html` ← injected by Node.js server at runtime |
 | `web/index_prod.html` | (no build step) | `web/index_prod.html` |
 
@@ -45,11 +45,12 @@ Hard-refresh browser after uploading (Cmd+Shift+R) — CSS/JS are cached aggress
 ## Stack
 
 - **Server**: Node.js (port 3000) behind nginx, hosted on Ubuntu
-- **Frontend**: jQuery 1.10.2 + Font Awesome 3.2.1 — no build system, no framework
+- **Frontend**: vanilla JS + Font Awesome 3.2.1 — no framework, no jQuery
 - **Router**: custom `router.js` (~60 lines) handles hash-based page navigation
 - **CSS**: `gfkspiel.css` — clean CSS using `.page`, `.page-header`, `.page-content`
+- **Build**: `terser` (JS minification) + `clean-css-cli` (CSS minification) via `npx`
 - **German-language content**
-- jQuery Mobile was removed (EOL 2021). See `planning/framework-migration.md`.
+- jQuery Mobile and jQuery core both removed. See `planning/framework-migration.md`.
 
 ## Key CSS / HTML facts
 
