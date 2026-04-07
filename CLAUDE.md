@@ -30,10 +30,17 @@ planning/                           ← planning documents
 
 ## Deployment workflow
 
-1. Edit `www/css/gfkspiel.css`
-2. Copy to production: `echo "/*! gfkspiel2 */" > web/static_prod/css/gfkspiel2.min.css && cat www/css/gfkspiel.css >> web/static_prod/css/gfkspiel2.min.css`
-3. Upload `web/static_prod/css/gfkspiel2.min.css` to server
-4. Hard-refresh browser (Cmd+Shift+R) — CSS is cached aggressively
+After editing source files, rebuild and upload:
+
+| Source (edit here) | Build command | Upload to server |
+|---|---|---|
+| `www/css/gfkspiel.css` | `echo "/*! gfkspiel2 */" > web/static_prod/css/gfkspiel2.min.css && cat www/css/gfkspiel.css >> web/static_prod/css/gfkspiel2.min.css` | `web/static_prod/css/gfkspiel2.min.css` |
+| `www/js/app.js` | `echo "/*! gfkspiel2 */" > web/static_prod/js/gfkspiel2.min.js && cat www/js/app.js www/js/adapterWeb.js >> web/static_prod/js/gfkspiel2.min.js` | `web/static_prod/js/gfkspiel2.min.js` |
+| `www/js/router.js` | `cp www/js/router.js web/static_prod/js/router.js` | `web/static_prod/js/router.js` |
+| `www/html/index_body.html` | (no build step) | `www/html/index_body.html` ← injected by Node.js server at runtime |
+| `web/index_prod.html` | (no build step) | `web/index_prod.html` |
+
+Hard-refresh browser after uploading (Cmd+Shift+R) — CSS/JS are cached aggressively.
 
 ## Stack
 

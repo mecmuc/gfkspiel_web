@@ -95,6 +95,8 @@ Replace only the jQuery Mobile dependency with plain HTML/CSS/vanilla JS.
 
 jQuery core (1.10.2) is still used for DOM manipulation in `app.js`. Removing jQuery would be the next step if desired.
 
+**Deployment note**: `www/html/index_body.html` must also be uploaded to the server — it is read by Node.js at runtime (not served as a static file), so it's easy to miss when deploying.
+
 **Result**: No dead jQM dependency. CSS is clean and maintainable. Same visual appearance and game logic.
 
 ---
