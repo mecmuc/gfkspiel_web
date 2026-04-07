@@ -1,3 +1,505 @@
 /*! gfkspiel2 */
+@media only screen and (min-width: 600px) {
+    .ui-page {
+        width: 600px !important;
+        margin: 0 auto !important;
+        position: relative !important;
+    }
+}
 
-@media only screen and (min-width:600px){.ui-page{width:600px!important;margin:0 auto!important;position:relative!important}}.ui-mobile body{background:#111}body{width:100%;height:100%;margin:0}.ui-page{width:100%;height:100%;margin:0;color:#fff;background-image:-webkit-linear-gradient(#105694 0,#4a74da 100%);background-image:-moz-linear-gradient(#105694 0,#4a74da 100%);background-image:-o-linear-gradient(#105694 0,#4a74da 100%);background-image:linear-gradient(#105694 0,#4a74da 100%)}.ui-content{padding:0;width:100%;height:90%;margin:0}#badgestable img{border:0;height:32px}#googleplaybadge{}#fbbadge{margin-left:5%}#googleplusbadge{margin-left:5%}#button-div{margin:30px 0 60px}#button-div{margin-bottom:60px}#fieldlist .ui-btn-inner a.ui-link-inherit{white-space:normal}#field-text{font-weight:400}.bg-blue{background:#0097d0}.bg-green{background:#64c11b}.bg-gray{background:#565656}.bg-bluegray{background:#508279}.bg-purple{background:#ad5beb}.bg-red{background:#ff4141}.bg-yellow{background:#dd8700}.bg-contentblue{background:#0e5593}.bg-green-result{background:#008d3b}.bg-red-result{background:#d80e00}.menu-btn{margin:4% 23%;color:#fff;text-shadow:none}.menu-btn .ui-btn-inner{padding:9%}.nav-btn{color:#fff;text-shadow:none}.result-margin{margin:5px 0}.ui-listview{border:0}.ui-listview .ui-btn{background:#0e5593;padding:0 10px;border:0;color:#FFF;text-shadow:none}.ui-listview .ui-li{border-top:0}.ui-btn-up-c,.ui-btn-hover-c{font-weight:400}.ui-btn-up-c:visited,.ui-btn-up-c a.ui-link-inherit{color:#FFF}#disabledChoiceBtnLink{color:#FFF;text-shadow:none;white-space:normal}#choicebtn{white-space:normal}.ui-listview .ui-btn-hover-c a.ui-link-inherit{color:#ffa;text-shadow:none}.ui-body-c h2,.ui-body-c h1,.ui-body-c h3{margin-left:10%;color:#fff;text-shadow:none}.ui-body-c p h2,.ui-body-c p h1{margin-left:0}.ui-content p{margin-left:10%;margin-right:10%;color:#fff;line-height:1.4em;font-size:1em;text-shadow:none}.ui-content form{margin:5% 10%}.ui-body-c .ui-link,.ui-body-c .ui-link:visited{color:#ffa;text-decoration:none;text-shadow:none;font-weight:400}.ui-body-c .ui-link:hover{color:#ffa;text-decoration:underline;text-shadow:none}.ui-body-c td a{color:#ffa;text-decoration:underline;text-shadow:none}.ui-body-c p a{color:#ffa;text-decoration:underline;text-shadow:none}.ui-panel-content-wrap{background:#0E5593}.ui-body-c,.ui-overlay-c{color:#FFF;background-image:linear-gradient(#105694 0,#4A74DA 100%);text-shadow:none}.ui-input-text .ui-body-c{color:#000}.ui-checkbox-on .ui-icon{background-color:#fff}.ui-icon{width:20px;height:20px;-moz-border-radius:10px;-webkit-border-radius:10px;border-radius:10px;// margin-top:-10px!important;line-height:20px}.ui-icon:before{margin-left:3px}[class^=ui-icon-]:before,[class*=" ui-icon-"]:before{font-family:FontAwesome!important;font-weight:400;font-style:normal;display:inline-block}.ui-icon-play-circle:before{content:"\f01d"}.ui-icon-info-sign:before{content:"\f05a"}.ui-icon-cog:before{content:"\f013"}.ui-icon-heart:before{content:"\f004";margin-left:2px;margin-top:1px}.ui-icon-male:before{content:"\f183"}.ui-icon-delete:before{content:"\f00d";margin-left:1px}.ui-icon-delete2:before{content:"\f00d"}.ui-icon-film:before{content:"\f008"}.ui-icon-chevron-left:before{content:"\f053"}.ui-icon-checkbox-on:before{content:"\f14a"}.ui-icon-checkbox-off:before{content:"\f096"}.ui-icon-arrow-d:before{content:"\f078"}.ui-icon-plus:before{content:"\f067"}.ui-icon{background-color:transparent}.ui-icon-shadow{-moz-box-shadow:none;-webkit-box-shadow:none;box-shadow:none}.ui-dialog-contain>.ui-content{background:none repeat scroll 0 0 #125FA4}#playernames .ui-field-contain label.ui-input-text{width:15%}#playernames .ui-field-contain div.ui-input-text{width:70%}#playernames .ui-btn-left,.ui-btn-right,.ui-btn-inline{vertical-align:bottom}#page-new_game .ui-field-contain .ui-select{width:70%}#labelfieldchoice{width:68%}#start-btn{width:70%}#page-nvc_info ul{margin-left:10%;margin-right:10%}#current-player{padding:0 10px 20px;vertical-align:middle}.ui-bar-a{font-weight:400}body,.ui-content p,.ui-btn-up-c,.ui-btn-hover-c,.ui-btn-down-c,.ui-bar-a,.ui-bar-a input,.ui-bar-a select,.ui-bar-a textarea,.ui-bar-a button,.ui-btn-up-a,.ui-btn-hover-a,.ui-btn-down-a{font-family:"Lucida Grande",helvetica}
+/* ── Page background ────────────────────────────── */
+
+.ui-mobile body {
+    background: #0d1b2a;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.ui-page {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    color: #fff;
+    background-image: linear-gradient(160deg, #1a5fa8 0%, #4d8fd4 100%);
+}
+
+.ui-content {
+    padding: 0;
+    width: 100%;
+    height: 90%;
+    margin: 0;
+}
+
+
+/* ── Header bar ─────────────────────────────────── */
+
+.ui-bar-a {
+    background-image: none !important;
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+.ui-bar-a h1,
+.ui-bar-a h2,
+.ui-bar-a h3 {
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+
+/* ── Strip jQM button chrome globally ───────────── */
+/* jQM's .ui-btn-up-c adds gradients, borders and shadows we don't want */
+
+.ui-btn-up-c,
+.ui-btn-hover-c,
+.ui-btn-down-c {
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* Kill jQM's .ui-shadow drop-shadow on all elements */
+.ui-shadow,
+.ui-shadow-inset,
+.ui-overlay-shadow {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+}
+
+.ui-body-c,
+.ui-overlay-c {
+    color: #fff;
+    background-image: linear-gradient(160deg, #1a5fa8 0%, #4d8fd4 100%);
+    text-shadow: none;
+}
+
+
+/* ── Color classes ──────────────────────────────── */
+
+.bg-blue        { background: #0097d0 !important; background-image: none !important; }
+.bg-green       { background: #5cb81c !important; background-image: none !important; }
+.bg-gray        { background: #5a5a5a !important; background-image: none !important; }
+.bg-bluegray    { background: #4a7a72 !important; background-image: none !important; }
+.bg-purple      { background: #ad5beb !important; background-image: none !important; }
+.bg-red         { background: #e83030 !important; background-image: none !important; }
+.bg-yellow      { background: #d68200 !important; background-image: none !important; }
+.bg-contentblue { background: #0e5593 !important; background-image: none !important; }
+.bg-green-result { background: #008d3b !important; background-image: none !important; }
+.bg-red-result  { background: #cc0d00 !important; background-image: none !important; }
+
+
+/* ── Menu buttons ───────────────────────────────── */
+
+.menu-btn,
+.menu-btn.ui-btn-corner-all,
+.menu-btn .ui-btn-inner,
+.menu-btn .ui-btn-inner.ui-btn-corner-all {
+    margin: 3% 10%;
+    color: #fff;
+    text-shadow: none;
+    border-radius: 16px !important;
+    -webkit-border-radius: 16px !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border: none !important;
+}
+
+.menu-btn .ui-btn-inner {
+    padding: 8%;
+}
+
+
+/* ── Nav buttons — pill shape ───────────────────── */
+
+.nav-btn,
+.nav-btn.ui-btn-corner-all,
+.nav-btn .ui-btn-inner,
+.nav-btn .ui-btn-inner.ui-btn-corner-all {
+    color: #fff;
+    text-shadow: none;
+    border-radius: 50px !important;
+    -webkit-border-radius: 50px !important;
+}
+
+
+/* ── List view ──────────────────────────────────── */
+
+.ui-listview {
+    border: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+.ui-listview .ui-li {
+    border: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+/*
+ * The <li> is a transparent clip container.
+ * bg-* color lives on the <a> inside (set by JS), not the <li>.
+ * overflow:hidden + border-radius clips the <a>'s background to rounded corners.
+ */
+.ui-listview .ui-btn {
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+    -webkit-border-radius: 12px !important;
+    overflow: hidden !important;
+    margin-bottom: 1px;
+    color: #fff;
+    text-shadow: none;
+}
+
+/*
+ * The <a> fills the <li> and carries the bg-* color.
+ * Do NOT set background here — let bg-* control the color.
+ * Only suppress gradient overrides.
+ */
+.ui-listview .ui-btn .ui-link-inherit {
+    display: block !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #fff !important;
+    text-shadow: none !important;
+    padding: 11px 14px !important;
+}
+
+/* Inner span transparent — shows <a>'s bg-* color through */
+.ui-listview .ui-btn .ui-btn-inner {
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding-right: 14px !important;
+}
+
+/* Hide the jQM right-arrow icon (creates a split area with its own background) */
+.ui-listview .ui-icon-arrow-r {
+    display: none !important;
+}
+
+.ui-btn-up-c,
+.ui-btn-hover-c {
+    font-weight: normal;
+}
+
+.ui-btn-up-c:visited,
+.ui-btn-up-c a.ui-link-inherit {
+    color: #fff;
+}
+
+.ui-listview .ui-btn-hover-c a.ui-link-inherit {
+    color: #f5c842;
+    text-shadow: none;
+}
+
+
+/* ── Misc elements ──────────────────────────────── */
+
+#badgestable img {
+    border: 0;
+    height: 32px;
+}
+
+#fbbadge {
+    margin-left: 5%;
+}
+
+#button-div {
+    margin: 30px 0 60px 0;
+    text-align: center;
+}
+
+#fieldlist .ui-btn-inner a.ui-link-inherit {
+    white-space: normal;
+}
+
+#field-text {
+    font-weight: normal;
+}
+
+/* Task content boxes: fix inline width:96% overflow */
+#field-text,
+#task-content {
+    width: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 8px;
+}
+
+.result-margin {
+    margin: 5px 0;
+}
+
+#disabledChoiceBtnLink {
+    color: #fff;
+    text-shadow: none;
+    white-space: normal;
+}
+
+#choicebtn {
+    white-space: normal;
+}
+
+
+/* ── Headings ───────────────────────────────────── */
+
+.ui-body-c h1,
+.ui-body-c h2,
+.ui-body-c h3 {
+    margin-left: 10%;
+    color: #fff;
+    text-shadow: none;
+}
+
+.ui-body-c p h1,
+.ui-body-c p h2 {
+    margin-left: 0;
+}
+
+
+/* ── Content text ───────────────────────────────── */
+
+.ui-content p {
+    margin-left: 6%;
+    margin-right: 6%;
+    color: #fff;
+    line-height: 1.7;
+    font-size: 1em;
+    text-shadow: none;
+}
+
+.ui-content form {
+    margin: 5% 10%;
+}
+
+
+/* ── Links ──────────────────────────────────────── */
+
+.ui-body-c .ui-link,
+.ui-body-c .ui-link:visited {
+    color: #f5c842;
+    text-decoration: none;
+    text-shadow: none;
+    font-weight: normal;
+}
+
+.ui-body-c .ui-link:hover {
+    color: #ffd700;
+    text-decoration: underline;
+    text-shadow: none;
+}
+
+.ui-body-c td a,
+.ui-body-c p a {
+    color: #f5c842;
+    text-decoration: underline;
+    text-shadow: none;
+}
+
+
+/* ── Panel / dialogs ────────────────────────────── */
+
+.ui-panel-content-wrap {
+    background: #0e5593;
+}
+
+.ui-input-text .ui-body-c {
+    color: #000;
+}
+
+.ui-dialog-contain > .ui-content {
+    background: #1a5fa8;
+}
+
+
+/* ── Icons (Font Awesome via jQuery Mobile) ─────── */
+
+.ui-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    line-height: 20px;
+    background-color: transparent;
+}
+
+.ui-icon:before {
+    margin-left: 3px;
+}
+
+[class^="ui-icon-"]:before,
+[class*=" ui-icon-"]:before {
+    font-family: FontAwesome !important;
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+}
+
+.ui-icon-shadow {
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+.ui-icon-play-circle:before { content: "\f01d"; }
+.ui-icon-info-sign:before   { content: "\f05a"; }
+.ui-icon-cog:before         { content: "\f013"; }
+.ui-icon-heart:before       { content: "\f004"; margin-left: 2px; margin-top: 1px; }
+.ui-icon-male:before        { content: "\f183"; }
+.ui-icon-delete:before      { content: "\f00d"; margin-left: 1px; }
+.ui-icon-delete2:before     { content: "\f00d"; }
+.ui-icon-film:before        { content: "\f008"; }
+.ui-icon-chevron-left:before { content: "\f053"; }
+.ui-icon-checkbox-on:before  { content: "\f14a"; }
+.ui-icon-checkbox-off:before { content: "\f096"; }
+.ui-icon-arrow-d:before      { content: "\f078"; }
+.ui-icon-plus:before         { content: "\f067"; }
+
+
+/* ── Form elements ──────────────────────────────── */
+
+.ui-checkbox-on .ui-icon {
+    background-color: white;
+}
+
+#playernames .ui-field-contain label.ui-input-text {
+    width: 15%;
+}
+
+#playernames .ui-field-contain div.ui-input-text {
+    width: 70%;
+}
+
+#playernames .ui-btn-left,
+.ui-btn-right,
+.ui-btn-inline {
+    vertical-align: bottom;
+}
+
+#page-new_game .ui-field-contain .ui-select {
+    width: 70%;
+}
+
+#labelfieldchoice {
+    width: 68%;
+}
+
+#start-btn {
+    width: 70%;
+}
+
+/* Input fields */
+.ui-input-text {
+    background: rgba(255, 255, 255, 0.12) !important;
+    background-image: none !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.5) !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+.ui-input-text input {
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #fff !important;
+    padding: 8px 10px !important;
+}
+
+.ui-input-text input::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+/* Select dropdown */
+.ui-select .ui-btn,
+.ui-select .ui-btn.ui-btn-corner-all,
+.ui-select .ui-btn .ui-btn-inner {
+    background: rgba(255, 255, 255, 0.12) !important;
+    background-image: none !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.5) !important;
+    border-radius: 8px !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* Checkbox / radio rows */
+.ui-checkbox .ui-btn,
+.ui-checkbox .ui-btn .ui-btn-inner,
+.ui-radio .ui-btn,
+.ui-radio .ui-btn .ui-btn-inner {
+    background: rgba(255, 255, 255, 0.1) !important;
+    background-image: none !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+.ui-checkbox label,
+.ui-radio label,
+.ui-field-contain > label {
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+
+/* ── Misc layout ────────────────────────────────── */
+
+#page-nvc_info ul {
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+#current-player {
+    padding: 0 10px 20px 10px;
+    vertical-align: middle;
+}
+
+.ui-bar-a {
+    font-weight: normal;
+}
+
+.ui-dialog-contain > .ui-content {
+    background: none repeat scroll 0 0 #125FA4;
+}
+
+
+/* ── Typography ─────────────────────────────────── */
+
+body,
+.ui-content p,
+.ui-btn-up-c,
+.ui-btn-hover-c,
+.ui-btn-down-c,
+.ui-bar-a,
+.ui-bar-a input,
+.ui-bar-a select,
+.ui-bar-a textarea,
+.ui-bar-a button,
+.ui-btn-up-a,
+.ui-btn-hover-a,
+.ui-btn-down-a {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
